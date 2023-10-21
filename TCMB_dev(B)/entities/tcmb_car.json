@@ -1,0 +1,2992 @@
+{
+    "format_version": "1.18.0",
+    "minecraft:entity": {
+        "description": {
+            "identifier": "tcmb:tcmb_car",
+            "is_spawnable": false,
+            "is_summonable": true,
+            "is_experimental": false,
+            "runtime_identifier": "minecraft:minecart",
+            "animations":{
+                "tcmb_car_controller": "controller.animation.tcmb_car",
+                "tcmb_eb": "animation.tcmb_eb",
+                "tcmb_b7": "animation.tcmb_b7",
+                "tcmb_b6": "animation.tcmb_b6",
+                "tcmb_b5": "animation.tcmb_b5",
+                "tcmb_b4": "animation.tcmb_b4",
+                "tcmb_b3": "animation.tcmb_b3",
+                "tcmb_b2": "animation.tcmb_b2",
+                "tcmb_b1": "animation.tcmb_b1",
+                "tcmb_n": "animation.tcmb_n",
+                "tcmb_p1": "animation.tcmb_p1",
+                "tcmb_p2": "animation.tcmb_p2",
+                "tcmb_p3": "animation.tcmb_p3",
+                "tcmb_p4": "animation.tcmb_p4",
+                "tcmb_curve_controller": "controller.animation.tcmb_curve",
+                "tcmb_direction_controller": "controller.animation.tcmb_direction",
+                "tasc": "animation.tasc",
+                "tasc_distance_controller": "controller.animation.tasc_distance",
+                "tasc_x_plus": "animation.tasc_x_plus",
+                "tasc_x_minus": "animation.tasc_x_minus",
+                "tasc_z_plus": "animation.tasc_z_plus",
+                "tasc_z_minus": "animation.tasc_z_minus",
+                "tasc_pattern_controller": "controller.animation.tasc_pattern",
+                "tasc_pattern": "animation.tasc_pattern",
+                "tasc_break_controller": "controller.animation.tasc_break",
+                "tasc_b2": "animation.tasc_b2",
+                "tasc_b3": "animation.tasc_b3",
+                "tasc_b4": "animation.tasc_b4",
+                "tasc_b5": "animation.tasc_b5",
+                "tasc_b7": "animation.tasc_b7",
+                "tasc_b8": "animation.tasc_b8",
+                "tasc_b9": "animation.tasc_b9",
+                "tasc_b10": "animation.tasc_b10",
+                "tasc_b12": "animation.tasc_b12",
+                "tasc_b13": "animation.tasc_b13",
+                "tasc_b14": "animation.tasc_b14",
+                "tasc_b15": "animation.tasc_b15",
+                "tasc_b17": "animation.tasc_b17",
+                "tasc_b18": "animation.tasc_b18",
+                "tasc_b19": "animation.tasc_b19",
+                "tasc_b20": "animation.tasc_b20",
+                "tasc_b22": "animation.tasc_b22",
+                "tasc_b23": "animation.tasc_b23",
+                "tasc_b24": "animation.tasc_b24",
+                "tasc_b25": "animation.tasc_b25",
+                "tasc_b27": "animation.tasc_b27",
+                "tasc_b28": "animation.tasc_b28",
+                "tasc_b29": "animation.tasc_b29",
+                "tasc_b30": "animation.tasc_b30",
+                "inching_controller": "controller.animation.inching",
+                "inching": "animation.inching",
+                "ats_sm_controller": "controller.animation.ats_sm",
+                "ats_sm_alerm": "animation.tcmb_ats_sm_alerm",
+                "ats_sm_chime": "animation.tcmb_ats_sm_chime",
+                "tcmb_atc_controller": "controller.animation.tcmb_atc",
+                "atc_0": "animation.tcmb_atc_0",
+                "atc_10": "animation.tcmb_atc_10",
+                "atc_20": "animation.tcmb_atc_20",
+                "atc_30": "animation.tcmb_atc_30",
+                "atc_40": "animation.tcmb_atc_40",
+                "atc_50": "animation.tcmb_atc_50",
+                "atc_60": "animation.tcmb_atc_60",
+                "atc_70": "animation.tcmb_atc_70",
+                "atc_80": "animation.tcmb_atc_80",
+                "atc_90": "animation.tcmb_atc_90",
+                "atc_100": "animation.tcmb_atc_100",
+                "atc_110": "animation.tcmb_atc_110",
+                "atc_120": "animation.tcmb_atc_120",
+                "atc_130": "animation.tcmb_atc_130",
+                "atc_140": "animation.tcmb_atc_140",
+                "atc_150": "animation.tcmb_atc_150",
+                "atc_160": "animation.tcmb_atc_160",
+                "atc_170": "animation.tcmb_atc_170",
+                "atc_180": "animation.tcmb_atc_180",
+                "atc_190": "animation.tcmb_atc_190",
+                "atc_200": "animation.tcmb_atc_200",
+                "atc_210": "animation.tcmb_atc_210",
+                "atc_220": "animation.tcmb_atc_220",
+                "atc_230": "animation.tcmb_atc_230",
+                "atc_240": "animation.tcmb_atc_240",
+                "atc_250": "animation.tcmb_atc_250",
+                "atc_260": "animation.tcmb_atc_260",
+                "atc_270": "animation.tcmb_atc_270",
+                "atc_280": "animation.tcmb_atc_280",
+                "atc_290": "animation.tcmb_atc_290",
+                "atc_300": "animation.tcmb_atc_300",
+                "atc_310": "animation.tcmb_atc_310",
+                "atc_320": "animation.tcmb_atc_320",
+                "atc_330": "animation.tcmb_atc_330",
+                "atc_340": "animation.tcmb_atc_340",
+                "atc_350": "animation.tcmb_atc_350",
+                "atc_360": "animation.tcmb_atc_360",
+                "atacs_controller": "controller.animation.tcmb_atacs",
+                "atacs_x_plus": "animation.tcmb_atacs_x_plus",
+                "atacs_x_minus": "animation.tcmb_atacs_x_minus",
+                "atacs_z_plus": "animation.tcmb_atacs_z_plus",
+                "atacs_z_minus": "animation.tcmb_atacs_z_minus",
+                "d-atc_controller": "controller.animation.tcmb_d-atc",
+                "d-atc_1": "animation.tcmb_d-atc_1",
+                "d-atc_2": "animation.tcmb_d-atc_2",
+                "d-atc_3": "animation.tcmb_d-atc_3",
+                "d-atc_4": "animation.tcmb_d-atc_4",
+                "d-atc_5": "animation.tcmb_d-atc_5",
+                "d-atc_6": "animation.tcmb_d-atc_6",
+                "d-atc_7": "animation.tcmb_d-atc_7",
+                "d-atc_8": "animation.tcmb_d-atc_8",
+                "d-atc_9": "animation.tcmb_d-atc_9",
+                "d-atc_10": "animation.tcmb_d-atc_10",
+                "d-atc_11": "animation.tcmb_d-atc_11",
+                "d-atc_12": "animation.tcmb_d-atc_12",
+                "d-atc_13": "animation.tcmb_d-atc_13",
+                "d-atc_14": "animation.tcmb_d-atc_14",
+                "d-atc_15": "animation.tcmb_d-atc_15",
+                "d-atc_16": "animation.tcmb_d-atc_16",
+                "d-atc_17": "animation.tcmb_d-atc_17",
+                "d-atc_18": "animation.tcmb_d-atc_18",
+                "d-atc_19": "animation.tcmb_d-atc_19",
+                "d-atc_20": "animation.tcmb_d-atc_20",
+                "d-atc_21": "animation.tcmb_d-atc_21",
+                "d-atc_22": "animation.tcmb_d-atc_22",
+                "d-atc_23": "animation.tcmb_d-atc_23",
+                "d-atc_24": "animation.tcmb_d-atc_24",
+                "d-atc_25": "animation.tcmb_d-atc_25",
+                "d-atc_26": "animation.tcmb_d-atc_26",
+                "d-atc_27": "animation.tcmb_d-atc_27",
+                "d-atc_28": "animation.tcmb_d-atc_28",
+                "d-atc_29": "animation.tcmb_d-atc_29",
+                "d-atc_30": "animation.tcmb_d-atc_30",
+                "d-atc_31": "animation.tcmb_d-atc_31",
+                "d-atc_32": "animation.tcmb_d-atc_32",
+                "d-atc_33": "animation.tcmb_d-atc_33",
+                "d-atc_34": "animation.tcmb_d-atc_34",
+                "d-atc_35": "animation.tcmb_d-atc_35",
+                "d-atc_36": "animation.tcmb_d-atc_36",
+                "d-atc_37": "animation.tcmb_d-atc_37",
+                "d-atc_38": "animation.tcmb_d-atc_38",
+                "d-atc_39": "animation.tcmb_d-atc_39",
+                "d-atc_40": "animation.tcmb_d-atc_40",
+                "d-atc_41": "animation.tcmb_d-atc_41",
+                "d-atc_42": "animation.tcmb_d-atc_42",
+                "d-atc_43": "animation.tcmb_d-atc_43",
+                "d-atc_44": "animation.tcmb_d-atc_44",
+                "d-atc_45": "animation.tcmb_d-atc_45",
+                "d-atc_46": "animation.tcmb_d-atc_46",
+                "d-atc_47": "animation.tcmb_d-atc_47",
+                "d-atc_48": "animation.tcmb_d-atc_48",
+                "d-atc_49": "animation.tcmb_d-atc_49",
+                "d-atc_50": "animation.tcmb_d-atc_50",
+                "d-atc_51": "animation.tcmb_d-atc_51",
+                "d-atc_52": "animation.tcmb_d-atc_52",
+                "d-atc_53": "animation.tcmb_d-atc_53",
+                "d-atc_54": "animation.tcmb_d-atc_54",
+                "d-atc_55": "animation.tcmb_d-atc_55",
+                "d-atc_56": "animation.tcmb_d-atc_56",
+                "d-atc_57": "animation.tcmb_d-atc_57",
+                "d-atc_58": "animation.tcmb_d-atc_58",
+                "d-atc_59": "animation.tcmb_d-atc_59",
+                "d-atc_60": "animation.tcmb_d-atc_60",
+                "d-atc_61": "animation.tcmb_d-atc_61",
+                "d-atc_62": "animation.tcmb_d-atc_62",
+                "d-atc_63": "animation.tcmb_d-atc_63",
+                "d-atc_64": "animation.tcmb_d-atc_64"
+            },
+            "properties": {
+                "tcmb:curve": {
+                    "type": "int", 
+                    "range": [0, 3], 
+                    "default": 1
+                },
+                "tcmb:notch": { 
+                    "type": "int", 
+                    "range": [-32, 4], 
+                    "default": -32
+                },
+                "tcmb:tasc_break": { 
+                    "type": "int", 
+                    "range": [-31, 4], 
+                    "default": 4
+                },
+                "tcmb:inching_on": {
+                    "type": "bool", 
+                    "default": false
+                },
+                "tcmb:tasc_on": {
+                    "type": "bool", 
+                    "default": false
+                },
+                "tcmb:cs_atc": { 
+                    "type": "int", 
+                    "range": [0, 37], 
+                    "default": 37
+                },
+                "tcmb:datc": { 
+                    "type": "int", 
+                    "range": [0, 37], 
+                    "default": 37
+                },
+                "tcmb:atacs_on": {
+                    "type": "bool", 
+                    "default": false
+                },
+                "tcmb:d-atc_on": {
+                    "type": "bool", 
+                    "default": false
+                },
+                "tcmb:d-atc_line": { 
+                    "type": "int", 
+                    "range": [0, 65], 
+                    "default": 0
+                }
+            },
+            "scripts":{
+                "animate":[
+                    "tcmb_car_controller",
+                    "tcmb_curve_controller",
+                    "tcmb_direction_controller",
+                    { "tasc_distance_controller" : "q.property('tcmb:tasc_on')" },
+                    { "tasc_pattern_controller" : "q.property('tcmb:tasc_on')" },
+                    { "tasc_break_controller" : "q.property('tcmb:tasc_on') || q.property('tcmb:inching_on')" },
+                    { "inching_controller" : "q.property('tcmb:inching_on')" },
+                    { "inching" : "q.property('tcmb:inching_on')" },
+                    "ats_sm_controller",
+                    "tcmb_atc_controller",
+                    "atacs_controller",
+                    { "d-atc_controller" : "q.property('tcmb:d-atc_on')" }
+                ]
+            }
+        },
+        "component_groups": {
+            "0km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0
+                }
+            },
+            "1km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.01543209877
+                }
+            },
+            "2km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.03086419753
+                }
+            },
+            "3km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.0462962963
+                }
+            },
+            "4km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.06172839506
+                }
+            },
+            "5km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.07716049383
+                }
+            },
+            "6km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.09259259259
+                }
+            },
+            "7km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.1080246914
+                }
+            },
+            "8km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.1234567901
+                }
+            },
+            "9km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.1388888889
+                }
+            },
+            "10km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.1543209877
+                }
+            },
+            "11km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.1697530864
+                }
+            },
+            "12km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.1851851852
+                }
+            },
+            "13km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.200617284
+                }
+            },
+            "14km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.2160493827
+                }
+            },
+            "15km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.2314814815
+                }
+            },
+            "16km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.2469135802
+                }
+            },
+            "17km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.262345679
+                }
+            },
+            "18km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.2777777778
+                }
+            },
+            "19km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.2932098765
+                }
+            },
+            "20km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.3086419753
+                }
+            },
+            "21km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.3240740741
+                }
+            },
+            "22km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.3395061728
+                }
+            },
+            "23km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.3549382716
+                }
+            },
+            "24km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.3703703704
+                }
+            },
+            "25km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.3858024691
+                }
+            },
+            "26km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.4012345679
+                }
+            },
+            "27km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.4166666667
+                }
+            },
+            "28km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.4320987654
+                }
+            },
+            "29km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.4475308642
+                }
+            },
+            "30km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.462962963
+                }
+            },
+            "31km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.4783950617
+                }
+            },
+            "32km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.4938271605
+                }
+            },
+            "33km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.5092592593
+                }
+            },
+            "34km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.524691358
+                }
+            },
+            "35km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.5401234568
+                }
+            },
+            "36km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.5555555556
+                }
+            },
+            "37km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.5709876543
+                }
+            },
+            "38km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.5864197531
+                }
+            },
+            "39km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.6018518519
+                }
+            },
+            "40km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.6172839506
+                }
+            },
+            "41km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.6327160494
+                }
+            },
+            "42km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.6481481481
+                }
+            },
+            "43km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.6635802469
+                }
+            },
+            "44km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.6790123457
+                }
+            },
+            "45km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.6944444444
+                }
+            },
+            "46km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.7098765432
+                }
+            },
+            "47km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.725308642
+                }
+            },
+            "48km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.7407407407
+                }
+            },
+            "49km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.7561728395
+                }
+            },
+            "50km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.7716049383
+                }
+            },
+            "51km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.787037037
+                }
+            },
+            "52km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.8024691358
+                }
+            },
+            "53km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.8179012346
+                }
+            },
+            "54km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.8333333333
+                }
+            },
+            "55km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.8487654321
+                }
+            },
+            "56km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.8641975309
+                }
+            },
+            "57km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.8796296296
+                }
+            },
+            "58km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.8950617284
+                }
+            },
+            "59km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.9104938272
+                }
+            },
+            "60km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.9259259259
+                }
+            },
+            "61km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.9413580247
+                }
+            },
+            "62km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.9567901235
+                }
+            },
+            "63km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.9722222222
+                }
+            },
+            "64km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0.987654321
+                }
+            },
+            "65km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.00308642
+                }
+            },
+            "66km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.018518519
+                }
+            },
+            "67km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.033950617
+                }
+            },
+            "68km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.049382716
+                }
+            },
+            "69km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.064814815
+                }
+            },
+            "70km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.080246914
+                }
+            },
+            "71km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.095679012
+                }
+            },
+            "72km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.111111111
+                }
+            },
+            "73km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.12654321
+                }
+            },
+            "74km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.141975309
+                }
+            },
+            "75km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.157407407
+                }
+            },
+            "76km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.172839506
+                }
+            },
+            "77km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.188271605
+                }
+            },
+            "78km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.203703704
+                }
+            },
+            "79km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.219135802
+                }
+            },
+            "80km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.234567901
+                }
+            },
+            "81km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.25
+                }
+            },
+            "82km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.265432099
+                }
+            },
+            "83km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.280864198
+                }
+            },
+            "84km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.296296296
+                }
+            },
+            "85km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.311728395
+                }
+            },
+            "86km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.327160494
+                }
+            },
+            "87km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.342592593
+                }
+            },
+            "88km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.358024691
+                }
+            },
+            "89km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.37345679
+                }
+            },
+            "90km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.388888889
+                }
+            },
+            "91km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.404320988
+                }
+            },
+            "92km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.419753086
+                }
+            },
+            "93km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.435185185
+                }
+            },
+            "94km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.450617284
+                }
+            },
+            "95km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.466049383
+                }
+            },
+            "96km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.481481481
+                }
+            },
+            "97km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.49691358
+                }
+            },
+            "98km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.512345679
+                }
+            },
+            "99km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.527777778
+                }
+            },
+            "100km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.543209877
+                }
+            },
+            "101km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.558641975
+                }
+            },
+            "102km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.574074074
+                }
+            },
+            "103km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.589506173
+                }
+            },
+            "104km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.604938272
+                }
+            },
+            "105km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.62037037
+                }
+            },
+            "106km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.635802469
+                }
+            },
+            "107km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.651234568
+                }
+            },
+            "108km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 1.666666667
+                }
+            },
+            "109km": {
+                "minecraft:rail_movement": {
+                    "max_speed": 0
+                }
+            },
+            "ats_sm_long": {
+                "minecraft:is_sheared": {},
+                "minecraft:timer": {
+                    "looping": false,
+                    "time": 5,
+                    "time_down_event": {
+                      "event": "if_ats_sm_checked"
+                    }
+                }
+            },
+            "if_ats_sm_checked": {
+                "minecraft:environment_sensor": {
+                    "triggers": [
+                        {
+                            "filters": {
+                                "test": "has_tag",
+                                "operator": "!=",
+                                "value": "ats_sm_checked"
+                            },
+                            "event": "eb"
+                        }
+                    ]
+                }
+            },
+            "ats_sm_checked": {
+                "minecraft:is_saddled": {}
+            },
+            "inching_timer": {
+                "minecraft:timer": {
+                    "looping": false,
+                    "time": 3,
+                    "time_down_event": {
+                      "event": "inching_decelerate"
+                    }
+                }
+            },
+            "delete_self": {
+                "minecraft:instant_despawn":{}
+            }
+        },
+        "components": {
+            "minecraft:is_stackable": {},
+            "minecraft:type_family": {
+                "family": [
+                    "tcmb_car",
+                    "inanimate"
+                ]
+            },
+            "minecraft:collision_box": {
+                "width": 1,
+                "height": 1
+            },
+            "minecraft:rail_movement": {},
+            "minecraft:rideable": {
+                "seat_count": 2,
+                "family_types": ["tcmb_body"],
+                "interact_text": "action.interact.ride.tcmb_car",
+                "pull_in_entities": true,
+                "seats": [
+                    {
+                        "position": [
+                            0,
+                            -0.2,
+                            0
+                        ],
+                        "min_rider_count": 0,
+                        "max_rider_count": 2
+                    },
+                    {
+                        "position": [
+                            0,
+                            -0.2,
+                            0
+                        ],
+                        "min_rider_count": 0,
+                        "max_rider_count": 2
+                    }
+                ]
+            },
+            "minecraft:rail_sensor": {
+                "eject_on_activate": true
+            },
+            "minecraft:physics": {},
+            "minecraft:tick_world":{},
+            "minecraft:pushable": {
+                "is_pushable": true,
+                "is_pushable_by_piston": true
+            }
+        },
+        "events": {
+            "cv_off": {
+                "set_property": { "tcmb:curve": 0 }
+            },
+            "pt0": {
+                "set_property": { "tcmb:curve": 1 }
+            },
+            "pt1": {
+                "set_property": { "tcmb:curve": 2 }
+            },
+            "pt2": {
+                "set_property": { "tcmb:curve": 3 }
+            },
+            "0km": {
+                "remove": {
+                    "component_groups": [
+                        "1km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "0km"
+                    ]
+                }
+            },
+            "1km": {
+                "remove": {
+                    "component_groups": [
+                        "0km",
+                        "2km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "1km"
+                    ]
+                }
+            },
+            "2km": {
+                "remove": {
+                    "component_groups": [
+                        "1km",
+                        "3km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "2km"
+                    ]
+                }
+            },
+            "3km": {
+                "remove": {
+                    "component_groups": [
+                        "2km",
+                        "4km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "3km"
+                    ]
+                }
+            },
+            "4km": {
+                "remove": {
+                    "component_groups": [
+                        "3km",
+                        "5km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "4km"
+                    ]
+                }
+            },
+            "5km": {
+                "remove": {
+                    "component_groups": [
+                        "4km",
+                        "6km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "5km"
+                    ]
+                }
+            },
+            "6km": {
+                "remove": {
+                    "component_groups": [
+                        "5km",
+                        "7km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "6km"
+                    ]
+                }
+            },
+            "7km": {
+                "remove": {
+                    "component_groups": [
+                        "6km",
+                        "8km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "7km"
+                    ]
+                }
+            },
+            "8km": {
+                "remove": {
+                    "component_groups": [
+                        "7km",
+                        "9km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "8km"
+                    ]
+                }
+            },
+            "9km": {
+                "remove": {
+                    "component_groups": [
+                        "8km",
+                        "10km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "9km"
+                    ]
+                }
+            },
+            "10km": {
+                "remove": {
+                    "component_groups": [
+                        "9km",
+                        "11km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "10km"
+                    ]
+                }
+            },
+            "11km": {
+                "remove": {
+                    "component_groups": [
+                        "10km",
+                        "12km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "11km"
+                    ]
+                }
+            },
+            "12km": {
+                "remove": {
+                    "component_groups": [
+                        "11km",
+                        "13km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "12km"
+                    ]
+                }
+            },
+            "13km": {
+                "remove": {
+                    "component_groups": [
+                        "12km",
+                        "14km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "13km"
+                    ]
+                }
+            },
+            "14km": {
+                "remove": {
+                    "component_groups": [
+                        "13km",
+                        "15km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "14km"
+                    ]
+                }
+            },
+            "15km": {
+                "remove": {
+                    "component_groups": [
+                        "14km",
+                        "16km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "15km"
+                    ]
+                }
+            },
+            "16km": {
+                "remove": {
+                    "component_groups": [
+                        "15km",
+                        "17km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "16km"
+                    ]
+                }
+            },
+            "17km": {
+                "remove": {
+                    "component_groups": [
+                        "16km",
+                        "18km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "17km"
+                    ]
+                }
+            },
+            "18km": {
+                "remove": {
+                    "component_groups": [
+                        "17km",
+                        "19km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "18km"
+                    ]
+                }
+            },
+            "19km": {
+                "remove": {
+                    "component_groups": [
+                        "18km",
+                        "20km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "19km"
+                    ]
+                }
+            },
+            "20km": {
+                "remove": {
+                    "component_groups": [
+                        "19km",
+                        "21km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "20km"
+                    ]
+                }
+            },
+            "21km": {
+                "remove": {
+                    "component_groups": [
+                        "20km",
+                        "22km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "21km"
+                    ]
+                }
+            },
+            "22km": {
+                "remove": {
+                    "component_groups": [
+                        "21km",
+                        "23km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "22km"
+                    ]
+                }
+            },
+            "23km": {
+                "remove": {
+                    "component_groups": [
+                        "22km",
+                        "24km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "23km"
+                    ]
+                }
+            },
+            "24km": {
+                "remove": {
+                    "component_groups": [
+                        "23km",
+                        "25km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "24km"
+                    ]
+                }
+            },
+            "25km": {
+                "remove": {
+                    "component_groups": [
+                        "24km",
+                        "26km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "25km"
+                    ]
+                }
+            },
+            "26km": {
+                "remove": {
+                    "component_groups": [
+                        "25km",
+                        "27km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "26km"
+                    ]
+                }
+            },
+            "27km": {
+                "remove": {
+                    "component_groups": [
+                        "26km",
+                        "28km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "27km"
+                    ]
+                }
+            },
+            "28km": {
+                "remove": {
+                    "component_groups": [
+                        "27km",
+                        "29km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "28km"
+                    ]
+                }
+            },
+            "29km": {
+                "remove": {
+                    "component_groups": [
+                        "28km",
+                        "30km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "29km"
+                    ]
+                }
+            },
+            "30km": {
+                "remove": {
+                    "component_groups": [
+                        "29km",
+                        "31km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "30km"
+                    ]
+                }
+            },
+            "31km": {
+                "remove": {
+                    "component_groups": [
+                        "30km",
+                        "32km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "31km"
+                    ]
+                }
+            },
+            "32km": {
+                "remove": {
+                    "component_groups": [
+                        "31km",
+                        "33km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "32km"
+                    ]
+                }
+            },
+            "33km": {
+                "remove": {
+                    "component_groups": [
+                        "32km",
+                        "34km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "33km"
+                    ]
+                }
+            },
+            "34km": {
+                "remove": {
+                    "component_groups": [
+                        "33km",
+                        "35km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "34km"
+                    ]
+                }
+            },
+            "35km": {
+                "remove": {
+                    "component_groups": [
+                        "34km",
+                        "36km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "35km"
+                    ]
+                }
+            },
+            "36km": {
+                "remove": {
+                    "component_groups": [
+                        "35km",
+                        "37km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "36km"
+                    ]
+                }
+            },
+            "37km": {
+                "remove": {
+                    "component_groups": [
+                        "36km",
+                        "38km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "37km"
+                    ]
+                }
+            },
+            "38km": {
+                "remove": {
+                    "component_groups": [
+                        "37km",
+                        "39km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "38km"
+                    ]
+                }
+            },
+            "39km": {
+                "remove": {
+                    "component_groups": [
+                        "38km",
+                        "40km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "39km"
+                    ]
+                }
+            },
+            "40km": {
+                "remove": {
+                    "component_groups": [
+                        "39km",
+                        "41km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "40km"
+                    ]
+                }
+            },
+            "41km": {
+                "remove": {
+                    "component_groups": [
+                        "40km",
+                        "42km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "41km"
+                    ]
+                }
+            },
+            "42km": {
+                "remove": {
+                    "component_groups": [
+                        "41km",
+                        "43km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "42km"
+                    ]
+                }
+            },
+            "43km": {
+                "remove": {
+                    "component_groups": [
+                        "42km",
+                        "44km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "43km"
+                    ]
+                }
+            },
+            "44km": {
+                "remove": {
+                    "component_groups": [
+                        "43km",
+                        "45km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "44km"
+                    ]
+                }
+            },
+            "45km": {
+                "remove": {
+                    "component_groups": [
+                        "44km",
+                        "46km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "45km"
+                    ]
+                }
+            },
+            "46km": {
+                "remove": {
+                    "component_groups": [
+                        "45km",
+                        "47km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "46km"
+                    ]
+                }
+            },
+            "47km": {
+                "remove": {
+                    "component_groups": [
+                        "46km",
+                        "48km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "47km"
+                    ]
+                }
+            },
+            "48km": {
+                "remove": {
+                    "component_groups": [
+                        "47km",
+                        "49km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "48km"
+                    ]
+                }
+            },
+            "49km": {
+                "remove": {
+                    "component_groups": [
+                        "48km",
+                        "50km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "49km"
+                    ]
+                }
+            },
+            "50km": {
+                "remove": {
+                    "component_groups": [
+                        "49km",
+                        "51km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "50km"
+                    ]
+                }
+            },
+            "51km": {
+                "remove": {
+                    "component_groups": [
+                        "50km",
+                        "52km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "51km"
+                    ]
+                }
+            },
+            "52km": {
+                "remove": {
+                    "component_groups": [
+                        "51km",
+                        "53km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "52km"
+                    ]
+                }
+            },
+            "53km": {
+                "remove": {
+                    "component_groups": [
+                        "52km",
+                        "54km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "53km"
+                    ]
+                }
+            },
+            "54km": {
+                "remove": {
+                    "component_groups": [
+                        "53km",
+                        "55km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "54km"
+                    ]
+                }
+            },
+            "55km": {
+                "remove": {
+                    "component_groups": [
+                        "54km",
+                        "56km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "55km"
+                    ]
+                }
+            },
+            "56km": {
+                "remove": {
+                    "component_groups": [
+                        "55km",
+                        "57km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "56km"
+                    ]
+                }
+            },
+            "57km": {
+                "remove": {
+                    "component_groups": [
+                        "56km",
+                        "58km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "57km"
+                    ]
+                }
+            },
+            "58km": {
+                "remove": {
+                    "component_groups": [
+                        "57km",
+                        "59km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "58km"
+                    ]
+                }
+            },
+            "59km": {
+                "remove": {
+                    "component_groups": [
+                        "58km",
+                        "60km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "59km"
+                    ]
+                }
+            },
+            "60km": {
+                "remove": {
+                    "component_groups": [
+                        "59km",
+                        "61km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "60km"
+                    ]
+                }
+            },
+            "61km": {
+                "remove": {
+                    "component_groups": [
+                        "60km",
+                        "62km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "61km"
+                    ]
+                }
+            },
+            "62km": {
+                "remove": {
+                    "component_groups": [
+                        "61km",
+                        "63km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "62km"
+                    ]
+                }
+            },
+            "63km": {
+                "remove": {
+                    "component_groups": [
+                        "62km",
+                        "64km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "63km"
+                    ]
+                }
+            },
+            "64km": {
+                "remove": {
+                    "component_groups": [
+                        "63km",
+                        "65km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "64km"
+                    ]
+                }
+            },
+            "65km": {
+                "remove": {
+                    "component_groups": [
+                        "64km",
+                        "66km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "65km"
+                    ]
+                }
+            },
+            "66km": {
+                "remove": {
+                    "component_groups": [
+                        "65km",
+                        "67km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "66km"
+                    ]
+                }
+            },
+            "67km": {
+                "remove": {
+                    "component_groups": [
+                        "66km",
+                        "68km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "67km"
+                    ]
+                }
+            },
+            "68km": {
+                "remove": {
+                    "component_groups": [
+                        "67km",
+                        "69km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "68km"
+                    ]
+                }
+            },
+            "69km": {
+                "remove": {
+                    "component_groups": [
+                        "68km",
+                        "70km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "69km"
+                    ]
+                }
+            },
+            "70km": {
+                "remove": {
+                    "component_groups": [
+                        "69km",
+                        "71km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "70km"
+                    ]
+                }
+            },
+            "71km": {
+                "remove": {
+                    "component_groups": [
+                        "70km",
+                        "72km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "71km"
+                    ]
+                }
+            },
+            "72km": {
+                "remove": {
+                    "component_groups": [
+                        "71km",
+                        "73km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "72km"
+                    ]
+                }
+            },
+            "73km": {
+                "remove": {
+                    "component_groups": [
+                        "72km",
+                        "74km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "73km"
+                    ]
+                }
+            },
+            "74km": {
+                "remove": {
+                    "component_groups": [
+                        "73km",
+                        "75km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "74km"
+                    ]
+                }
+            },
+            "75km": {
+                "remove": {
+                    "component_groups": [
+                        "74km",
+                        "76km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "75km"
+                    ]
+                }
+            },
+            "76km": {
+                "remove": {
+                    "component_groups": [
+                        "75km",
+                        "77km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "76km"
+                    ]
+                }
+            },
+            "77km": {
+                "remove": {
+                    "component_groups": [
+                        "76km",
+                        "78km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "77km"
+                    ]
+                }
+            },
+            "78km": {
+                "remove": {
+                    "component_groups": [
+                        "77km",
+                        "79km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "78km"
+                    ]
+                }
+            },
+            "79km": {
+                "remove": {
+                    "component_groups": [
+                        "78km",
+                        "80km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "79km"
+                    ]
+                }
+            },
+            "80km": {
+                "remove": {
+                    "component_groups": [
+                        "79km",
+                        "81km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "80km"
+                    ]
+                }
+            },
+            "81km": {
+                "remove": {
+                    "component_groups": [
+                        "80km",
+                        "82km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "81km"
+                    ]
+                }
+            },
+            "82km": {
+                "remove": {
+                    "component_groups": [
+                        "81km",
+                        "83km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "82km"
+                    ]
+                }
+            },
+            "83km": {
+                "remove": {
+                    "component_groups": [
+                        "82km",
+                        "84km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "83km"
+                    ]
+                }
+            },
+            "84km": {
+                "remove": {
+                    "component_groups": [
+                        "83km",
+                        "85km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "84km"
+                    ]
+                }
+            },
+            "85km": {
+                "remove": {
+                    "component_groups": [
+                        "84km",
+                        "86km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "85km"
+                    ]
+                }
+            },
+            "86km": {
+                "remove": {
+                    "component_groups": [
+                        "85km",
+                        "87km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "86km"
+                    ]
+                }
+            },
+            "87km": {
+                "remove": {
+                    "component_groups": [
+                        "86km",
+                        "88km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "87km"
+                    ]
+                }
+            },
+            "88km": {
+                "remove": {
+                    "component_groups": [
+                        "87km",
+                        "89km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "88km"
+                    ]
+                }
+            },
+            "89km": {
+                "remove": {
+                    "component_groups": [
+                        "88km",
+                        "90km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "89km"
+                    ]
+                }
+            },
+            "90km": {
+                "remove": {
+                    "component_groups": [
+                        "89km",
+                        "91km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "90km"
+                    ]
+                }
+            },
+            "91km": {
+                "remove": {
+                    "component_groups": [
+                        "90km",
+                        "92km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "91km"
+                    ]
+                }
+            },
+            "92km": {
+                "remove": {
+                    "component_groups": [
+                        "91km",
+                        "93km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "92km"
+                    ]
+                }
+            },
+            "93km": {
+                "remove": {
+                    "component_groups": [
+                        "92km",
+                        "94km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "93km"
+                    ]
+                }
+            },
+            "94km": {
+                "remove": {
+                    "component_groups": [
+                        "93km",
+                        "95km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "94km"
+                    ]
+                }
+            },
+            "95km": {
+                "remove": {
+                    "component_groups": [
+                        "94km",
+                        "96km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "95km"
+                    ]
+                }
+            },
+            "96km": {
+                "remove": {
+                    "component_groups": [
+                        "95km",
+                        "97km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "96km"
+                    ]
+                }
+            },
+            "97km": {
+                "remove": {
+                    "component_groups": [
+                        "96km",
+                        "98km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "97km"
+                    ]
+                }
+            },
+            "98km": {
+                "remove": {
+                    "component_groups": [
+                        "97km",
+                        "99km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "98km"
+                    ]
+                }
+            },
+            "99km": {
+                "remove": {
+                    "component_groups": [
+                        "98km",
+                        "100km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "99km"
+                    ]
+                }
+            },
+            "100km": {
+                "remove": {
+                    "component_groups": [
+                        "99km",
+                        "101km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "100km"
+                    ]
+                }
+            },
+            "101km": {
+                "remove": {
+                    "component_groups": [
+                        "100km",
+                        "102km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "101km"
+                    ]
+                }
+            },
+            "102km": {
+                "remove": {
+                    "component_groups": [
+                        "101km",
+                        "103km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "102km"
+                    ]
+                }
+            },
+            "103km": {
+                "remove": {
+                    "component_groups": [
+                        "102km",
+                        "104km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "103km"
+                    ]
+                }
+            },
+            "104km": {
+                "remove": {
+                    "component_groups": [
+                        "103km",
+                        "105km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "104km"
+                    ]
+                }
+            },
+            "105km": {
+                "remove": {
+                    "component_groups": [
+                        "104km",
+                        "106km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "105km"
+                    ]
+                }
+            },
+            "106km": {
+                "remove": {
+                    "component_groups": [
+                        "105km",
+                        "107km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "106km"
+                    ]
+                }
+            },
+            "107km": {
+                "remove": {
+                    "component_groups": [
+                        "106km",
+                        "108km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "107km"
+                    ]
+                }
+            },
+            "108km": {
+                "remove": {
+                    "component_groups": [
+                        "107km",
+                        "109km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "108km"
+                    ]
+                }
+            },
+            "109km": {
+                "remove": {
+                    "component_groups": [
+                        "108km"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "109km"
+                    ]
+                }
+            },
+            "eb": {
+                "remove": {
+                    "component_groups": [
+                        "if_ats_sm_checked"
+                    ]
+                },
+                "set_property": { "tcmb:notch": -32 }
+            },
+            "b7": {
+                "set_property": { "tcmb:notch": -31 }
+            },
+            "b6": {
+                "set_property": { "tcmb:notch": -26 }
+            },
+            "b5": {
+                "set_property": { "tcmb:notch": -21 }
+            },
+            "b4": {
+                "set_property": { "tcmb:notch": -16 }
+            },
+            "b3": {
+                "set_property": { "tcmb:notch": -11 }
+            },
+            "b2": {
+                "set_property": { "tcmb:notch": -6 }
+            },            
+            "b1": {
+                "set_property": { "tcmb:notch": -1 }
+            },
+            "n": {
+                "set_property": { "tcmb:notch": 0 }
+            },
+            "p1": {
+                "set_property": { "tcmb:notch": 1 }
+            },
+            "p2": {
+                "set_property": { "tcmb:notch": 2 }
+            },
+            "p3": {
+                "set_property": { "tcmb:notch": 3 }
+            },
+            "p4": {
+                "set_property": { "tcmb:notch": 4 }
+            },
+            "tasc_b0": {
+                "set_property": { "tcmb:tasc_break": 0 }
+            },
+            "tasc_b1": {
+                "set_property": { "tcmb:tasc_break": -1 }
+            },
+            "tasc_b2": {
+                "set_property": { "tcmb:tasc_break": -2 }
+            },
+            "tasc_b3": {
+                "set_property": { "tcmb:tasc_break": -3 }
+            },
+            "tasc_b4": {
+                "set_property": { "tcmb:tasc_break": -4 }
+            },
+            "tasc_b5": {
+                "set_property": { "tcmb:tasc_break": -5 }
+            },
+            "tasc_b6": {
+                "set_property": { "tcmb:tasc_break": -6 }
+            },
+            "tasc_b7": {
+                "set_property": { "tcmb:tasc_break": -7 }
+            },
+            "tasc_b8": {
+                "set_property": { "tcmb:tasc_break": -8 }
+            },
+            "tasc_b9": {
+                "set_property": { "tcmb:tasc_break": -9 }
+            },
+            "tasc_b10": {
+                "set_property": { "tcmb:tasc_break": -10 }
+            },
+            "tasc_b11": {
+                "set_property": { "tcmb:tasc_break": -11 }
+            },
+            "tasc_b12": {
+                "set_property": { "tcmb:tasc_break": -12 }
+            },
+            "tasc_b13": {
+                "set_property": { "tcmb:tasc_break": -13 }
+            },
+            "tasc_b14": {
+                "set_property": { "tcmb:tasc_break": -14 }
+            },
+            "tasc_b15": {
+                "set_property": { "tcmb:tasc_break": -15 }
+            },
+            "tasc_b16": {
+                "set_property": { "tcmb:tasc_break": -16 }
+            },
+            "tasc_b17": {
+                "set_property": { "tcmb:tasc_break": -17 }
+            },
+            "tasc_b18": {
+                "set_property": { "tcmb:tasc_break": -18 }
+            },
+            "tasc_b19": {
+                "set_property": { "tcmb:tasc_break": -19 }
+            },
+            "tasc_b20": {
+                "set_property": { "tcmb:tasc_break": -20 }
+            },
+            "tasc_b21": {
+                "set_property": { "tcmb:tasc_break": -21 }
+            },
+            "tasc_b22": {
+                "set_property": { "tcmb:tasc_break": -22 }
+            },
+            "tasc_b23": {
+                "set_property": { "tcmb:tasc_break": -23 }
+            },
+            "tasc_b24": {
+                "set_property": { "tcmb:tasc_break": -24 }
+            },
+            "tasc_b25": {
+                "set_property": { "tcmb:tasc_break": -25 }
+            },
+            "tasc_b26": {
+                "set_property": { "tcmb:tasc_break": -26 }
+            },
+            "tasc_b27": {
+                "set_property": { "tcmb:tasc_break": -27 }
+            },
+            "tasc_b28": {
+                "set_property": { "tcmb:tasc_break": -28 }
+            },
+            "tasc_b29": {
+                "set_property": { "tcmb:tasc_break": -29 }
+            },
+            "tasc_b30": {
+                "set_property": { "tcmb:tasc_break": -30 }
+            },
+            "tasc_b31": {
+                "set_property": { "tcmb:tasc_break": -31 }
+            },
+            "ats_sm_long": {
+                "add": {
+                    "component_groups": [
+                        "ats_sm_long"
+                    ]
+                },
+                "remove": {
+                    "component_groups": [
+                        "ats_sm_checked"
+                    ]
+                }
+            },
+            "if_ats_sm_checked": {
+                "add": {
+                    "component_groups": [
+                        "if_ats_sm_checked"
+                    ]
+                }
+            },
+            "ats_sm_check": {
+                "remove": {
+                    "component_groups": [
+                        "ats_sm_long",
+                        "if_ats_sm_checked"
+                    ]
+                },
+                "add": {
+                    "component_groups": [
+                        "ats_sm_checked"
+                    ]
+                }
+            },
+            "ats_sm_clear": {
+                "remove": {
+                    "component_groups": [
+                        "ats_sm_long",
+                        "ats_sm_checked"
+                    ]
+                }
+            },
+            "inching_on": {
+                "set_property": { "tcmb:inching_on": true }
+            },
+            "inching_timer": {
+                "add": {
+                    "component_groups": [
+                        "inching_timer"
+                    ]
+                }
+            },
+            "inching_decelerate": {
+                "remove": {
+                    "component_groups": [
+                        "inching_timer"
+                    ]
+                },
+                "set_property": {
+                    "tcmb:tasc_break": -9
+                }
+            },
+            "inching_off": {
+                "set_property": { 
+                    "tcmb:inching_on": false,
+                    "tcmb:tasc_break": 0,
+                    "tcmb:notch": -1
+                }
+            },
+            "tasc_on": {
+                "set_property": { "tcmb:tasc_on": true }
+            },
+            "tasc_off": {
+                "set_property": {
+                    "tcmb:tasc_on": false,
+                    "tcmb:tasc_break": 4
+                }
+            },
+            "cs_atc_off": {
+                "set_property": { "tcmb:cs_atc": 37 }
+            },
+            "cs_atc_0": {
+                "set_property": { "tcmb:cs_atc": 0 }
+            },
+            "cs_atc_10": {
+                "set_property": { "tcmb:cs_atc": 1 }
+            },
+            "cs_atc_20": {
+                "set_property": { "tcmb:cs_atc": 2 }
+            },
+            "cs_atc_30": {
+                "set_property": { "tcmb:cs_atc": 3 }
+            },
+            "cs_atc_40": {
+                "set_property": { "tcmb:cs_atc": 4 }
+            },
+            "cs_atc_50": {
+                "set_property": { "tcmb:cs_atc": 5 }
+            },
+            "cs_atc_60": {
+                "set_property": { "tcmb:cs_atc": 6 }
+            },
+            "cs_atc_70": {
+                "set_property": { "tcmb:cs_atc": 7 }
+            },
+            "cs_atc_80": {
+                "set_property": { "tcmb:cs_atc": 8 }
+            },
+            "cs_atc_90": {
+                "set_property": { "tcmb:cs_atc": 9 }
+            },
+            "cs_atc_100": {
+                "set_property": { "tcmb:cs_atc": 10 }
+            },
+            "cs_atc_110": {
+                "set_property": { "tcmb:cs_atc": 11 }
+            },
+            "cs_atc_120": {
+                "set_property": { "tcmb:cs_atc": 12 }
+            },
+            "cs_atc_130": {
+                "set_property": { "tcmb:cs_atc": 13 }
+            },
+            "cs_atc_140": {
+                "set_property": { "tcmb:cs_atc": 14 }
+            },
+            "cs_atc_150": {
+                "set_property": { "tcmb:cs_atc": 15 }
+            },
+            "cs_atc_160": {
+                "set_property": { "tcmb:cs_atc": 16 }
+            },
+            "cs_atc_170": {
+                "set_property": { "tcmb:cs_atc": 17 }
+            },
+            "cs_atc_180": {
+                "set_property": { "tcmb:cs_atc": 18 }
+            },
+            "cs_atc_190": {
+                "set_property": { "tcmb:cs_atc": 19 }
+            },
+            "cs_atc_200": {
+                "set_property": { "tcmb:cs_atc": 20 }
+            },
+            "cs_atc_210": {
+                "set_property": { "tcmb:cs_atc": 21 }
+            },
+            "cs_atc_220": {
+                "set_property": { "tcmb:cs_atc": 22 }
+            },
+            "cs_atc_230": {
+                "set_property": { "tcmb:cs_atc": 23 }
+            },
+            "cs_atc_240": {
+                "set_property": { "tcmb:cs_atc": 24 }
+            },
+            "cs_atc_250": {
+                "set_property": { "tcmb:cs_atc": 25 }
+            },
+            "cs_atc_260": {
+                "set_property": { "tcmb:cs_atc": 26 }
+            },
+            "cs_atc_270": {
+                "set_property": { "tcmb:cs_atc": 27 }
+            },
+            "cs_atc_280": {
+                "set_property": { "tcmb:cs_atc": 28 }
+            },
+            "cs_atc_290": {
+                "set_property": { "tcmb:cs_atc": 29 }
+            },
+            "cs_atc_300": {
+                "set_property": { "tcmb:cs_atc": 30 }
+            },
+            "cs_atc_310": {
+                "set_property": { "tcmb:cs_atc": 31 }
+            },
+            "cs_atc_320": {
+                "set_property": { "tcmb:cs_atc": 32 }
+            },
+            "cs_atc_330": {
+                "set_property": { "tcmb:cs_atc": 33 }
+            },
+            "cs_atc_340": {
+                "set_property": { "tcmb:cs_atc": 34 }
+            },
+            "cs_atc_350": {
+                "set_property": { "tcmb:cs_atc": 35 }
+            },
+            "cs_atc_360": {
+                "set_property": { "tcmb:cs_atc": 36 }
+            },
+            "datc_off": {
+                "set_property": { "tcmb:datc": 37 }
+            },
+            "datc_0": {
+                "set_property": { "tcmb:datc": 0 }
+            },
+            "datc_10": {
+                "set_property": { "tcmb:datc": 1 }
+            },
+            "datc_20": {
+                "set_property": { "tcmb:datc": 2 }
+            },
+            "datc_30": {
+                "set_property": { "tcmb:datc": 3 }
+            },
+            "datc_40": {
+                "set_property": { "tcmb:datc": 4 }
+            },
+            "datc_50": {
+                "set_property": { "tcmb:datc": 5 }
+            },
+            "datc_60": {
+                "set_property": { "tcmb:datc": 6 }
+            },
+            "datc_70": {
+                "set_property": { "tcmb:datc": 7 }
+            },
+            "datc_80": {
+                "set_property": { "tcmb:datc": 8 }
+            },
+            "datc_90": {
+                "set_property": { "tcmb:datc": 9 }
+            },
+            "datc_100": {
+                "set_property": { "tcmb:datc": 10 }
+            },
+            "datc_110": {
+                "set_property": { "tcmb:datc": 11 }
+            },
+            "datc_120": {
+                "set_property": { "tcmb:datc": 12 }
+            },
+            "datc_130": {
+                "set_property": { "tcmb:datc": 13 }
+            },
+            "datc_140": {
+                "set_property": { "tcmb:datc": 14 }
+            },
+            "datc_150": {
+                "set_property": { "tcmb:datc": 15 }
+            },
+            "datc_160": {
+                "set_property": { "tcmb:datc": 16 }
+            },
+            "datc_170": {
+                "set_property": { "tcmb:datc": 17 }
+            },
+            "datc_180": {
+                "set_property": { "tcmb:datc": 18 }
+            },
+            "datc_190": {
+                "set_property": { "tcmb:datc": 19 }
+            },
+            "datc_200": {
+                "set_property": { "tcmb:datc": 20 }
+            },
+            "datc_210": {
+                "set_property": { "tcmb:datc": 21 }
+            },
+            "datc_220": {
+                "set_property": { "tcmb:datc": 22 }
+            },
+            "datc_230": {
+                "set_property": { "tcmb:datc": 23 }
+            },
+            "datc_240": {
+                "set_property": { "tcmb:datc": 24 }
+            },
+            "datc_250": {
+                "set_property": { "tcmb:datc": 25 }
+            },
+            "datc_260": {
+                "set_property": { "tcmb:datc": 26 }
+            },
+            "datc_270": {
+                "set_property": { "tcmb:datc": 27 }
+            },
+            "datc_280": {
+                "set_property": { "tcmb:datc": 28 }
+            },
+            "datc_290": {
+                "set_property": { "tcmb:datc": 29 }
+            },
+            "datc_300": {
+                "set_property": { "tcmb:datc": 30 }
+            },
+            "datc_310": {
+                "set_property": { "tcmb:datc": 31 }
+            },
+            "datc_320": {
+                "set_property": { "tcmb:datc": 32 }
+            },
+            "datc_330": {
+                "set_property": { "tcmb:datc": 33 }
+            },
+            "datc_340": {
+                "set_property": { "tcmb:datc": 34 }
+            },
+            "datc_350": {
+                "set_property": { "tcmb:datc": 35 }
+            },
+            "datc_360": {
+                "set_property": { "tcmb:datc": 36 }
+            },
+            "atacs_on": {
+                "set_property": {
+                    "tcmb:atacs_on": true,
+                    "tcmb:d-atc_on": false
+                }
+            },
+            "atacs_off": {
+                "set_property": { 
+                    "tcmb:atacs_on": false,
+                    "tcmb:datc": 37
+                }
+            },
+            "d-atc_on": {
+                "set_property": {
+                    "tcmb:d-atc_on": true,
+                    "tcmb:atacs_on": false
+                }
+            },
+            "d-atc_off": {
+                "set_property": { 
+                    "tcmb:d-atc_on": false,
+                    "tcmb:datc": 37 
+                }
+            },
+            "d-atc_line_1": {
+                "set_property": { "tcmb:d-atc_line": 1 }
+            },
+            "d-atc_line_2": {
+                "set_property": { "tcmb:d-atc_line": 2 }
+            },
+            "d-atc_line_3": {
+                "set_property": { "tcmb:d-atc_line": 3 }
+            },
+            "d-atc_line_4": {
+                "set_property": { "tcmb:d-atc_line": 4 }
+            },
+            "d-atc_line_5": {
+                "set_property": { "tcmb:d-atc_line": 5 }
+            },
+            "d-atc_line_6": {
+                "set_property": { "tcmb:d-atc_line": 6 }
+            },
+            "d-atc_line_7": {
+                "set_property": { "tcmb:d-atc_line": 7 }
+            },
+            "d-atc_line_8": {
+                "set_property": { "tcmb:d-atc_line": 8 }
+            },
+            "d-atc_line_9": {
+                "set_property": { "tcmb:d-atc_line": 9 }
+            },
+            "d-atc_line_10": {
+                "set_property": { "tcmb:d-atc_line": 10 }
+            },
+            "d-atc_line_11": {
+                "set_property": { "tcmb:d-atc_line": 11 }
+            },
+            "d-atc_line_12": {
+                "set_property": { "tcmb:d-atc_line": 12 }
+            },
+            "d-atc_line_13": {
+                "set_property": { "tcmb:d-atc_line": 13 }
+            },
+            "d-atc_line_14": {
+                "set_property": { "tcmb:d-atc_line": 14 }
+            },
+            "d-atc_line_15": {
+                "set_property": { "tcmb:d-atc_line": 15 }
+            },
+            "d-atc_line_16": {
+                "set_property": { "tcmb:d-atc_line": 16 }
+            },
+            "d-atc_line_17": {
+                "set_property": { "tcmb:d-atc_line": 17 }
+            },
+            "d-atc_line_18": {
+                "set_property": { "tcmb:d-atc_line": 18 }
+            },
+            "d-atc_line_19": {
+                "set_property": { "tcmb:d-atc_line": 19 }
+            },
+            "d-atc_line_20": {
+                "set_property": { "tcmb:d-atc_line": 20 }
+            },
+            "d-atc_line_21": {
+                "set_property": { "tcmb:d-atc_line": 21 }
+            },
+            "d-atc_line_22": {
+                "set_property": { "tcmb:d-atc_line": 22 }
+            },
+            "d-atc_line_23": {
+                "set_property": { "tcmb:d-atc_line": 23 }
+            },
+            "d-atc_line_24": {
+                "set_property": { "tcmb:d-atc_line": 24 }
+            },
+            "d-atc_line_25": {
+                "set_property": { "tcmb:d-atc_line": 25 }
+            },
+            "d-atc_line_26": {
+                "set_property": { "tcmb:d-atc_line": 26 }
+            },
+            "d-atc_line_27": {
+                "set_property": { "tcmb:d-atc_line": 27 }
+            },
+            "d-atc_line_28": {
+                "set_property": { "tcmb:d-atc_line": 28 }
+            },
+            "d-atc_line_29": {
+                "set_property": { "tcmb:d-atc_line": 29 }
+            },
+            "d-atc_line_30": {
+                "set_property": { "tcmb:d-atc_line": 30 }
+            },
+            "d-atc_line_31": {
+                "set_property": { "tcmb:d-atc_line": 31 }
+            },
+            "d-atc_line_32": {
+                "set_property": { "tcmb:d-atc_line": 32 }
+            },
+            "d-atc_line_33": {
+                "set_property": { "tcmb:d-atc_line": 33 }
+            },
+            "d-atc_line_34": {
+                "set_property": { "tcmb:d-atc_line": 34 }
+            },
+            "d-atc_line_35": {
+                "set_property": { "tcmb:d-atc_line": 35 }
+            },
+            "d-atc_line_36": {
+                "set_property": { "tcmb:d-atc_line": 36 }
+            },
+            "d-atc_line_37": {
+                "set_property": { "tcmb:d-atc_line": 37 }
+            },
+            "d-atc_line_38": {
+                "set_property": { "tcmb:d-atc_line": 38 }
+            },
+            "d-atc_line_39": {
+                "set_property": { "tcmb:d-atc_line": 39 }
+            },
+            "d-atc_line_40": {
+                "set_property": { "tcmb:d-atc_line": 40 }
+            },
+            "d-atc_line_41": {
+                "set_property": { "tcmb:d-atc_line": 41 }
+            },
+            "d-atc_line_42": {
+                "set_property": { "tcmb:d-atc_line": 42 }
+            },
+            "d-atc_line_43": {
+                "set_property": { "tcmb:d-atc_line": 43 }
+            },
+            "d-atc_line_44": {
+                "set_property": { "tcmb:d-atc_line": 44 }
+            },
+            "d-atc_line_45": {
+                "set_property": { "tcmb:d-atc_line": 45 }
+            },
+            "d-atc_line_46": {
+                "set_property": { "tcmb:d-atc_line": 46 }
+            },
+            "d-atc_line_47": {
+                "set_property": { "tcmb:d-atc_line": 47 }
+            },
+            "d-atc_line_48": {
+                "set_property": { "tcmb:d-atc_line": 48 }
+            },
+            "d-atc_line_49": {
+                "set_property": { "tcmb:d-atc_line": 49 }
+            },
+            "d-atc_line_50": {
+                "set_property": { "tcmb:d-atc_line": 50 }
+            },
+            "d-atc_line_51": {
+                "set_property": { "tcmb:d-atc_line": 51 }
+            },
+            "d-atc_line_52": {
+                "set_property": { "tcmb:d-atc_line": 52 }
+            },
+            "d-atc_line_53": {
+                "set_property": { "tcmb:d-atc_line": 53 }
+            },
+            "d-atc_line_54": {
+                "set_property": { "tcmb:d-atc_line": 54 }
+            },
+            "d-atc_line_55": {
+                "set_property": { "tcmb:d-atc_line": 55 }
+            },
+            "d-atc_line_56": {
+                "set_property": { "tcmb:d-atc_line": 56 }
+            },
+            "d-atc_line_57": {
+                "set_property": { "tcmb:d-atc_line": 57 }
+            },
+            "d-atc_line_58": {
+                "set_property": { "tcmb:d-atc_line": 58 }
+            },
+            "d-atc_line_59": {
+                "set_property": { "tcmb:d-atc_line": 59 }
+            },
+            "d-atc_line_60": {
+                "set_property": { "tcmb:d-atc_line": 60 }
+            },
+            "d-atc_line_61": {
+                "set_property": { "tcmb:d-atc_line": 61 }
+            },
+            "d-atc_line_62": {
+                "set_property": { "tcmb:d-atc_line": 62 }
+            },
+            "d-atc_line_63": {
+                "set_property": { "tcmb:d-atc_line": 63 }
+            },
+            "d-atc_line_64": {
+                "set_property": { "tcmb:d-atc_line": 64 }
+            },
+            "d-atc_line_off": {
+                "set_property": { "tcmb:d-atc_line": 65 }
+            },
+            "delete": {
+                "add": {
+                    "component_groups": [
+                        "delete_self"
+                    ]
+                }
+            }
+        }
+    }
+}

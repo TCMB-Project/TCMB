@@ -1,0 +1,1 @@
+execute as @e[type=pdft:pdft,c=2,r=3] at @s run function close_pdft

@@ -1,0 +1,44 @@
+{
+    "format_version":"1.19.50",
+    "minecraft:item": {
+        "description": {
+            "identifier": "tcmb:electricity_control",
+            "category": "Items"
+        },
+        "components": {
+            "minecraft:icon": {
+                "texture": "tcmb_electricity_control"
+            },
+            "minecraft:creative_category": {
+                "parent": "itemGroup.name.tcmb"
+            },
+            "minecraft:display_name":{
+                "value": "電気系統パネル"
+            },
+            "minecraft:on_use_on": {
+                "on_use_on": {
+                    "event": "tcmb:click"
+                }
+            },
+            "minecraft:render_offsets":{
+                "main_hand":{
+                    "first_person":{
+                        "scale": [0, 0, 0]
+                    },
+                    "third_person":{
+                        "scale": [0, 0, 0]
+                    }
+                }
+            }            
+        },
+        "events": {
+            "tcmb:click": {
+                "run_command": {
+                    "command": [
+                        "execute as @p at @s run scriptevent tcmb:electricity_control"
+                    ]
+                }
+            }
+        }
+    }
+}

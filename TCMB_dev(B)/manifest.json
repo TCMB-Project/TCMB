@@ -1,0 +1,44 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "TCMB Dev",
+    "description": "Train Controller for Minecraft BE",
+    "version": [1, 2, 12],
+    "uuid": "aa5b5fb2-7d09-4c80-9c70-0ffcd07f08a0",
+    "min_engine_version": [1, 19, 50]
+  },
+  "modules": [
+    {
+      "type": "data",
+      "description": "TCMB Module",
+      "version": [1, 0, 0],
+      "uuid": "95aaee6d-532f-4482-bcd9-5230c4eb5b44"
+    },
+    {
+      "type": "script",
+      "description": "Scripting API Module",
+      "language": "javascript",
+      "uuid": "40c48014-fae9-4b4b-a4b5-31a2d2f59d0c",
+      "version": [0, 0, 1],
+      "entry": "scripts/main.js"
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "39be37e9-9be8-4d08-a0c6-4a750a4c4df8",
+      "version": [1, 2, 12]
+    },
+    {
+      "module_name": "@minecraft/server",
+      "version": "1.5.0"
+    },
+    {
+      "module_name": "@minecraft/server-ui",
+      "version": "1.1.0"
+    }
+  ],
+  "metadata": {
+    "url": "https://github.com/TCMB-Project/",
+    "license": "TSL v1.1"
+  }
+}

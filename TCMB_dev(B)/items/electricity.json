@@ -1,0 +1,47 @@
+{
+    "format_version":"1.19.50",
+    "minecraft:item": {
+        "description": {
+            "identifier": "tcmb:electricity",
+            "category": "Items"
+        },
+        "components": {
+            "minecraft:icon": {
+                "texture": "tcmb_electricity"
+            },
+            "minecraft:creative_category": {
+                "parent": "itemGroup.name.tcmb"
+            },
+            "minecraft:display_name":{
+                "value": "電気切替"
+            },
+            "minecraft:on_use_on": {
+                "on_use_on": {
+                    "event": "tcmb:click"
+                }
+            },
+            "minecraft:render_offsets":{
+                "main_hand":{
+                    "first_person":{
+                        "scale": [0, 0, 0]
+                    },
+                    "third_person":{
+                        "scale": [0, 0, 0]
+                    }
+                }
+            }            
+        },
+        "events": {
+            "tcmb:click": {
+                "run_command": {
+                    "command": [
+                        "playsound random.click @p",
+                        "execute as @e[type=tcmb:tcmb_car,c=1] at @s run function electricity",
+                        "execute as @e[type=tcmb:tcmb_car,c=1] at @s run execute as @s[tag=tc_parent] at @s run function tc_electricity",
+                        "execute as @e[type=tcmb:tcmb_car,c=1] at @s run execute as @s[tag=tc_child] at @s run function tc_electricity"
+                    ]
+                }
+            }
+        }
+    }
+}

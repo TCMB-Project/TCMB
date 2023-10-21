@@ -1,0 +1,582 @@
+{
+    "format_version": "1.18.0",
+    "animation_controllers": {
+        "controller.animation.tcmb_atc":{
+            "states": {
+                "default": {
+                    "transitions": [
+                        {
+                            "atc_off": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==37"
+                        },
+                        {
+                            "atc_0": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==0"
+                        },
+                        {
+                            "atc_10": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==1"
+                        },
+                        {
+                            "atc_20": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==2"
+                        },
+                        {
+                            "atc_30": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==3"
+                        },
+                        {
+                            "atc_40": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==4"
+                        },
+                        {
+                            "atc_50": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==5"
+                        },
+                        {
+                            "atc_60": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==6"
+                        },
+                        {
+                            "atc_70": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==7"
+                        },
+                        {
+                            "atc_80": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==8"
+                        },
+                        {
+                            "atc_90": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==9"
+                        },
+                        {
+                            "atc_100": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==10"
+                        },
+                        {
+                            "atc_110": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==11"
+                        },
+                        {
+                            "atc_120": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==12"
+                        },
+                        {
+                            "atc_130": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==13"
+                        },
+                        {
+                            "atc_140": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==14"
+                        },
+                        {
+                            "atc_150": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==15"
+                        },
+                        {
+                            "atc_160": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==16"
+                        },
+                        {
+                            "atc_170": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==17"
+                        },
+                        {
+                            "atc_180": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==18"
+                        },
+                        {
+                            "atc_190": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==19"
+                        },
+                        {
+                            "atc_200": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==20"
+                        },
+                        {
+                            "atc_210": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==21"
+                        },
+                        {
+                            "atc_220": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==22"
+                        },
+                        {
+                            "atc_230": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==23"
+                        },
+                        {
+                            "atc_240": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==24"
+                        },
+                        {
+                            "atc_250": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==25"
+                        },
+                        {
+                            "atc_260": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==26"
+                        },
+                        {
+                            "atc_270": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==27"
+                        },
+                        {
+                            "atc_280": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==28"
+                        },
+                        {
+                            "atc_290": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==29"
+                        },
+                        {
+                            "atc_300": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==30"
+                        },
+                        {
+                            "atc_310": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==31"
+                        },
+                        {
+                            "atc_320": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==32"
+                        },
+                        {
+                            "atc_330": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==33"
+                        },
+                        {
+                            "atc_340": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==34"
+                        },
+                        {
+                            "atc_350": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==35"
+                        },
+                        {
+                            "atc_360": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))==36"
+                        }
+                    ]
+                },
+                "atc_off": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=37"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_off",
+                        "/scoreboard players set @s atc 37"
+                    ]
+                },
+                "atc_0": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=0"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_0",
+                        "/scoreboard players set @s atc 0"
+                    ],
+                    "animations": [ "atc_0" ]
+                },
+                "atc_10": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=1"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_10",
+                        "/scoreboard players set @s atc 1"
+                    ],
+                    "animations": [ "atc_10" ]
+                },
+                "atc_20": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=2"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_20",
+                        "/scoreboard players set @s atc 2"
+                    ],
+                    "animations": [ "atc_20" ]
+                },
+                "atc_30": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=3"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_30",
+                        "/scoreboard players set @s atc 3"
+                    ],
+                    "animations": [ "atc_30" ]
+                },
+                "atc_40": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=4"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_40",
+                        "/scoreboard players set @s atc 4"
+                    ],
+                    "animations": [ "atc_40" ]
+                },
+                "atc_50": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=5"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_50",
+                        "/scoreboard players set @s atc 5"
+                    ],
+                    "animations": [ "atc_50" ]
+                },
+                "atc_60": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=6"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_60",
+                        "/scoreboard players set @s atc 6"
+                    ],
+                    "animations": [ "atc_60" ]
+                },
+                "atc_70": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=7"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_70",
+                        "/scoreboard players set @s atc 7"
+                    ],
+                    "animations": [ "atc_70" ]
+                },
+                "atc_80": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=8"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_80",
+                        "/scoreboard players set @s atc 8"
+                    ],
+                    "animations": [ "atc_80" ]
+                },
+                "atc_90": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=9"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_90",
+                        "/scoreboard players set @s atc 9"
+                    ],
+                    "animations": [ "atc_90" ]
+                },
+                "atc_100": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=10"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_100",
+                        "/scoreboard players set @s atc 10"
+                    ],
+                    "animations": [ "atc_100" ]
+                },
+                "atc_110": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=11"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_110",
+                        "/scoreboard players set @s atc 11"
+                    ],
+                    "animations": [ "atc_110" ]
+                },
+                "atc_120": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=12"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_120",
+                        "/scoreboard players set @s atc 12"
+                    ],
+                    "animations": [ "atc_120" ]
+                },
+                "atc_130": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=13"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_130",
+                        "/scoreboard players set @s atc 13"
+                    ],
+                    "animations": [ "atc_130" ]
+                },
+                "atc_140": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=14"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_140",
+                        "/scoreboard players set @s atc 14"
+                    ],
+                    "animations": [ "atc_140" ]
+                },
+                "atc_150": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=15"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_150",
+                        "/scoreboard players set @s atc 15"
+                    ],
+                    "animations": [ "atc_150" ]
+                },
+                "atc_160": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=16"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_160",
+                        "/scoreboard players set @s atc 16"
+                    ],
+                    "animations": [ "atc_160" ]
+                },
+                "atc_170": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=17"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_170",
+                        "/scoreboard players set @s atc 17"
+                    ],
+                    "animations": [ "atc_170" ]
+                },
+                "atc_180": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=18"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_180",
+                        "/scoreboard players set @s atc 18"
+                    ],
+                    "animations": [ "atc_180" ]
+                },
+                "atc_190": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=19"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_190",
+                        "/scoreboard players set @s atc 19"
+                    ],
+                    "animations": [ "atc_190" ]
+                },
+                "atc_200": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=20"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_200",
+                        "/scoreboard players set @s atc 20"
+                    ],
+                    "animations": [ "atc_200" ]
+                },
+                "atc_210": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=21"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_210",
+                        "/scoreboard players set @s atc 21"
+                    ],
+                    "animations": [ "atc_210" ]
+                },
+                "atc_220": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=22"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_220",
+                        "/scoreboard players set @s atc 22"
+                    ],
+                    "animations": [ "atc_220" ]
+                },
+                "atc_230": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=23"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_230",
+                        "/scoreboard players set @s atc 23"
+                    ],
+                    "animations": [ "atc_230" ]
+                },
+                "atc_240": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=24"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_240",
+                        "/scoreboard players set @s atc 24"
+                    ],
+                    "animations": [ "atc_240" ]
+                },
+                "atc_250": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=25"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_250",
+                        "/scoreboard players set @s atc 25"
+                    ],
+                    "animations": [ "atc_250" ]
+                },
+                "atc_260": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=26"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_260",
+                        "/scoreboard players set @s atc 26"
+                    ],
+                    "animations": [ "atc_260" ]
+                },
+                "atc_270": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=27"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_270",
+                        "/scoreboard players set @s atc 27"
+                    ],
+                    "animations": [ "atc_270" ]
+                },
+                "atc_280": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=28"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_280",
+                        "/scoreboard players set @s atc 28"
+                    ],
+                    "animations": [ "atc_280" ]
+                },
+                "atc_290": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=29"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_290",
+                        "/scoreboard players set @s atc 29"
+                    ],
+                    "animations": [ "atc_290" ]
+                },
+                "atc_300": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=30"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_300",
+                        "/scoreboard players set @s atc 30"
+                    ],
+                    "animations": [ "atc_300" ]
+                },
+                "atc_310": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=31"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_310",
+                        "/scoreboard players set @s atc 31"
+                    ],
+                    "animations": [ "atc_310" ]
+                },
+                "atc_320": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=32"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_320",
+                        "/scoreboard players set @s atc 32"
+                    ],
+                    "animations": [ "atc_320" ]
+                },
+                "atc_330": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=33"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_330",
+                        "/scoreboard players set @s atc 33"
+                    ],
+                    "animations": [ "atc_330" ]
+                },
+                "atc_340": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=34"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_340",
+                        "/scoreboard players set @s atc 34"
+                    ],
+                    "animations": [ "atc_340" ]
+                },
+                "atc_350": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=35"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_350",
+                        "/scoreboard players set @s atc 35"
+                    ],
+                    "animations": [ "atc_350" ]
+                },
+                "atc_360": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:cs_atc'),q.property('tcmb:datc'))!=36"
+                        }
+                    ],
+                    "on_entry": [
+                        "/event entity @e[tag=body,r=2] atc_360",
+                        "/scoreboard players set @s atc 36"
+                    ],
+                    "animations": [ "atc_360" ]
+                }
+            }
+        }
+    }
+}

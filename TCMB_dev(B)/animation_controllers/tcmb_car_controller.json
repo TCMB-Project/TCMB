@@ -1,0 +1,333 @@
+{
+    "format_version": "1.18.0",
+    "animation_controllers": {
+        "controller.animation.tcmb_car": {
+            "states": {
+                "default": {
+                    "transitions": [
+                        {
+                            "eb": "q.property('tcmb:notch') == -32"
+                        },
+                        {
+                            "b7_tasc_b31": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) == -31"
+                        },
+                        {
+                            "b6_tasc_b26": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) == -26"
+                        },
+                        {
+                            "b5_tasc_b21": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) == -21"
+                        },
+                        {
+                            "b4_tasc_b16": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) == -16"
+                        },
+                        {
+                            "b3_tasc_b11": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) == -11"
+                        },
+                        {
+                            "b2_tasc_b6": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) == -6"
+                        },
+                        {
+                            "b1_tasc_b1": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) == -1"
+                        },
+                        {
+                            "n_tasc_b0": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) == 0"
+                        },
+                        {
+                            "p1": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) == 1"
+                        },
+                        {
+                            "p2": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) == 2"
+                        },
+                        {
+                            "p3": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) == 3"
+                        },
+                        {
+                            "p4": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) == 4"
+                        }
+                    ]
+                },
+                "eb": {
+                    "transitions": [
+                        {
+                            "default": "q.property('tcmb:notch') != -32"
+                        }
+                    ],
+                    "on_entry": [
+                        "/function notch_remove",
+                        "/tag @s add eb"
+                    ],
+                    "animations": [ "tcmb_eb" ]
+                },
+                "b7_tasc_b31": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) != -31"
+                        }
+                    ],
+                    "on_entry": [
+                        "/function notch_remove",
+                        "/function tc_notch_b7",
+                        "/tag @s add b7"
+                    ],
+                    "animations": [ "tcmb_b7" ]
+                },
+                "b6_tasc_b26": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) != -26"
+                        }
+                    ],
+                    "on_entry": [
+                        "/function notch_remove",
+                        "/function tc_notch_b6",
+                        "/tag @s add b6"
+                    ],
+                    "animations": [ "tcmb_b6" ]
+                },
+                "b5_tasc_b21": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) != -21"
+                        }
+                    ],
+                    "on_entry": [
+                        "/function notch_remove",
+                        "/function tc_notch_b5",
+                        "/tag @s add b5"
+                    ],
+                    "animations": [ "tcmb_b5" ]
+                },
+                "b4_tasc_b16": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) != -16"
+                        }
+                    ],
+                    "on_entry": [
+                        "/function notch_remove",
+                        "/function tc_notch_b4",
+                        "/tag @s add b4"
+                    ],
+                    "animations": [ "tcmb_b4" ]
+                },
+                "b3_tasc_b11": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) != -11"
+                        }
+                    ],
+                    "on_entry": [
+                        "/function notch_remove",
+                        "/function tc_notch_b3",
+                        "/tag @s add b3"
+                    ],
+                    "animations": [ "tcmb_b3" ]
+                },
+                "b2_tasc_b6": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) != -6"
+                        }
+                    ],
+                    "on_entry": [
+                        "/function notch_remove",
+                        "/function tc_notch_b2",
+                        "/tag @s add b2"
+                    ],
+                    "animations": [ "tcmb_b2" ]
+                },
+                "b1_tasc_b1": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) != -1"
+                        }
+                    ],
+                    "on_entry": [
+                        "/function notch_remove",
+                        "/function tc_notch_b1",
+                        "/tag @s add b1"
+                    ],
+                    "animations": [ "tcmb_b1" ]
+                },
+                "n_tasc_b0": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) != 0"
+                        }
+                    ],
+                    "on_entry": [
+                        "/function notch_remove",
+                        "/function tc_notch_n",
+                        "/tag @s add n"
+                    ],
+                    "animations": [ "tcmb_n" ]
+                },
+                "p1": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) != 1"
+                        }
+                    ],
+                    "on_entry": [
+                        "/function notch_remove",
+                        "/tag @s add p1"
+                    ],
+                    "animations": [ "tcmb_p1" ]
+                },
+                "p2": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) != 2"
+                        }
+                    ],
+                    "on_entry": [
+                        "/function notch_remove",
+                        "/tag @s add p2"
+                    ],
+                     "animations": [ "tcmb_p2" ]
+                },
+                "p3": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) != 3"
+                        }
+                    ],
+                    "on_entry": [
+                        "/function notch_remove",
+                        "/tag @s add p3"
+                    ],
+                    "animations": [ "tcmb_p3" ]
+                },
+                
+                "p4": {
+                    "transitions": [
+                        {
+                            "default": "math.min(q.property('tcmb:notch'),q.property('tcmb:tasc_break')) != 4"
+                        }
+                    ],
+                    "on_entry": [
+                        "/function notch_remove",
+                        "/tag @s add p4"
+                    ],
+                    "animations": [ "tcmb_p4" ]
+                }
+            }
+        },
+        "controller.animation.tcmb_curve": {
+            "states": {
+                "default": {
+                    "transitions": [
+                        {
+                            "pt0": "q.property('tcmb:curve')==1"
+                        },
+                        {
+                            "pt1": "q.property('tcmb:curve')==2"
+                        },
+                        {
+                            "pt2": "q.property('tcmb:curve')==3"
+                        }
+                    ]
+                },
+                "pt0": {
+                    "transitions": [
+                        {
+                            "default": "q.property('tcmb:curve')!=1"
+                        }
+                    ],
+                    "on_entry": [ "/tag @s add pt0" ],
+                    "on_exit": [ "/tag @s remove pt0" ]
+                },
+                "pt1": {
+                    "transitions": [
+                        {
+                            "default": "q.property('tcmb:curve')!=2"
+                        }
+                    ],
+                    "on_entry": [ "/tag @s add pt1" ],
+                    "on_exit": [ "/tag @s remove pt1" ]
+                },
+                "pt2": {
+                    "transitions": [
+                        {
+                            "default": "q.property('tcmb:curve')!=3"
+                        }
+                    ],
+                    "on_entry": [ "/tag @s add pt2" ],
+                    "on_exit": [ "/tag @s remove pt2" ]   
+                }
+            }
+        },
+        "controller.animation.tcmb_direction": {
+            "states":{
+                "default": {
+                    "transitions":[
+                        {
+                            "x_plus": "q.movement_direction(0)>0"
+                        },
+                        {
+                            "x_minus": "q.movement_direction(0)<0"
+                        },
+                        {
+                            "z_plus": "q.movement_direction(2)>0"
+                        },
+                        {
+                            "z_minus": "q.movement_direction(2)<0"
+                        }
+                    ]
+                },
+                "x_plus": {
+                    "transitions":[
+                        {
+                            "default": "q.movement_direction(0)<=0"
+                        }
+                    ],
+                    "on_entry": [
+                        "/tag @s add x_plus"
+                    ],
+                    "on_exit": [
+                        "/tag @s remove x_plus"
+                    ]
+                },
+                "x_minus": {
+                    "transitions":[
+                        {
+                            "default": "q.movement_direction(0)>=0"
+                        }
+                    ],
+                    "on_entry": [
+                        "/tag @s add x_minus"
+                    ],
+                    "on_exit": [
+                        "/tag @s remove x_minus"
+                    ]
+                },
+                "z_plus": {
+                    "transitions":[
+                        {
+                            "default": "q.movement_direction(2)<=0"
+                        }
+                    ],
+                    "on_entry": [
+                        "/tag @s add z_plus"
+                    ],
+                    "on_exit": [
+                        "/tag @s remove z_plus"
+                    ]
+                },
+                "z_minus": {
+                    "transitions":[
+                        {
+                            "default": "q.movement_direction(2)>=0"
+                        }
+                    ],
+                    "on_entry": [
+                        "/tag @s add z_minus"
+                    ],
+                    "on_exit": [
+                        "/tag @s remove z_minus"
+                    ]
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,13 @@
+{
+	"format_version": "1.10",
+	"minecraft:item": {
+		"description": {
+			"identifier": "tcmb:open_left",
+			"category": "Items"
+		},
+		"components": {
+			"minecraft:icon": "tcmb_open_left",
+			"minecraft:render_offsets": "tools"
+		}
+	}
+}

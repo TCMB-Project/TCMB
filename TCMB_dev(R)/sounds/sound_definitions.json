@@ -1,0 +1,19 @@
+{
+    "format_version": "1.18.0",
+    "sound_definitions": {
+        "notch": {
+            "category": "neutral",
+            "max_distance": 100,
+            "sounds": [
+                "sounds/tcmb_sounds/notch"
+            ]
+        },
+        "break_remission": {
+            "category": "neutral",
+            "max_distance": 100,
+            "sounds": [
+                "sounds/tcmb_sounds/break_remission"
+            ]
+        }
+    }
+}

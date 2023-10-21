@@ -1,0 +1,46 @@
+{
+    "format_version":"1.19.50",
+    "minecraft:item": {
+        "description": {
+            "identifier": "tcmb:rotate_ground_facilities",
+            "category": "Items"
+        },
+        "components": {
+            "minecraft:icon": {
+                "texture": "tcmb_rotate_ground_facilities"
+            },
+            "minecraft:creative_category": {
+                "parent": "itemGroup.name.tcmb"
+            },
+            "minecraft:display_name":{
+                "value": "地上設備回転"
+            },
+            "minecraft:on_use_on": {
+                "on_use_on": {
+                    "event": "tcmb:click"
+                }
+            },
+            "minecraft:render_offsets":{
+                "main_hand":{
+                    "first_person":{
+                        "scale": [0, 0, 0]
+                    },
+                    "third_person":{
+                        "scale": [0, 0, 0]
+                    }
+                }
+            }            
+        },
+        "events": {
+            "tcmb:click": {
+                "run_command": {
+                    "command": [
+                        "playsound random.click @p",
+                        "execute as @e[family=ground_facilities,c=1] at @s run execute as @s[family=pdft] at @s run function pdft_rotate",
+                        "execute as @e[family=ground_facilities,c=1] at @s run execute as @s[family=!pdft] at @s run function transponder_rotate"
+                    ]
+                }
+            }
+        }
+    }
+}

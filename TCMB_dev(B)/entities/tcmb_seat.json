@@ -1,0 +1,25 @@
+{
+    "format_version": "1.18.0",
+    "minecraft:entity": {
+        "description": {
+            "identifier": "tcmb:seat",
+            "is_spawnable": false,
+            "is_summonable": true,
+            "is_experimental": false
+        },
+        "components": {
+            "minecraft:type_family": {
+                "family": [ "inanimate", "player", "tcmb_seat" ]
+            },
+            "minecraft:collision_box": {
+                "width": 1,
+                "height": 1
+            },
+            "minecraft:rideable": {
+                "family_types": [ "player" ],
+                "interact_text": "action.interact.ride.tcmb_seat"
+            },
+            "minecraft:physics": {}
+        }
+    }
+}

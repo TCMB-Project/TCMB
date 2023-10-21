@@ -1,0 +1,10 @@
+{
+    "files": ["main.ts", "engine.ts", "classes.ts", "util.ts"],
+    "compilerOptions": {
+        "module": "ES2020",
+        "target": "ES2021",
+        "moduleResolution": "Node",
+        "allowSyntheticDefaultImports": true,
+        "outDir": "../TCMB_dev(B)/scripts"
+    }
+}

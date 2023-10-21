@@ -1,0 +1,13 @@
+{
+	"format_version": "1.10",
+	"minecraft:item": {
+		"description": {
+			"identifier": "tcmb:dest_reverse",
+			"category": "Items"
+		},
+		"components": {
+			"minecraft:icon": "tcmb_dest_reverse",
+			"minecraft:render_offsets": "tools"
+		}
+	}
+}

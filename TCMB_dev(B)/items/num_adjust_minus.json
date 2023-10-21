@@ -1,0 +1,51 @@
+{
+    "format_version":"1.19.50",
+    "minecraft:item": {
+        "description": {
+            "identifier": "tcmb:num_adjust_minus",
+            "category": "Items"
+        },
+        "components": {
+            "minecraft:icon": {
+                "texture": "tcmb_num_adjust_minus"
+            },
+            "minecraft:creative_category": {
+                "parent": "itemGroup.name.tcmb"
+            },
+            "minecraft:display_name":{
+                "value": "地上設備数値減算"
+            },
+            "minecraft:on_use_on": {
+                "on_use_on": {
+                    "event": "tcmb:click"
+                }
+            },
+            "minecraft:render_offsets":{
+                "main_hand":{
+                    "first_person":{
+                        "scale": [0, 0, 0]
+                    },
+                    "third_person":{
+                        "scale": [0, 0, 0]
+                    }
+                }
+            }            
+        },
+        "events": {
+            "tcmb:click": {
+                "run_command": {
+                    "command": [
+                        "playsound random.click @p",
+                        "execute as @e[family=num_adjust,c=1] at @s run execute as @s[type=tcmb:atacs_transponder] at @s run function atacs_transponder_on_off",
+                        "execute as @e[family=num_adjust,c=1] at @s run execute as @s[family=pdft] at @s run function pdft_channel_minus",
+                        "execute as @e[family=num_adjust,c=1] at @s run execute as @s[family=ats] at @s run function transponder/ats_speed_minus",
+                        "execute as @e[family=num_adjust,c=1] at @s run execute as @s[type=tcmb:atc_transponder] at @s run function transponder/atc_speed_minus",
+                        "execute as @e[family=num_adjust,c=1] at @s run execute as @s[type=tcmb:tasc_hosei] at @s run function tasc_distance_minus",
+                        "execute as @e[family=num_adjust,c=1] at @s run execute as @s[type=tcmb:d-atc_line_transponder] at @s run function d-atc_line_minus",
+                        "execute as @e[family=num_adjust,c=1] at @s run execute as @s[type=tcmb:d-atc_block_transponder] at @s run function d-atc_block_minus"
+                    ]
+                }
+            }
+        }
+    }
+}

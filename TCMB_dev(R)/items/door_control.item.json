@@ -1,0 +1,13 @@
+{
+	"format_version": "1.10",
+	"minecraft:item": {
+		"description": {
+			"identifier": "tcmb:door_control",
+			"category": "Items"
+		},
+		"components": {
+			"minecraft:icon": "tcmb_door_control",
+			"minecraft:render_offsets": "tools"
+		}
+	}
+}

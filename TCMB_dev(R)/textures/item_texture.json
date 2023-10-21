@@ -1,0 +1,78 @@
+{
+    "resource_pack_name": "vanilla",
+    "texture_name": "atlas.items",
+    "texture_data": {
+        "tcmb_electricity_control": {
+            "textures": "textures/items/electricity_control"
+        },
+        "tcmb_dest": {
+            "textures": "textures/items/dest"
+        },
+        "tcmb_dest_reverse": {
+            "textures": "textures/items/dest_reverse"
+        },
+        "tcmb_oneman": {
+            "textures": "textures/items/oneman"
+        },
+        "tcmb_electricity": {
+            "textures": "textures/items/electricity"
+        },
+        "tcmb_direction": {
+            "textures": "textures/items/direction"
+        },
+        "tcmb_door_control": {
+            "textures": "textures/items/door_control"
+        },
+        "tcmb_open_right": {
+            "textures": "textures/items/open_right"
+        },
+        "tcmb_open_left": {
+            "textures": "textures/items/open_left"
+        },
+        "tcmb_open_all": {
+            "textures": "textures/items/open_all"
+        },
+        "tcmb_oneman_open_right": {
+            "textures": "textures/items/oneman_open_right"
+        },
+        "tcmb_oneman_open_left": {
+            "textures": "textures/items/oneman_open_left"
+        },
+        "tcmb_close": {
+            "textures": "textures/items/close"
+        },
+        "tcmb_notch_power": {
+            "textures": "textures/items/notch_power"
+        },
+        "tcmb_notch_neutral": {
+            "textures": "textures/items/notch_neutral"
+        },
+        "tcmb_notch_break": {
+            "textures": "textures/items/notch_break"
+        },
+        "tcmb_ride": {
+            "textures": "textures/items/ride"
+        },
+        "tcmb_delete_train": {
+            "textures": "textures/items/delete_train"
+        },
+        "tcmb_seat_control": {
+            "textures": "textures/items/seat"
+        },
+        "tcmb_delete_ground_facilities": {
+            "textures": "textures/items/delete_ground_facilities"
+        },
+        "tcmb_rotate_ground_facilities": {
+            "textures": "textures/items/rotate_ground_facilities"
+        },
+        "tcmb_num_adjust_check": {
+            "textures": "textures/items/num_adjust_check"
+        },
+        "tcmb_num_adjust_plus": {
+            "textures": "textures/items/num_adjust_plus"
+        },
+        "tcmb_num_adjust_minus": {
+            "textures": "textures/items/num_adjust_minus"
+        }
+    }
+}

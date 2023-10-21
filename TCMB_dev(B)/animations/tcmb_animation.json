@@ -1,0 +1,661 @@
+{
+    "format_version": "1.19.0",
+    "animations": {
+        "animation.tcmb_eb": {
+            "animation_length": 0.15,
+            "loop": true,
+            "timeline": {
+               "0.0": [
+                "/execute if entity @s[tag=!tc_child] run function speed_down",
+                "/function train_connect",
+                "/playanimation @e[tag=body,r=1] eb eb 32767",
+                "@s tasc_remove",
+                "@s tasc_off",
+                "/tag @e[tag=body,r=2] remove tasc_on",
+                "/tag @s remove ato_on",
+                "/tag @e[tag=body,r=2] remove ato_on"
+               ]
+            }
+        },
+        "animation.tcmb_b7": {
+            "animation_length": 0.2,
+            "loop": true,
+            "timeline": {
+               "0.0": [
+                "/execute if entity @s[tag=!tc_child] run function speed_down",
+                "/function train_connect",
+                "/playanimation @e[tag=body,r=1] b7 b7 32767"
+               ]
+            }
+        },
+        "animation.tcmb_b6": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+               "0.0": [
+                "/execute if entity @s[tag=!tc_child] run function speed_down",
+                "/function train_connect",
+                "/playanimation @e[tag=body,r=1] b6 b6 32767"
+               ]
+            }
+        },
+        "animation.tcmb_b5": {
+            "animation_length": 0.3,
+            "loop": true,
+            "timeline": {
+               "0.0": [
+                "/execute if entity @s[tag=!tc_child] run function speed_down",
+                "/function train_connect",
+                "/playanimation @e[tag=body,r=1] b5 b5 32767"
+               ]
+            }
+        },
+        "animation.tcmb_b4": {
+            "animation_length": 0.35,
+            "loop": true,
+            "timeline": {
+               "0.0": [
+                "/execute if entity @s[tag=!tc_child] run function speed_down",
+                "/function train_connect",
+                "/playanimation @e[tag=body,r=1] b4 b4 32767"
+               ] 
+            }
+        },
+        "animation.tcmb_b3": {
+            "animation_length": 0.4,
+            "loop": true,
+            "timeline": {
+               "0.0": [
+                "/execute if entity @s[tag=!tc_child] run function speed_down",
+                "/function train_connect",
+                "/playanimation @e[tag=body,r=1] b3 b3 32767"
+               ]
+            }
+        },
+        "animation.tcmb_b2": {
+            "animation_length": 0.45,
+            "loop": true,
+            "timeline": {
+               "0.0": [
+                "/execute if entity @s[tag=!tc_child] run function speed_down",
+                "/function train_connect",
+                "/playanimation @e[tag=body,r=1] b2 b2 32767"
+               ]
+            }
+        },
+        "animation.tcmb_b1": {
+            "animation_length": 0.5,
+            "loop": true,
+            "timeline": {
+               "0.0": [
+                "/execute if entity @s[tag=!tc_child] run function speed_down",
+                "/function train_connect",
+                "/playanimation @e[tag=body,r=1] b1 b1 32767"
+               ]
+            }
+        },
+        "animation.tcmb_n": {
+            "animation_length": 0.05,
+            "loop": true,
+            "timeline": {
+               "0.0": [
+                "/function train_connect",
+                "/playanimation @e[tag=body,r=1] n n 32767"
+               ]
+            }
+        },
+        "animation.tcmb_p1": {
+            "animation_length": 1,
+            "loop": true,
+            "timeline": {
+               "0.0": [
+                "/function speed_up",
+                "/function train_connect",
+                "/playanimation @e[tag=body,r=1] p1 p1 32767"
+               ]     
+            }
+        },
+        "animation.tcmb_p2": {
+            "animation_length": 0.75,
+            "loop": true,
+            "timeline": {
+               "0.0": [
+                "/function speed_up",
+                "/function train_connect",
+                "/playanimation @e[tag=body,r=1] p2 p2 32767"
+               ]
+            }
+        },
+        "animation.tcmb_p3": {
+            "animation_length": 0.5,
+            "loop": true,
+            "timeline": {
+               "0.0": [
+                "/function speed_up",
+                "/function train_connect",
+                "/playanimation @e[tag=body,r=1] p3 p3 32767"
+               ]  
+            }
+        },
+        "animation.tcmb_p4": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+               "0.0": [
+                "/function speed_up",
+                "/function train_connect",
+                "/playanimation @e[tag=body,r=1] p4 p4 32767"
+               ]
+            }
+        },
+        "animation.tcmb_atc_0": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=7..}] at @s run function b7",
+                    "/execute as @s[scores={speed=6}] at @s run function b6",
+                    "/execute as @s[scores={speed=5}] at @s run function b5",
+                    "/execute as @s[scores={speed=4}] at @s run function b4",
+                    "/execute as @s[scores={speed=3}] at @s run function b3",
+                    "/execute as @s[scores={speed=2}] at @s run function b2",
+                    "/execute as @s[scores={speed=1}] at @s run function b1"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_10": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=17..}] at @s run function b7",
+                    "/execute as @s[scores={speed=16}] at @s run function b6",
+                    "/execute as @s[scores={speed=15}] at @s run function b5",
+                    "/execute as @s[scores={speed=14}] at @s run function b4",
+                    "/execute as @s[scores={speed=13}] at @s run function b3",
+                    "/execute as @s[scores={speed=12}] at @s run function b2",
+                    "/execute as @s[scores={speed=11}] at @s run function b1",
+                    "/execute as @s[scores={speed=10}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=9}] at @s run function p2",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..8}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_20": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=27..}] at @s run function b7",
+                    "/execute as @s[scores={speed=26}] at @s run function b6",
+                    "/execute as @s[scores={speed=25}] at @s run function b5",
+                    "/execute as @s[scores={speed=24}] at @s run function b4",
+                    "/execute as @s[scores={speed=23}] at @s run function b3",
+                    "/execute as @s[scores={speed=22}] at @s run function b2",
+                    "/execute as @s[scores={speed=21}] at @s run function b1",
+                    "/execute as @s[scores={speed=20}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=19}] at @s run function p2",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..18}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_30": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=37..}] at @s run function b7",
+                    "/execute as @s[scores={speed=36}] at @s run function b6",
+                    "/execute as @s[scores={speed=35}] at @s run function b5",
+                    "/execute as @s[scores={speed=34}] at @s run function b4",
+                    "/execute as @s[scores={speed=33}] at @s run function b3",
+                    "/execute as @s[scores={speed=32}] at @s run function b2",
+                    "/execute as @s[scores={speed=31}] at @s run function b1",
+                    "/execute as @s[scores={speed=30}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=29}] at @s run function p2",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..28}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_40": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=47..}] at @s run function b7",
+                    "/execute as @s[scores={speed=46}] at @s run function b6",
+                    "/execute as @s[scores={speed=45}] at @s run function b5",
+                    "/execute as @s[scores={speed=44}] at @s run function b4",
+                    "/execute as @s[scores={speed=43}] at @s run function b3",
+                    "/execute as @s[scores={speed=42}] at @s run function b2",
+                    "/execute as @s[scores={speed=41}] at @s run function b1",
+                    "/execute as @s[scores={speed=40}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=39}] at @s run function p2",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..38}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_50": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=57..}] at @s run function b7",
+                    "/execute as @s[scores={speed=56}] at @s run function b6",
+                    "/execute as @s[scores={speed=55}] at @s run function b5",
+                    "/execute as @s[scores={speed=54}] at @s run function b4",
+                    "/execute as @s[scores={speed=53}] at @s run function b3",
+                    "/execute as @s[scores={speed=52}] at @s run function b2",
+                    "/execute as @s[scores={speed=51}] at @s run function b1",
+                    "/execute as @s[scores={speed=50}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=49}] at @s run function p2",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..48}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_60": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=67..}] at @s run function b7",
+                    "/execute as @s[scores={speed=66}] at @s run function b6",
+                    "/execute as @s[scores={speed=65}] at @s run function b5",
+                    "/execute as @s[scores={speed=64}] at @s run function b4",
+                    "/execute as @s[scores={speed=63}] at @s run function b3",
+                    "/execute as @s[scores={speed=62}] at @s run function b2",
+                    "/execute as @s[scores={speed=61}] at @s run function b1",
+                    "/execute as @s[scores={speed=60}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=59}] at @s run function p2",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..58}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_70": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=77..}] at @s run function b7",
+                    "/execute as @s[scores={speed=76}] at @s run function b6",
+                    "/execute as @s[scores={speed=75}] at @s run function b5",
+                    "/execute as @s[scores={speed=74}] at @s run function b4",
+                    "/execute as @s[scores={speed=73}] at @s run function b3",
+                    "/execute as @s[scores={speed=72}] at @s run function b2",
+                    "/execute as @s[scores={speed=71}] at @s run function b1",
+                    "/execute as @s[scores={speed=70}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=69}] at @s run function p2",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..68}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_80": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=87..}] at @s run function b7",
+                    "/execute as @s[scores={speed=86}] at @s run function b6",
+                    "/execute as @s[scores={speed=85}] at @s run function b5",
+                    "/execute as @s[scores={speed=84}] at @s run function b4",
+                    "/execute as @s[scores={speed=83}] at @s run function b3",
+                    "/execute as @s[scores={speed=82}] at @s run function b2",
+                    "/execute as @s[scores={speed=81}] at @s run function b1",
+                    "/execute as @s[scores={speed=80}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=79}] at @s run function p2",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..78}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_90": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=97..}] at @s run function b7",
+                    "/execute as @s[scores={speed=96}] at @s run function b6",
+                    "/execute as @s[scores={speed=95}] at @s run function b5",
+                    "/execute as @s[scores={speed=94}] at @s run function b4",
+                    "/execute as @s[scores={speed=93}] at @s run function b3",
+                    "/execute as @s[scores={speed=92}] at @s run function b2",
+                    "/execute as @s[scores={speed=91}] at @s run function b1",
+                    "/execute as @s[scores={speed=90}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=89}] at @s run function p2",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..88}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_100": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=107..}] at @s run function b7",
+                    "/execute as @s[scores={speed=106}] at @s run function b6",
+                    "/execute as @s[scores={speed=105}] at @s run function b5",
+                    "/execute as @s[scores={speed=104}] at @s run function b4",
+                    "/execute as @s[scores={speed=103}] at @s run function b3",
+                    "/execute as @s[scores={speed=102}] at @s run function b2",
+                    "/execute as @s[scores={speed=101}] at @s run function b1",
+                    "/execute as @s[scores={speed=100}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=99}] at @s run function p2",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..98}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_110": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=117..}] at @s run function b7",
+                    "/execute as @s[scores={speed=116}] at @s run function b6",
+                    "/execute as @s[scores={speed=115}] at @s run function b5",
+                    "/execute as @s[scores={speed=114}] at @s run function b4",
+                    "/execute as @s[scores={speed=113}] at @s run function b3",
+                    "/execute as @s[scores={speed=112}] at @s run function b2",
+                    "/execute as @s[scores={speed=111}] at @s run function b1",
+                    "/execute as @s[scores={speed=110}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=109}] at @s run function p2",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..108}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_120": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=127..}] at @s run function b7",
+                    "/execute as @s[scores={speed=126}] at @s run function b6",
+                    "/execute as @s[scores={speed=125}] at @s run function b5",
+                    "/execute as @s[scores={speed=124}] at @s run function b4",
+                    "/execute as @s[scores={speed=123}] at @s run function b3",
+                    "/execute as @s[scores={speed=122}] at @s run function b2",
+                    "/execute as @s[scores={speed=121}] at @s run function b1",
+                    "/execute as @s[scores={speed=120}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=119}] at @s run function p2",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..118}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_130": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=137..}] at @s run function b7",
+                    "/execute as @s[scores={speed=136}] at @s run function b6",
+                    "/execute as @s[scores={speed=135}] at @s run function b5",
+                    "/execute as @s[scores={speed=134}] at @s run function b4",
+                    "/execute as @s[scores={speed=133}] at @s run function b3",
+                    "/execute as @s[scores={speed=132}] at @s run function b2",
+                    "/execute as @s[scores={speed=131}] at @s run function b1",
+                    "/execute as @s[scores={speed=130}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=129}] at @s run function p2",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..128}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_140": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=141..}] at @s run function b7",
+                    "/execute as @s[scores={speed=140}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..139}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_150": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=151..}] at @s run function b7",
+                    "/execute as @s[scores={speed=150}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..149}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_160": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=161..}] at @s run function b7",
+                    "/execute as @s[scores={speed=160}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..159}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_170": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=171..}] at @s run function b7",
+                    "/execute as @s[scores={speed=170}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..169}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_180": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=181..}] at @s run function b7",
+                    "/execute as @s[scores={speed=180}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..179}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_190": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=191..}] at @s run function b7",
+                    "/execute as @s[scores={speed=190}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..189}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_200": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=201..}] at @s run function b7",
+                    "/execute as @s[scores={speed=200}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..199}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_210": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=211..}] at @s run function b7",
+                    "/execute as @s[scores={speed=210}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..209}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_220": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=221..}] at @s run function b7",
+                    "/execute as @s[scores={speed=220}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..219}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_230": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=231..}] at @s run function b7",
+                    "/execute as @s[scores={speed=230}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..229}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_240": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=241..}] at @s run function b7",
+                    "/execute as @s[scores={speed=240}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..239}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_250": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=251..}] at @s run function b7",
+                    "/execute as @s[scores={speed=250}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..249}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_260": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=261..}] at @s run function b7",
+                    "/execute as @s[scores={speed=260}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..259}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_270": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=271..}] at @s run function b7",
+                    "/execute as @s[scores={speed=270}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..269}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_280": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=281..}] at @s run function b7",
+                    "/execute as @s[scores={speed=280}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..279}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_290": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=291..}] at @s run function b7",
+                    "/execute as @s[scores={speed=290}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..289}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_300": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=301..}] at @s run function b7",
+                    "/execute as @s[scores={speed=300}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..299}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_310": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=311..}] at @s run function b7",
+                    "/execute as @s[scores={speed=310}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..309}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_320": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=321..}] at @s run function b7",
+                    "/execute as @s[scores={speed=320}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..319}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_330": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=331..}] at @s run function b7",
+                    "/execute as @s[scores={speed=330}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..329}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_340": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=341..}] at @s run function b7",
+                    "/execute as @s[scores={speed=340}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..339}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_350": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=351..}] at @s run function b7",
+                    "/execute as @s[scores={speed=350}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..349}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_atc_360": {
+            "animation_length": 0.25,
+            "loop": true,
+            "timeline": {
+                "0.0": [
+                    "/execute as @s[scores={speed=361..}] at @s run function b7",
+                    "/execute as @s[scores={speed=360}] at @s run function n",
+                    "/execute as @s[tag=ato_on,tag=!tasc_on,scores={speed=..359}] at @s run function p4"
+                ] 
+            }
+        },
+        "animation.tcmb_starter_remove": {
+            "animation_length": 1.1,
+            "loop": false,
+            "timeline": {
+                "1.0": "@s delete"
+            }
+        }
+    }
+}

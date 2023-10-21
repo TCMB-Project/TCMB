@@ -1,0 +1,55 @@
+{
+    "format_version": "1.18.0",
+    "minecraft:entity": {
+        "description": {
+            "identifier": "tcmb:tcmb_starter",
+            "is_spawnable": false,
+            "is_summonable": true,
+            "is_experimental": false,
+            "runtime_identifier": "minecraft:minecart",
+            "animations":{
+                "tcmb_starter_remove": "animation.tcmb_starter_remove"
+            },
+            "scripts":{
+                "animate":[
+                    "tcmb_starter_remove"
+                ]
+            }
+        },
+        "component_groups": {
+            "delete_self": {
+                "minecraft:instant_despawn":{}
+            }
+        },
+        "components": {
+            "minecraft:is_stackable": {},
+            "minecraft:type_family": {
+                "family": [
+                    "inanimate",
+                    "tcmb_item"
+                ]
+            },
+            "minecraft:collision_box": {
+                "width": 1,
+                "height": 1
+            },
+            "minecraft:rail_movement": {
+                "max_speed": 0.0
+            },
+            "minecraft:physics": {},
+            "minecraft:pushable": {
+                "is_pushable": true,
+                "is_pushable_by_piston": true
+            }
+        },
+        "events": {
+            "delete": {
+                "add": {
+                    "component_groups": [
+                        "delete_self"
+                    ]
+                }
+            }
+        }
+    }
+}
