@@ -2,6 +2,9 @@
     "resource_pack_name": "vanilla",
     "texture_name": "atlas.items",
     "texture_data": {
+        "tcmb_crew_panel":{
+            "textures":"textures/items/crew_panel"
+        },
         "tcmb_electricity_control": {
             "textures": "textures/items/electricity_control"
         },

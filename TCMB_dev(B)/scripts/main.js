@@ -27,6 +27,11 @@ world.afterEvents.itemUse.subscribe((ev) => {
         type: "tcmb:tcmb_car",
         closest: 1
     };
+    let event_train_query = {
+        families: ["tcmb_car"],
+        location: ev.source.location,
+        closest: 1
+    };
     let evdata;
     switch (item_type_id) {
         case "tcmb:delete_train":
@@ -42,40 +47,19 @@ world.afterEvents.itemUse.subscribe((ev) => {
             train.runCommandAsync("function delete_train");
             break;
         case "tcmb:notch_power":
-            let player_riding = ev.source.getComponent("minecraft:riding");
-            console.log(player_riding);
-            if (player_riding != undefined) {
-                //train = player_riding.entityRidingOn;
-            }
-            else {
-                train = overworld.getEntities(train_query)[0];
-            }
-            if (!train.hasTag("voltage_0")) {
-                train.runCommandAsync("playsound notch @a[r=25]");
-                train.runCommandAsync("function notch_power");
-                if (train.hasTag("tc_parent") || train.hasTag("tc_child"))
-                    train.runCommandAsync("function tc_notch_power");
-            }
+            train = overworld.getEntities(event_train_query)[0];
+            evdata = new Event('notch', { operation: 'power' }, train, ev.source);
+            evdata.send();
             break;
         case "tcmb:notch_neutral":
-            train = overworld.getEntities(train_query)[0];
-            if (!train.hasTag("voltage_0")) {
-                train.runCommandAsync("playsound notch @a[r=25]");
-                if (!train.hasTag("stopping") && speedObject.getScore(train) == 0)
-                    train.runCommandAsync("playsound break_remission @a[r=100]");
-                train.runCommandAsync("function notch_neutral");
-                if (train.hasTag("tc_parent") || train.hasTag("tc_child"))
-                    train.runCommandAsync("function tc_notch_neutral");
-            }
+            train = overworld.getEntities(event_train_query)[0];
+            evdata = new Event('notch', { operation: 'neutral' }, train, ev.source);
+            evdata.send();
             break;
         case "tcmb:notch_break":
-            train = overworld.getEntities(train_query)[0];
-            if (!train.hasTag("voltage_0")) {
-                train.runCommandAsync("playsound notch @a[r=25]");
-                train.runCommandAsync("function notch_break");
-                if (train.hasTag("tc_parent") || train.hasTag("tc_child"))
-                    train.runCommandAsync("function tc_notch_break");
-            }
+            train = overworld.getEntities(event_train_query)[0];
+            evdata = new Event('notch', { operation: 'break' }, train, ev.source);
+            evdata.send();
             break;
         case "tcmb:open_left":
             ev.source.runCommandAsync("execute as @e[type=tcmb:tcmb_car,c=1] at @s run execute as @s[tag=!voltage_0] at @s run function open_left");
@@ -98,16 +82,19 @@ world.afterEvents.itemUse.subscribe((ev) => {
             ev.source.runCommandAsync("execute as @e[type=tcmb:tcmb_car,c=1] at @s run execute as @s[tag=!voltage_0,tag=tc_child] at @s run function tc_close");
             break;
         case "tcmb:door_control":
+            train = overworld.getEntities(event_train_query)[0];
             //"execute as @p at @s run scriptevent tcmb:door_control"
-            evdata = new Event('door_control', undefined, undefined, ev.source);
+            evdata = new Event('door_control', undefined, train, ev.source);
             evdata.send();
             break;
         case "tcmb:ride":
-            evdata = new Event('rideBefore', undefined, undefined, ev.source);
+            train = overworld.getEntities(event_train_query)[0];
+            evdata = new Event('rideBefore', undefined, train, ev.source);
             evdata.send();
             break;
         case "tcmb:direction":
-            evdata = new Event('directionBefore', undefined, undefined, ev.source);
+            train = overworld.getEntities(event_train_query)[0];
+            evdata = new Event('directionBefore', undefined, train, ev.source);
             evdata.send();
             break;
         case "tcmb:dest":
@@ -128,5 +115,10 @@ world.afterEvents.itemUse.subscribe((ev) => {
                     train.runCommandAsync("function tc_dest_reverse");
             }
             break;
+        case "tcmb:crew_panel":
+            train = overworld.getEntities(event_train_query)[0];
+            evdata = new Event('open_crew_panelBefore', undefined, train, ev.source);
+            evdata.send();
+
     }
 });

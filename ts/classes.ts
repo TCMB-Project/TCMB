@@ -45,3 +45,19 @@ export class Event{
         overworld.runCommandAsync(`/scriptevent tcmb:reply ${stringify_data}`)
     }
 }
+
+export class PanelButton{
+    official: boolean;
+    title: string;
+    texture: string | undefined;
+    response: string | undefined;
+    constructor(official:boolean, title:string, texture:string | undefined, response: string | undefined){
+        if(!official && typeof texture != "undefined"){
+            throw new TypeError('non-official button must not defined texture.');
+        }
+        this.official = official;
+        this.title = title;
+        this.texture = texture;
+        this.response = response;
+    }
+}

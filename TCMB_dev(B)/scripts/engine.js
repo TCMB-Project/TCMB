@@ -267,6 +267,19 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                         event_report.reply();
                     }
                     break;
+                case "notch":
+                    train = overworld.getEntities(train_query)[0];
+                    if (typeof train != "undefined" && train.typeId == "tcmb:tcmb_car") {
+                        if (!train.hasTag("voltage_0")) {
+                            train.runCommandAsync("playsound notch @a[r=25]");
+                            if (!train.hasTag("stopping") && speedObject.getScore(train) == 0 && evdata.status["operation"] == "neutral")
+                                train.runCommandAsync("playsound break_remission @a[r=100]");
+                            train.runCommandAsync("function notch_" + evdata.status["operation"]);
+                            if (train.hasTag("tc_parent") || train.hasTag("tc_child"))
+                                train.runCommandAsync("function tc_notch_" + evdata.status["operation"]);
+                        }
+                    }
+                    break;
             }
             break;
         case "tcmb:engine_door":
