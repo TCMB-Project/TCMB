@@ -42,17 +42,17 @@ world.afterEvents.itemUse.subscribe((ev)=>{
     switch(item_type_id){
         case "tcmb:delete_train":
             train = overworld.getEntities(event_train_query)[0];
-            evdata = new Event('delete', undefined, train, ev.source);
+            evdata = new Event('deleteBefore', undefined, train, ev.source);
             evdata.send();
         break;
         case "tcmb:notch_power":
             train = overworld.getEntities(event_train_query)[0];
-            evdata = new Event('notch', {operation: 'power'}, train, ev.source);
+            evdata = new Event('notchBefore', {operation: 'power'}, train, ev.source);
             evdata.send();
         break;
         case "tcmb:notch_neutral":
             train = overworld.getEntities(event_train_query)[0];
-            evdata = new Event('notch', {operation: 'neutral'}, train, ev.source);
+            evdata = new Event('notchBefore', {operation: 'neutral'}, train, ev.source);
             evdata.send();
         break;
         case "tcmb:notch_break":

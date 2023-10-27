@@ -209,53 +209,7 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                     train = overworld.getEntities(train_query)[0];
                     if (typeof train != "undefined" && train.typeId == "tcmb:tcmb_car") {
                         var player = world.getPlayers({ name: evdata.player.name })[0];
-                        const doorForm = new ActionFormData()
-                            .title("ドア操作パネル")
-                            .body("開きたいドアの選択、または閉じる操作の実行")
-                            .button("左ドア開", "textures/items/open_left")
-                            .button("右ドア開", "textures/items/open_right")
-                            .button("両ドア開", "textures/items/open_all")
-                            .button("左ドア開(一部締め切り)", "textures/items/oneman_open_left")
-                            .button("右ドア開(一部締め切り)", "textures/items/oneman_open_right")
-                            .button("閉じる(共通)", "textures/items/close");
-                        doorForm.show(player).then(rawResponse => {
-                            if (rawResponse.canceled)
-                                return;
-                            var response = rawResponse.selection;
-                            switch (response) {
-                                case 0:
-                                    var door_order = "open_left";
-                                    break;
-                                case 1:
-                                    var door_order = "open_right";
-                                    break;
-                                case 2:
-                                    var door_order = "open_all";
-                                    break;
-                                case 3:
-                                    var door_order = "oneman_open_left";
-                                    break;
-                                case 4:
-                                    var door_order = "oneman_open_right";
-                                    break;
-                                case 5:
-                                    var door_order = "close";
-                                    break;
-                            }
-                            let event_report;
-                            train.runCommandAsync("execute as @s[tag=!voltage_0] at @s run function " + door_order);
-                            train.runCommandAsync("execute as @s[tag=!voltage_0,tag=tc_parent] at @s run function tc_" + door_order);
-                            train.runCommandAsync("execute as @s[tag=!voltage_0,tag=tc_child] at @s run function tc_" + door_order);
-                            if (door_order != "close") {
-                                event_report = new Event("door", { door_direction: door_order, open: true }, train, player);
-                            }
-                            else {
-                                event_report = new Event("door", { open: false }, train, player);
-                            }
-                            event_report.reply();
-                        }).catch(e => {
-                            console.error(e, e.stack);
-                        });
+                        door_ctrl(player, train);
                     }
                     break;
                 case "directionBefore":
@@ -275,13 +229,13 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                     train = overworld.getEntities(train_query)[0];
                     if (typeof train != "undefined" && train.typeId == "tcmb:tcmb_car") {
                         if (!train.hasTag("voltage_0")) {
-                            if (train.hasTag('eb') || train.hasTag('p4') || (train.hasTag("n") && evdata.status["operation"] == "neutral")) {
+                            if (!(train.hasTag('eb') && evdata.status["operation"] == "break") && !(train.hasTag('p4') && evdata.status["operation"] == "power") && !(train.hasTag("n") && evdata.status["operation"] == "neutral")) {
                                 train.runCommandAsync("playsound notch @a[r=25]");
+                                if (!train.hasTag("stopping") && speedObject.getScore(train) == 0 && evdata.status["operation"] == "neutral")
+                                    train.runCommandAsync("playsound break_remission @a[r=100]");
                                 let event_report = new Event('notch', evdata.status, train, player);
                                 event_report.reply();
                             }
-                            if (!train.hasTag("stopping") && speedObject.getScore(train) == 0 && evdata.status["operation"] == "neutral")
-                                train.runCommandAsync("playsound break_remission @a[r=100]");
                             train.runCommandAsync("function notch_" + evdata.status["operation"]);
                             if (train.hasTag("tc_parent") || train.hasTag("tc_child"))
                                 train.runCommandAsync("function tc_notch_" + evdata.status["operation"]);
@@ -289,6 +243,7 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                     }
                     break;
                 case "deleteBefore":
+                    var player = world.getPlayers({ name: evdata.player.name })[0];
                     player.runCommandAsync("playsound random.click @s");
                     let delete_train_query = {
                         tags: ["body"],
@@ -301,14 +256,31 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                     train.runCommandAsync("function delete_train");
                     let event_report = new Event('delete', undefined, train, player);
                     event_report.reply();
+                    break;
                 case "open_crew_panelBefore":
-                    let crewpanel = new ActionFormData()
-                        .title('乗務パネル');
-                    for (const button of crew_panel_buttons) {
-                        crewpanel.button(button.title, button.texture);
+                    train = overworld.getEntities(train_query)[0];
+                    if (typeof train != "undefined" && train.typeId == "tcmb:tcmb_car") {
+                        var player = world.getPlayers({ name: evdata.player.name })[0];
+                        let crewpanel = new ActionFormData()
+                            .title('乗務パネル');
+                        for (const button of crew_panel_buttons) {
+                            crewpanel.button(button.title, button.texture);
+                        }
+                        crewpanel.show(player).then((response) => {
+                            if (typeof crew_panel_buttons[response.selection].response == 'undefined') {
+                                switch (response.selection) {
+                                    case 1:
+                                        door_ctrl(player, train);
+                                        break;
+                                    case 3:
+                                        train.runCommandAsync('function eb');
+                                }
+                            }
+                            else {
+                                overworld.runCommandAsync(`scriptevent ${crew_panel_buttons[response.selection].response}`);
+                            }
+                        });
                     }
-                    crewpanel.show(player).then((response) => {
-                    });
                     break;
             }
             break;
@@ -426,4 +398,53 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
 function output_perfomance() {
     let score_obj = world.scoreboard.getObjective("tcmb_perfomance");
     score_obj.setScore("main", main_perf);
+}
+function door_ctrl(player, train) {
+    const doorForm = new ActionFormData()
+        .title("ドア操作パネル")
+        .body("開きたいドアの選択、または閉じる操作の実行")
+        .button("左ドア開", "textures/items/open_left")
+        .button("右ドア開", "textures/items/open_right")
+        .button("両ドア開", "textures/items/open_all")
+        .button("左ドア開(一部締め切り)", "textures/items/oneman_open_left")
+        .button("右ドア開(一部締め切り)", "textures/items/oneman_open_right")
+        .button("閉じる(共通)", "textures/items/close");
+    doorForm.show(player).then(rawResponse => {
+        if (rawResponse.canceled)
+            return;
+        var response = rawResponse.selection;
+        switch (response) {
+            case 0:
+                var door_order = "open_left";
+                break;
+            case 1:
+                var door_order = "open_right";
+                break;
+            case 2:
+                var door_order = "open_all";
+                break;
+            case 3:
+                var door_order = "oneman_open_left";
+                break;
+            case 4:
+                var door_order = "oneman_open_right";
+                break;
+            case 5:
+                var door_order = "close";
+                break;
+        }
+        let event_report;
+        train.runCommandAsync("execute as @s[tag=!voltage_0] at @s run function " + door_order);
+        train.runCommandAsync("execute as @s[tag=!voltage_0,tag=tc_parent] at @s run function tc_" + door_order);
+        train.runCommandAsync("execute as @s[tag=!voltage_0,tag=tc_child] at @s run function tc_" + door_order);
+        if (door_order != "close") {
+            event_report = new Event("door", { door_direction: door_order, open: true }, train, player);
+        }
+        else {
+            event_report = new Event("door", { open: false }, train, player);
+        }
+        event_report.reply();
+    }).catch(e => {
+        console.error(e, e.stack);
+    });
 }
