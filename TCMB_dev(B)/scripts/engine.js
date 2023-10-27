@@ -1,6 +1,6 @@
 import { world, system } from "@minecraft/server";
 import { ModalFormData, ActionFormData, MessageFormData } from "@minecraft/server-ui";
-import { Event } from "./classes";
+import { Event, PanelButton } from "./classes";
 import { findFirstMatch } from "./util";
 export class dumy {
 }
@@ -12,6 +12,10 @@ if (typeof speedObject == "undefined") {
 let main_perf = 0;
 let perf_monitor = false;
 let monitor_runid = 0;
+let crew_panel_buttons = [];
+crew_panel_buttons.push(new PanelButton(true, '電気系統', 'textures/items/electricity_control', 'tcmb:engine_electricity_control'));
+crew_panel_buttons.push(new PanelButton(true, 'ドア操作', 'textures/items/door_control', undefined));
+crew_panel_buttons.push(new PanelButton(true, '非常ブレーキ', undefined, undefined));
 //main operation
 system.runInterval(() => {
     if (perf_monitor)
@@ -267,11 +271,15 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                         event_report.reply();
                     }
                     break;
-                case "notch":
+                case "notchBefore":
                     train = overworld.getEntities(train_query)[0];
                     if (typeof train != "undefined" && train.typeId == "tcmb:tcmb_car") {
                         if (!train.hasTag("voltage_0")) {
-                            train.runCommandAsync("playsound notch @a[r=25]");
+                            if (train.hasTag('eb') || train.hasTag('p4') || (train.hasTag("n") && evdata.status["operation"] == "neutral")) {
+                                train.runCommandAsync("playsound notch @a[r=25]");
+                                let event_report = new Event('notch', evdata.status, train, player);
+                                event_report.reply();
+                            }
                             if (!train.hasTag("stopping") && speedObject.getScore(train) == 0 && evdata.status["operation"] == "neutral")
                                 train.runCommandAsync("playsound break_remission @a[r=100]");
                             train.runCommandAsync("function notch_" + evdata.status["operation"]);
@@ -279,6 +287,28 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                                 train.runCommandAsync("function tc_notch_" + evdata.status["operation"]);
                         }
                     }
+                    break;
+                case "deleteBefore":
+                    player.runCommandAsync("playsound random.click @s");
+                    let delete_train_query = {
+                        tags: ["body"],
+                        closest: 1,
+                        location: player.location
+                    };
+                    train = overworld.getEntities(delete_train_query)[0];
+                    train.runCommandAsync("execute as @e[type=tcmb:tcmb_car,r=2,tag=tc_parent] at @s run function tc_delete_train");
+                    train.runCommandAsync("execute as @e[type=tcmb:tcmb_car,r=2,tag=tc_child] at @s run function tc_delete_train");
+                    train.runCommandAsync("function delete_train");
+                    let event_report = new Event('delete', undefined, train, player);
+                    event_report.reply();
+                case "open_crew_panelBefore":
+                    let crewpanel = new ActionFormData()
+                        .title('乗務パネル');
+                    for (const button of crew_panel_buttons) {
+                        crewpanel.button(button.title, button.texture);
+                    }
+                    crewpanel.show(player).then((response) => {
+                    });
                     break;
             }
             break;
@@ -293,9 +323,6 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
             //ev.sourceEntity.getComponent("minecraft:rideable").ejectRiders();
             //仮処理なので直すこと
             ev.sourceEntity.runCommandAsync("kill @e[type=tcmb:seat,c=16]");
-            break;
-        case "tcmb:engine_door_control":
-            var player = ev.sourceEntity;
             break;
         case "tcmb:engine_electricity_control":
             var player = ev.sourceEntity;
@@ -377,75 +404,6 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                     ev.sourceEntity.runCommandAsync("function eb");
                 //入力電源
                 ev.sourceEntity.runCommandAsync("function voltage_" + voltage);
-            }).catch(e => {
-                console.error(e, e.stack);
-            });
-            break;
-        case "tcmb:engine_seat_control":
-            var player = ev.sourceEntity;
-            var query = {
-                families: ["tcmb_car"],
-                closest: 1,
-                location: { x: playerLocation.x, y: playerLocation.y, z: playerLocation.z }
-            };
-            var tcmb_cars = overworld.getEntities(query);
-            var currentSeatStatus;
-            var currentCustomSeatStatus;
-            var bodies;
-            for (const tcmb_car of tcmb_cars) {
-                //tcmb_car
-                let tags = tcmb_car.getTags();
-                var rollSeat = findFirstMatch(tags, "seat");
-                var currentSeatStatus = Number(tags[rollSeat].replace("seat", ""));
-                var currentCustomSeatStatus = tags.includes('custom_seat');
-                tcmb_car.removeTag(tags[rollSeat]);
-                tcmb_car.addTag("seat8");
-                //body
-                const tcmbCarLocation = tcmb_car.location;
-                const { x, y, z } = tcmbCarLocation;
-                var query = {
-                    families: ["tcmb_body"],
-                    closest: 2,
-                    location: { x: tcmbCarLocation.x, y: tcmbCarLocation.y, z: tcmbCarLocation.z }
-                };
-                var bodies = overworld.getEntities(query);
-            }
-            const Seatform = new ModalFormData()
-                .title("電気系統管理パネル")
-                .slider("座席設定", 1, 8, 1, currentSeatStatus)
-                .toggle("カスタム座席", currentCustomSeatStatus);
-            Seatform.show(player).then(rawResponse => {
-                if (rawResponse.canceled)
-                    return;
-                var seatStatus;
-                var customSeatStatus;
-                [seatStatus, customSeatStatus] = rawResponse.formValues;
-                //座席設定
-                for (let i = 0; i < seatStatus; i++) {
-                    ev.sourceEntity.runCommandAsync("function seat");
-                }
-                //カスタム座席
-                if (customSeatStatus) {
-                    /*for(const body of bodies){
-                        var seat = body.getComponent("minecraft:rideable").seatCount;
-                        for(let i=0; i<seat; i++){
-                            body.runCommandAsync("ride @s summon_rider tcmb:seat");
-                        }
-                    }*/
-                }
-                else {
-                    for (const body of bodies) {
-                        /*var riders = body.getComponent("minecraft:rideable").getRiders();
-                        for(const rider of riders){
-                            if(rider.typeID == "tcmb:seat"){
-                                const riderLocation = rider.location;
-                                const { x, y, z } = riderLocation;
-                                rider.teleport({ x: riderLocation.x, y: -128, z: riderLocation.z }, overworld);
-                                rider.kill();
-                            }
-                        }*/
-                    }
-                }
             }).catch(e => {
                 console.error(e, e.stack);
             });

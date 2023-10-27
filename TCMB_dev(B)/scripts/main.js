@@ -3,7 +3,6 @@ import { Event } from "./classes";
 import { dumy } from "./engine";
 new dumy;
 const overworld = world.getDimension("overworld");
-const speedObject = world.scoreboard.getObjective("speed");
 let events = ["door", "notch", "direction", "dest", "electricity", "delete"];
 let engine = {};
 // event operation
@@ -35,16 +34,9 @@ world.afterEvents.itemUse.subscribe((ev) => {
     let evdata;
     switch (item_type_id) {
         case "tcmb:delete_train":
-            ev.source.runCommandAsync("playsound random.click @s");
-            let delete_train_query = {
-                tags: ["body"],
-                closest: 1,
-                location: ev.source.location
-            };
-            train = overworld.getEntities(delete_train_query)[0];
-            train.runCommandAsync("execute as @e[type=tcmb:tcmb_car,r=2,tag=tc_parent] at @s run function tc_delete_train");
-            train.runCommandAsync("execute as @e[type=tcmb:tcmb_car,r=2,tag=tc_child] at @s run function tc_delete_train");
-            train.runCommandAsync("function delete_train");
+            train = overworld.getEntities(event_train_query)[0];
+            evdata = new Event('delete', undefined, train, ev.source);
+            evdata.send();
             break;
         case "tcmb:notch_power":
             train = overworld.getEntities(event_train_query)[0];
@@ -58,7 +50,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
             break;
         case "tcmb:notch_break":
             train = overworld.getEntities(event_train_query)[0];
-            evdata = new Event('notch', { operation: 'break' }, train, ev.source);
+            evdata = new Event('notchBefore', { operation: 'break' }, train, ev.source);
             evdata.send();
             break;
         case "tcmb:open_left":
@@ -119,6 +111,6 @@ world.afterEvents.itemUse.subscribe((ev) => {
             train = overworld.getEntities(event_train_query)[0];
             evdata = new Event('open_crew_panelBefore', undefined, train, ev.source);
             evdata.send();
-
+            break;
     }
 });
