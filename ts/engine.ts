@@ -20,6 +20,7 @@ let crew_panel_buttons: PanelButton[] = [];
 crew_panel_buttons.push(new PanelButton(true, '電気系統', 'textures/items/electricity_control', 'tcmb:engine_electricity_control'));
 crew_panel_buttons.push(new PanelButton(true, 'ドア操作', 'textures/items/door_control', undefined));
 crew_panel_buttons.push(new PanelButton(true, '非常ブレーキ', undefined, undefined));
+crew_panel_buttons.push(new PanelButton(true, '進行方向反転', 'textures/items/direction', undefined));
 
 //main operation
 system.runInterval(() =>{
@@ -226,7 +227,11 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                                 let event_report = new Event('notch', evdata.status, train, player);
                                 event_report.reply();
                             }
-                            train.runCommandAsync("function notch_"+evdata.status["operation"]);
+                            if(evdata.status["operation"] != "eb"){
+                                train.runCommandAsync("function notch_"+evdata.status["operation"]);
+                            }else{
+                                train.runCommandAsync("function eb");
+                            }
                             if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommandAsync("function tc_notch_"+evdata.status["operation"]);
                         }
                     }
@@ -256,13 +261,22 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                             crewpanel.button(button.title, button.texture);
                         }
                         crewpanel.show(player).then((response)=>{
+                            if(response.canceled) return;
                             if(typeof crew_panel_buttons[response.selection].response == 'undefined'){
                                 switch(response.selection){
                                     case 1:
                                         door_ctrl(player, train);
                                     break;
-                                    case 3:
+                                    case 2:
                                         train.runCommandAsync('function eb');
+                                    case 3:
+                                        if(!train.hasTag("voltage_0")){
+                                            train.runCommand("function direction");
+                                            if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommand("function tc_direction");
+                                        }
+                                        let event_report: Event;
+                                        event_report = new Event("direction", {backward: train.hasTag("backward")}, train, player);
+                                        event_report.reply();
                                 }
                             }else{
                                 overworld.runCommandAsync(`scriptevent ${crew_panel_buttons[response.selection].response}`);

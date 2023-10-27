@@ -53,6 +53,9 @@
         "tcmb_notch_break": {
             "textures": "textures/items/notch_break"
         },
+        "tcmb_notch_eb": {
+            "textures": "textures/items/notch_eb"
+        },
         "tcmb_ride": {
             "textures": "textures/items/ride"
         },

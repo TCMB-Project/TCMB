@@ -53,6 +53,10 @@ world.afterEvents.itemUse.subscribe((ev) => {
             evdata = new Event('notchBefore', { operation: 'break' }, train, ev.source);
             evdata.send();
             break;
+        case "tcmb:notch_eb":
+            train = overworld.getEntities(event_train_query)[0];
+            evdata = new Event('notchBefore', { operation: 'eb' }, train, ev.source);
+            evdata.send();
         case "tcmb:open_left":
             ev.source.runCommandAsync("execute as @e[type=tcmb:tcmb_car,c=1] at @s run execute as @s[tag=!voltage_0] at @s run function open_left");
             ev.source.runCommandAsync("execute as @e[type=tcmb:tcmb_car,c=1] at @s run execute as @s[tag=!voltage_0,tag=tc_parent] at @s run function tc_open_left");
