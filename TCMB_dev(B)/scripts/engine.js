@@ -15,7 +15,7 @@ let monitor_runid = 0;
 let crew_panel_buttons = [];
 crew_panel_buttons.push(new PanelButton(true, '電気系統', 'textures/items/electricity_control', 'tcmb:engine_electricity_control'));
 crew_panel_buttons.push(new PanelButton(true, 'ドア操作', 'textures/items/door_control', undefined));
-crew_panel_buttons.push(new PanelButton(true, '非常ブレーキ', undefined, undefined));
+crew_panel_buttons.push(new PanelButton(true, '非常ブレーキ', 'textures/items/notch_eb', undefined));
 crew_panel_buttons.push(new PanelButton(true, '進行方向反転', 'textures/items/direction', undefined));
 //main operation
 system.runInterval(() => {
@@ -272,6 +272,7 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                         for (const button of crew_panel_buttons) {
                             crewpanel.button(button.title, button.texture);
                         }
+                        crewpanel.button('乗務');
                         crewpanel.show(player).then((response) => {
                             if (response.canceled)
                                 return;
@@ -282,6 +283,7 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                                         break;
                                     case 2:
                                         train.runCommandAsync('function eb');
+                                        break;
                                     case 3:
                                         if (!train.hasTag("voltage_0")) {
                                             train.runCommand("function direction");
@@ -294,7 +296,7 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                                 }
                             }
                             else {
-                                overworld.runCommandAsync(`scriptevent ${crew_panel_buttons[response.selection].response}`);
+                                player.runCommandAsync(`scriptevent ${crew_panel_buttons[response.selection].response}`);
                             }
                         });
                     }

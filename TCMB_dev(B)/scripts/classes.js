@@ -43,4 +43,7 @@ export class PanelButton {
         this.texture = texture;
         this.response = response;
     }
+    setUUID(uuid) {
+        this.uuid = uuid;
+    }
 }

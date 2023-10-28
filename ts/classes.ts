@@ -51,6 +51,7 @@ export class PanelButton{
     title: string;
     texture: string | undefined;
     response: string | undefined;
+    uuid: string | undefined;
     constructor(official:boolean, title:string, texture:string | undefined, response: string | undefined){
         if(!official && typeof texture != "undefined"){
             throw new TypeError('non-official button must not defined texture.');
@@ -59,5 +60,8 @@ export class PanelButton{
         this.title = title;
         this.texture = texture;
         this.response = response;
+    }
+    setUUID(uuid:string){
+        this.uuid = uuid;
     }
 }
