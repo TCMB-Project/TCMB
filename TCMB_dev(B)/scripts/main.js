@@ -29,7 +29,8 @@ world.afterEvents.itemUse.subscribe((ev) => {
     let event_train_query = {
         families: ["tcmb_car"],
         location: ev.source.location,
-        closest: 1
+        closest: 1,
+        maxDistance: 40
     };
     let evdata;
     switch (item_type_id) {

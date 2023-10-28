@@ -1,4 +1,4 @@
-import { world, system, Dimension, ScoreboardObjective, Entity } from "@minecraft/server";
+import { world, system, Dimension, ScoreboardObjective, Entity, EntityQueryOptions } from "@minecraft/server";
 import { Event, StringablePlayer } from "./classes";
 import { dumy } from "./engine";
 
@@ -33,10 +33,11 @@ world.afterEvents.itemUse.subscribe((ev)=>{
         type: "tcmb:tcmb_car",
         closest: 1
     };
-    let event_train_query = {
+    let event_train_query:EntityQueryOptions = {
         families: ["tcmb_car"],
         location: ev.source.location,
-        closest: 1
+        closest: 1,
+        maxDistance: 40
     } 
     let evdata: Event;
     switch(item_type_id){

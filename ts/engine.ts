@@ -17,6 +17,12 @@ let monitor_runid = 0;
 
 let crew_panel_buttons: PanelButton[] = [];
 
+let tcmb_trains: Entity[] = overworld.getEntities({families: ["tcmb_car"], type: "tcmb:tcmb_car"});
+let tcmb_trains_key: object = {};
+tcmb_trains.forEach((train, index)=>{
+    tcmb_trains_key[train.id] = index;
+});
+
 crew_panel_buttons.push(new PanelButton(true, '電気系統', 'textures/items/electricity_control', 'tcmb:engine_electricity_control'));
 crew_panel_buttons.push(new PanelButton(true, 'ドア操作', 'textures/items/door_control', undefined));
 crew_panel_buttons.push(new PanelButton(true, '非常ブレーキ', 'textures/items/notch_eb', undefined));
@@ -25,25 +31,21 @@ crew_panel_buttons.push(new PanelButton(true, '進行方向反転', 'textures/it
 //main operation
 system.runInterval(() =>{
     if(perf_monitor) var start: number = (new Date()).getTime();
-    var tcmb_cars: Entity[] = overworld.getEntities({families: ["tcmb_car"], type: "tcmb:tcmb_car"});
+    var tcmb_cars: Entity[] = tcmb_trains;
     for(const tcmb_car of tcmb_cars){
-        if(typeof speedObject == "undefined"){
-            continue;
-        }
+        if(!tcmb_car.isValid) continue;
+        if(typeof speedObject == "undefined") continue;
         let tags: string[] = tcmb_car.getTags();
         //tcmb_car(speed)
         var speed: number | undefined = speedObject.getScore(tcmb_car);
-        if(typeof speed == "undefined"){
-            continue;
-        }
+        if(typeof speed == "undefined") continue;
+        tcmb_car.triggerEvent(speed +"km");
         //tcmb_car(fast_run)
         if(speed > 108){
             var distance = speed/72;
             if(!tags.includes("backward")) distance = -distance;
             tcmb_car.triggerEvent("109km");
             tcmb_car.runCommandAsync("tp @s ^"+ distance + "^^");
-        }else{
-            tcmb_car.triggerEvent(speed +"km");
         }
         //body
         const tcmbCarLocation = tcmb_car.location;
@@ -245,6 +247,10 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                         location: player.location
                     };
                     train = overworld.getEntities(delete_train_query)[0];
+
+                    let target_key: number = tcmb_trains_key[train.id];
+                    tcmb_trains.splice(target_key, 1);
+
                     train.runCommandAsync("execute as @e[type=tcmb:tcmb_car,r=2,tag=tc_parent] at @s run function tc_delete_train");
                     train.runCommandAsync("execute as @e[type=tcmb:tcmb_car,r=2,tag=tc_child] at @s run function tc_delete_train");
                     train.runCommandAsync("function delete_train");
@@ -281,7 +287,8 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                                         event_report.reply();
                                 }
                             }else{
-                                player.runCommandAsync(`scriptevent ${crew_panel_buttons[response.selection].response}`);
+                                let send_event = new Event('click', undefined, train, player);
+                                player.runCommandAsync(`scriptevent ${crew_panel_buttons[response.selection].response} ${JSON.stringify(send_event)}`);
                             }
                         })
                     }
@@ -296,13 +303,12 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
             }
         break;
         case "tcmb:engine_delete":
-            //ev.sourceEntity.getComponent("minecraft:rideable").ejectRiders();
-            //仮処理なので直すこと
-            ev.sourceEntity.runCommandAsync("kill @e[type=tcmb:seat,c=16]");
+
             break;
             
         case "tcmb:engine_electricity_control":
             var player:any = ev.sourceEntity;
+            var train:Entity = overworld.getEntities({tags:[`tcmb_carid_${JSON.parse(ev.message)['entity']['id']}`]})[0];
             var query = {
                 families: ["tcmb_car"],
                 closest: 1,
@@ -311,15 +317,11 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
             var tcmb_cars = overworld.getEntities(query);
             var currentDest: number;
             var currentOnemanStatus: boolean;
-            var currentAtoStatus: boolean;
-            var currentTascStatus: boolean;
             var currentVoltage: number;
             for(const tcmb_car of tcmb_cars){
                 let tags: String[] = tcmb_car.getTags();
                 let rollDest = findFirstMatch(tags, "dest");
                 var currentDest: number = Number(tags[rollDest].replace("dest",""));
-                var currentAtoStatus: boolean = tags.includes('ato_on');
-                var currentTascStatus: boolean = !tags.includes('tasc_pass');
                 let rollVoltage: number = findFirstMatch(tags, "voltage");
                 var currentVoltage: number = Number(tags[rollVoltage].replace("voltage_",""));
                 var currentOnemanStatus: boolean = tags.includes('oneman');
@@ -327,21 +329,21 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
             const Electricityform = new ModalFormData()
                 .title("電気系統管理パネル")
                 .slider("行先・種別幕", 1, 20, 1, currentDest)
-                .toggle("ワンマン",currentOnemanStatus)
-                .toggle("ATO(アドオン必須)",currentAtoStatus)
-                .toggle("TASC(アドオン必須)",currentTascStatus)
-                .toggle("EB(非常停止)")
-                .dropdown("入力電源", [ "電源オフ", "電気1(標準では直流)", "電気2(標準では交流)"], currentVoltage);
+                .toggle("ワンマン",currentOnemanStatus);
+            if(train.hasTag('only_vol1')){
+                Electricityform.toggle('パンタグラフ', !!currentVoltage);
+            }else if(train.hasTag('only_vol2')){
+                Electricityform.toggle('パンタグラフ', !!currentVoltage);
+            }else{
+                Electricityform.dropdown("入力電源", [ "電源オフ", "電気1(標準では直流)", "電気2(標準では交流)"], currentVoltage);
+            }
             
             Electricityform.show(player).then( rawResponse => {
                 if(rawResponse.canceled) return;
                 var dest:any;
                 var oneman:any;
-                var ato:any;
-                var tasc:any;
-                var eb:any;
                 var voltage:any;
-                [ dest , oneman, ato , tasc, eb, voltage ] = rawResponse.formValues;
+                [ dest , oneman, voltage ] = rawResponse.formValues;
                 //行先・種別幕
                 ev.sourceEntity.runCommandAsync("function dest_reset");
                 if(dest <= 10){
@@ -359,22 +361,12 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                 }else{
                     ev.sourceEntity.runCommandAsync("execute as @e[type=tcmb:tcmb_car,c=1] at @s run tag @e[r=1] remove oneman")
                 }
-                //ATO
-                if(ato){
-                    ev.sourceEntity.runCommandAsync("execute as @e[type=tcmb:tcmb_car,c=1] at @s run execute as @s[tag=!tc_child] at @s run function ato_set"),
-                    ev.sourceEntity.runCommandAsync("execute as @e[type=tcmb:tcmb_car,c=1] at @s run execute as @s[tag=tc_child] at @s run function tc_ato_set")
-                }else{
-                    ev.sourceEntity.runCommandAsync("execute as @e[type=tcmb:tcmb_car,c=1] at @s run tag @e[r=1] remove ato_on")
-                }
-                //TASC
-                if(tasc){
-                    ev.sourceEntity.runCommandAsync("execute as @e[type=tcmb:tcmb_car,c=1] at @s run tag @e[r=1] remove tasc_pass")
-                }else{
-                    ev.sourceEntity.runCommandAsync("execute as @e[type=tcmb:tcmb_car,c=1] at @s run tag @e[r=1] add tasc_pass")
-                }
-                //EB
-                if(eb) ev.sourceEntity.runCommandAsync("function eb");
                 //入力電源
+                if(train.hasTag('only_vol1')){
+                    voltage = voltage?1:0;
+                }else if(train.hasTag('only_vol2')){
+                    voltage = voltage?2:0;
+                }
                 ev.sourceEntity.runCommandAsync("function voltage_"+voltage);
 
             }).catch( e => {
@@ -395,6 +387,23 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                 }
             break;
     }
+})
+
+world.afterEvents.entitySpawn.subscribe((event)=>{
+    if(event.entity.typeId == 'tcmb:tcmb_car'){
+        tcmb_trains_key[event.entity.id] = tcmb_trains.push(event.entity);
+        console.log('spawn',tcmb_trains, tcmb_trains_key);
+    }
+});
+
+world.afterEvents.entityRemove.subscribe((event)=>{
+    console.log('die', JSON.stringify(tcmb_trains), JSON.stringify(tcmb_trains_key));
+    console.log(event.removedEntityId);
+    let target_key: number = tcmb_trains_key[event.removedEntityId];
+    tcmb_trains.splice(target_key, 1);
+    delete tcmb_trains_key[event.removedEntityId];
+}, {
+    entityTypes: ['tcmb:tcmb_car']
 })
 
 function output_perfomance(){
