@@ -65,3 +65,17 @@ export class PanelButton{
         this.uuid = uuid;
     }
 }
+
+export class TCMBTrain{
+    entity: Entity;
+    working: Player | undefined;
+    body: Entity[];
+    constructor(car:Entity, working:Player | undefined = undefined, body:Entity[] | undefined = undefined){
+        this.entity = car;
+        this.working = working;
+        this.body = body;
+    }
+    setWorkingPlayer(working:Player | undefined){
+        this.working = working;
+    }
+}

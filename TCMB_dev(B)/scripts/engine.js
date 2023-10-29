@@ -9,7 +9,12 @@ const speedObject = world.scoreboard.getObjective("speed");
 if (typeof speedObject == "undefined") {
     world.scoreboard.addObjective("speed", "");
 }
-let main_perf = 0;
+const perf_obj = world.scoreboard.getObjective('tcmb_perfomance');
+let perf = {
+    main: 0,
+    spawn: 0,
+    remove: 0
+};
 let perf_monitor = false;
 let monitor_runid = 0;
 let crew_panel_buttons = [];
@@ -18,6 +23,7 @@ let tcmb_trains_key = {};
 tcmb_trains.forEach((train, index) => {
     tcmb_trains_key[train.id] = index;
 });
+let writing_train_db = false;
 crew_panel_buttons.push(new PanelButton(true, '電気系統', 'textures/items/electricity_control', 'tcmb:engine_electricity_control'));
 crew_panel_buttons.push(new PanelButton(true, 'ドア操作', 'textures/items/door_control', undefined));
 crew_panel_buttons.push(new PanelButton(true, '非常ブレーキ', 'textures/items/notch_eb', undefined));
@@ -27,12 +33,18 @@ system.runInterval(() => {
     if (perf_monitor)
         var start = (new Date()).getTime();
     var tcmb_cars = tcmb_trains;
-    for (const tcmb_car of tcmb_cars) {
-        if (!tcmb_car.isValid)
-            continue;
+    for (const train of tcmb_cars) {
+        const tcmb_car = train;
         if (typeof speedObject == "undefined")
             continue;
-        let tags = tcmb_car.getTags();
+        let tags;
+        try {
+            tags = tcmb_car.getTags();
+        }
+        catch (e) {
+            console.error(e);
+            continue;
+        }
         //tcmb_car(speed)
         var speed = speedObject.getScore(tcmb_car);
         if (typeof speed == "undefined")
@@ -165,7 +177,7 @@ system.runInterval(() => {
         }
     }
     if (perf_monitor)
-        main_perf = (new Date().getTime()) - start;
+        perf['main'] = (new Date().getTime()) - start;
 }, 1);
 system.afterEvents.scriptEventReceive.subscribe(ev => {
     const playerLocation = ev.sourceEntity ? ev.sourceEntity.location : undefined;
@@ -260,8 +272,6 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                         location: player.location
                     };
                     train = overworld.getEntities(delete_train_query)[0];
-                    let target_key = tcmb_trains_key[train.id];
-                    tcmb_trains.splice(target_key, 1);
                     train.runCommandAsync("execute as @e[type=tcmb:tcmb_car,r=2,tag=tc_parent] at @s run function tc_delete_train");
                     train.runCommandAsync("execute as @e[type=tcmb:tcmb_car,r=2,tag=tc_child] at @s run function tc_delete_train");
                     train.runCommandAsync("function delete_train");
@@ -404,24 +414,41 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
             break;
     }
 });
-world.afterEvents.entitySpawn.subscribe((event) => {
+world.afterEvents.entitySpawn.subscribe(async (event) => {
     if (event.entity.typeId == 'tcmb:tcmb_car') {
-        tcmb_trains_key[event.entity.id] = tcmb_trains.push(event.entity);
-        console.log('spawn', tcmb_trains, tcmb_trains_key);
+        if (perf_monitor)
+            var start = (new Date()).getTime();
+        var query = {
+            families: ["tcmb_body"],
+            closest: 2,
+            location: event.entity.location
+        };
+        while (writing_train_db)
+            ;
+        writing_train_db = true;
+        tcmb_trains_key[event.entity.id] = tcmb_trains.push(event.entity) - 1;
+        writing_train_db = false;
+        if (perf_monitor)
+            perf_obj.setScore('remove', (new Date().getTime()) - start);
     }
 });
-world.afterEvents.entityRemove.subscribe((event) => {
-    console.log('die', JSON.stringify(tcmb_trains), JSON.stringify(tcmb_trains_key));
-    console.log(event.removedEntityId);
-    let target_key = tcmb_trains_key[event.removedEntityId];
-    tcmb_trains.splice(target_key, 1);
+world.afterEvents.entityRemove.subscribe(async (event) => {
+    if (perf_monitor)
+        var start = (new Date()).getTime();
+    while (writing_train_db)
+        ;
+    writing_train_db = true;
+    tcmb_trains = tcmb_trains.filter((entity) => entity.id != event.removedEntityId);
     delete tcmb_trains_key[event.removedEntityId];
+    writing_train_db = false;
+    if (perf_monitor)
+        perf['remove'] = perf_obj.setScore('remove', (new Date().getTime()) - start);
 }, {
     entityTypes: ['tcmb:tcmb_car']
 });
 function output_perfomance() {
     let score_obj = world.scoreboard.getObjective("tcmb_perfomance");
-    score_obj.setScore("main", main_perf);
+    score_obj.setScore("main", perf['main']);
 }
 function door_ctrl(player, train) {
     const doorForm = new ActionFormData()
