@@ -52,6 +52,7 @@ export class TCMBTrain {
         this.entity = car;
         this.working = working;
         this.body = body;
+        this.id = car.id;
     }
     setWorkingPlayer(working) {
         this.working = working;

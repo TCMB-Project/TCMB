@@ -70,10 +70,12 @@ export class TCMBTrain{
     entity: Entity;
     working: Player | undefined;
     body: Entity[];
+    id: string;
     constructor(car:Entity, working:Player | undefined = undefined, body:Entity[] | undefined = undefined){
         this.entity = car;
         this.working = working;
         this.body = body;
+        this.id = car.id;
     }
     setWorkingPlayer(working:Player | undefined){
         this.working = working;

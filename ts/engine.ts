@@ -23,12 +23,20 @@ let monitor_runid = 0;
 
 let crew_panel_buttons: PanelButton[] = [];
 
-let tcmb_trains: Entity[] = overworld.getEntities({families: ["tcmb_car"], type: "tcmb:tcmb_car"});
-
+let init_entities: Entity[] = overworld.getEntities({families: ["tcmb_car"], type: "tcmb:tcmb_car"}); 
+let tcmb_trains: TCMBTrain[] = [];
+for(let i=0; i<init_entities.length; i++){
+    var query:EntityQueryOptions = {
+        families: ["tcmb_body"],
+        closest: 2,
+        location: init_entities[i].location
+    }
+    tcmb_trains[i] = new TCMBTrain(init_entities[i], undefined, overworld.getEntities(query))
+}
 
 let tcmb_trains_key: object = {};
 tcmb_trains.forEach((train, index)=>{
-    tcmb_trains_key[train.id] = index;
+    tcmb_trains_key[train.entity.id] = index;
 });
 let writing_train_db:boolean = false;
 
@@ -40,9 +48,9 @@ crew_panel_buttons.push(new PanelButton(true, '進行方向反転', 'textures/it
 //main operation
 system.runInterval(() =>{
     if(perf_monitor) var start: number = (new Date()).getTime();
-    var tcmb_cars: Entity[] = tcmb_trains;
+    var tcmb_cars: TCMBTrain[] = tcmb_trains;
     for(const train of tcmb_cars){
-        const tcmb_car = train;
+        const tcmb_car = train.entity;
         if(typeof speedObject == "undefined") continue;
         let tags: string[];
         try{
@@ -64,12 +72,7 @@ system.runInterval(() =>{
         }
         //body
         const tcmbCarLocation = tcmb_car.location;
-        var query = {
-            families: ["tcmb_body"],
-            closest: 2,
-            location: { x: tcmbCarLocation.x, y: tcmbCarLocation.y, z: tcmbCarLocation.z }
-        }
-        var bodies = overworld.getEntities(query);
+        var bodies = train.body;
         //var doorRequest = tcmb_car.getDynamicProperty("door");
 
         //door operation
@@ -411,7 +414,7 @@ world.afterEvents.entitySpawn.subscribe(async (event)=>{
         }
         while(writing_train_db);
         writing_train_db = true;
-        tcmb_trains_key[event.entity.id] = tcmb_trains.push(event.entity) - 1;
+        tcmb_trains_key[event.entity.id] = tcmb_trains.push(new TCMBTrain(event.entity, undefined, overworld.getEntities(query))) - 1;
         writing_train_db = false;
         if(perf_monitor) perf_obj.setScore('remove', (new Date().getTime()) - start);
     }
@@ -421,7 +424,7 @@ world.afterEvents.entityRemove.subscribe(async (event)=>{
     if(perf_monitor) var start: number = (new Date()).getTime();
     while(writing_train_db);
     writing_train_db = true;
-    tcmb_trains = tcmb_trains.filter((entity)=> entity.id != event.removedEntityId);
+    tcmb_trains = tcmb_trains.filter((train)=> train.entity.id != event.removedEntityId);
     delete tcmb_trains_key[event.removedEntityId];
     writing_train_db = false;
     if(perf_monitor) perf_obj.setScore('remove', (new Date().getTime()) - start);

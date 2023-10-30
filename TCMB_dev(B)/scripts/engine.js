@@ -1,6 +1,6 @@
 import { world, system } from "@minecraft/server";
 import { ModalFormData, ActionFormData, MessageFormData } from "@minecraft/server-ui";
-import { Event, PanelButton } from "./classes";
+import { Event, PanelButton, TCMBTrain } from "./classes";
 import { findFirstMatch } from "./util";
 export class dumy {
 }
@@ -18,10 +18,19 @@ let perf = {
 let perf_monitor = false;
 let monitor_runid = 0;
 let crew_panel_buttons = [];
-let tcmb_trains = overworld.getEntities({ families: ["tcmb_car"], type: "tcmb:tcmb_car" });
+let init_entities = overworld.getEntities({ families: ["tcmb_car"], type: "tcmb:tcmb_car" });
+let tcmb_trains = [];
+for (let i = 0; i < init_entities.length; i++) {
+    var query = {
+        families: ["tcmb_body"],
+        closest: 2,
+        location: init_entities[i].location
+    };
+    tcmb_trains[i] = new TCMBTrain(init_entities[i], undefined, overworld.getEntities(query));
+}
 let tcmb_trains_key = {};
 tcmb_trains.forEach((train, index) => {
-    tcmb_trains_key[train.id] = index;
+    tcmb_trains_key[train.entity.id] = index;
 });
 let writing_train_db = false;
 crew_panel_buttons.push(new PanelButton(true, '電気系統', 'textures/items/electricity_control', 'tcmb:engine_electricity_control'));
@@ -34,7 +43,7 @@ system.runInterval(() => {
         var start = (new Date()).getTime();
     var tcmb_cars = tcmb_trains;
     for (const train of tcmb_cars) {
-        const tcmb_car = train;
+        const tcmb_car = train.entity;
         if (typeof speedObject == "undefined")
             continue;
         let tags;
@@ -65,7 +74,7 @@ system.runInterval(() => {
             closest: 2,
             location: { x: tcmbCarLocation.x, y: tcmbCarLocation.y, z: tcmbCarLocation.z }
         };
-        var bodies = overworld.getEntities(query);
+        var bodies = train.body;
         //var doorRequest = tcmb_car.getDynamicProperty("door");
         //door operation
         let isclosing = false;
@@ -426,7 +435,7 @@ world.afterEvents.entitySpawn.subscribe(async (event) => {
         while (writing_train_db)
             ;
         writing_train_db = true;
-        tcmb_trains_key[event.entity.id] = tcmb_trains.push(event.entity) - 1;
+        tcmb_trains_key[event.entity.id] = tcmb_trains.push(new TCMBTrain(event.entity, undefined, overworld.getEntities(query))) - 1;
         writing_train_db = false;
         if (perf_monitor)
             perf_obj.setScore('remove', (new Date().getTime()) - start);
@@ -438,11 +447,11 @@ world.afterEvents.entityRemove.subscribe(async (event) => {
     while (writing_train_db)
         ;
     writing_train_db = true;
-    tcmb_trains = tcmb_trains.filter((entity) => entity.id != event.removedEntityId);
+    tcmb_trains = tcmb_trains.filter((train) => train.entity.id != event.removedEntityId);
     delete tcmb_trains_key[event.removedEntityId];
     writing_train_db = false;
     if (perf_monitor)
-        perf['remove'] = perf_obj.setScore('remove', (new Date().getTime()) - start);
+        perf_obj.setScore('remove', (new Date().getTime()) - start);
 }, {
     entityTypes: ['tcmb:tcmb_car']
 });
