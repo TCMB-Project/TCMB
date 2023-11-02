@@ -27,11 +27,13 @@ export class Event{
     entity: StringableCar | undefined;
     player: StringablePlayer | undefined;
     status: object;
-    constructor(name:string, status: object, car:Entity | undefined, player:Player | undefined){
+    isWorking: boolean;
+    constructor(name:string, status: object, car:Entity | undefined, player:Player | undefined, working: boolean = false){
         this.name = name;
         this.status = status;
         this.entity = car?new StringableCar(car):undefined;
         this.player = player?new StringablePlayer(player):undefined;
+        this.isWorking = working;
     }
 
     send(){
@@ -71,11 +73,13 @@ export class TCMBTrain{
     working: Player | undefined;
     body: Entity[];
     id: string;
+    rotation: number;
     constructor(car:Entity, working:Player | undefined = undefined, body:Entity[] | undefined = undefined){
         this.entity = car;
         this.working = working;
         this.body = body;
         this.id = car.id;
+        this.rotation = 0;
     }
     setWorkingPlayer(working:Player | undefined){
         this.working = working;

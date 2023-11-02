@@ -37,6 +37,7 @@ crew_panel_buttons.push(new PanelButton(true, '電気系統', 'textures/items/el
 crew_panel_buttons.push(new PanelButton(true, 'ドア操作', 'textures/items/door_control', undefined));
 crew_panel_buttons.push(new PanelButton(true, '非常ブレーキ', 'textures/items/notch_eb', undefined));
 crew_panel_buttons.push(new PanelButton(true, '進行方向反転', 'textures/items/direction', undefined));
+crew_panel_buttons.push(new PanelButton(true, '乗務開始/終了', 'textures/items/crew_panel', 'tcmb:engine_work'));
 //main operation
 system.runInterval(() => {
     if (perf_monitor)
@@ -58,22 +59,34 @@ system.runInterval(() => {
         var speed = speedObject.getScore(tcmb_car);
         if (typeof speed == "undefined")
             continue;
-        tcmb_car.triggerEvent(speed + "km");
+        let direc;
         //tcmb_car(fast_run)
+        if (speed == 108)
+            train.rotation = direc;
         if (speed > 108) {
             var distance = speed / 72;
             if (!tags.includes("backward"))
                 distance = -distance;
+            if (tags.includes('z_plus'))
+                direc = 0;
+            if (tags.includes('x_minus'))
+                direc = 90;
+            if (tags.includes('z_minus'))
+                direc = 180;
+            if (tags.includes('x_plus')) {
+                direc = 270;
+            }
+            else {
+                direc = 0;
+            }
             tcmb_car.triggerEvent("109km");
-            tcmb_car.runCommandAsync("tp @s ^" + distance + "^^");
+            world.sendMessage(train.rotation.toString() + ' ' + speed);
+            tcmb_car.runCommandAsync(`tp @s ^${distance}^^ ${train.rotation}`);
+        }
+        else {
+            tcmb_car.triggerEvent(speed + "km");
         }
         //body
-        const tcmbCarLocation = tcmb_car.location;
-        var query = {
-            families: ["tcmb_body"],
-            closest: 2,
-            location: { x: tcmbCarLocation.x, y: tcmbCarLocation.y, z: tcmbCarLocation.z }
-        };
         var bodies = train.body;
         //var doorRequest = tcmb_car.getDynamicProperty("door");
         //door operation
@@ -82,13 +95,14 @@ system.runInterval(() => {
         let open_order = tags.filter((name) => name.includes("open"))[0];
         for (const body of bodies) {
             body.triggerEvent(speed + "km");
+            if (speed > 108)
+                body.teleport(tcmb_car.location);
             let carid_onbody_tag_exists = findFirstMatch(body.getTags(), 'tcmb_body_');
             if (carid_onbody_tag_exists == -1) {
                 let car_entity_id = tcmb_car.id;
                 body.addTag('tcmb_body_' + car_entity_id);
             }
             if (open_order) {
-                body.triggerEvent(open_order);
                 //door event
                 let door_direction;
                 if (tags.includes("backward")) {
@@ -198,9 +212,8 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
             let train_query;
             if (typeof evdata.player != "undefined") {
                 train_query = {
-                    location: { x: evdata.player.location.x, y: evdata.player.location.y, z: evdata.player.location.z },
-                    closest: 1,
-                    families: ["tcmb_car"]
+                    tags: ['tcmb_carid_' + evdata.entity.id],
+                    type: 'tcmb:tcmb_car'
                 };
             }
             switch (evdata.name) {
@@ -254,7 +267,7 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                     train = overworld.getEntities(train_query)[0];
                     if (typeof train != "undefined" && train.typeId == "tcmb:tcmb_car") {
                         if (!train.hasTag("voltage_0")) {
-                            if (!(train.hasTag('eb') && evdata.status["operation"] == "break") && !(train.hasTag('p4') && evdata.status["operation"] == "power") && !(train.hasTag("n") && evdata.status["operation"] == "neutral")) {
+                            if (!(train.hasTag('eb') && evdata.status["operation"] == "break") && !(train.hasTag('p4') && evdata.status["operation"] == "power") && !(train.hasTag("n") && evdata.status["operation"] == "neutral") && !(train.hasTag('eb') && evdata.status['operation'] == 'eb')) {
                                 train.runCommandAsync("playsound notch @a[r=25]");
                                 if (!train.hasTag("stopping") && speedObject.getScore(train) == 0 && evdata.status["operation"] == "neutral")
                                     train.runCommandAsync("playsound break_remission @a[r=100]");
@@ -296,7 +309,6 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                         for (const button of crew_panel_buttons) {
                             crewpanel.button(button.title, button.texture);
                         }
-                        crewpanel.button('乗務');
                         crewpanel.show(player).then((response) => {
                             if (response.canceled)
                                 return;
@@ -317,6 +329,7 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                                         let event_report;
                                         event_report = new Event("direction", { backward: train.hasTag("backward") }, train, player);
                                         event_report.reply();
+                                        break;
                                 }
                             }
                             else {
@@ -330,9 +343,9 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
             break;
         case "tcmb:engine_door":
             train = ev.sourceEntity;
-            if (ev.message.includes("close")) {
-                let order = ev.message;
-                train.addTag(order);
+            var bodies = tcmb_trains.filter((car) => car.entity.id == ev.sourceEntity.id)[0].body;
+            for (const body of bodies) {
+                body.triggerEvent(ev.message);
             }
             break;
         case "tcmb:engine_delete":
@@ -340,23 +353,15 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
         case "tcmb:engine_electricity_control":
             var player = ev.sourceEntity;
             var train = overworld.getEntities({ tags: [`tcmb_carid_${JSON.parse(ev.message)['entity']['id']}`] })[0];
-            var query = {
-                families: ["tcmb_car"],
-                closest: 1,
-                location: { x: playerLocation.x, y: playerLocation.y, z: playerLocation.z }
-            };
-            var tcmb_cars = overworld.getEntities(query);
             var currentDest;
             var currentOnemanStatus;
             var currentVoltage;
-            for (const tcmb_car of tcmb_cars) {
-                let tags = tcmb_car.getTags();
-                let rollDest = findFirstMatch(tags, "dest");
-                var currentDest = Number(tags[rollDest].replace("dest", ""));
-                let rollVoltage = findFirstMatch(tags, "voltage");
-                var currentVoltage = Number(tags[rollVoltage].replace("voltage_", ""));
-                var currentOnemanStatus = tags.includes('oneman');
-            }
+            let tags = train.getTags();
+            let rollDest = findFirstMatch(tags, "dest");
+            var currentDest = Number(tags[rollDest].replace("dest", ""));
+            let rollVoltage = findFirstMatch(tags, "voltage");
+            var currentVoltage = Number(tags[rollVoltage].replace("voltage_", ""));
+            var currentOnemanStatus = tags.includes('oneman');
             const Electricityform = new ModalFormData()
                 .title("電気系統管理パネル")
                 .slider("行先・種別幕", 1, 20, 1, currentDest)
@@ -407,6 +412,18 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
             }).catch(e => {
                 console.error(e, e.stack);
             });
+            break;
+        case 'tcmb:engine_work':
+            {
+                var player = ev.sourceEntity;
+                var train = overworld.getEntities({ tags: [`tcmb_carid_${JSON.parse(ev.message)['entity']['id']}`], type: 'tcmb:tcmb_car' })[0];
+                let work_req = {
+                    type: 'toggle',
+                    playerName: player.name,
+                    entity: train.id
+                };
+                player.runCommandAsync('scriptevent tcmb:work_control ' + JSON.stringify(work_req));
+            }
             break;
         // perfomance monitor
         case "tcmb:perf_monitor":

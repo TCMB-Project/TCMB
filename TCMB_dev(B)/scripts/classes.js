@@ -16,11 +16,12 @@ export class StringablePlayer extends StringableEntity {
     }
 }
 export class Event {
-    constructor(name, status, car, player) {
+    constructor(name, status, car, player, working = false) {
         this.name = name;
         this.status = status;
         this.entity = car ? new StringableCar(car) : undefined;
         this.player = player ? new StringablePlayer(player) : undefined;
+        this.isWorking = working;
     }
     send() {
         let overworld = world.getDimension("overworld");
@@ -53,6 +54,7 @@ export class TCMBTrain {
         this.working = working;
         this.body = body;
         this.id = car.id;
+        this.rotation = 0;
     }
     setWorkingPlayer(working) {
         this.working = working;
