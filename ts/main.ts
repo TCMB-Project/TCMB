@@ -5,12 +5,6 @@ import { dumy } from "./engine";
 new dumy;
 
 const overworld: Dimension = world.getDimension("overworld");
-const check_exsits_objective: string[] = ['option'];
-for(const objid of check_exsits_objective){
-    if(typeof world.scoreboard.getObjective(objid) == 'undefined'){
-
-    }
-}
 
 let events = ["door", "notch", "direction", "dest", "electricity", "delete"];
 let working: Map<string, Entity> = new Map();
@@ -41,7 +35,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev => {
                     work_player.sendMessage('乗務を開始しました。');
 
                 }else if(msg.type == "end" && typeof msg.playerName == "string"){
-                    if(typeof working[msg.playerName] == "undefined") throw Error(`[tcmb:work_control] ${msg.playerName} is not working`);
+                    if(!working.has(msg.playerName)) throw Error(`[tcmb:work_control] ${msg.playerName} is not working`);
                     let end_result = working.delete(msg.playerName);
                     if(!end_result) throw Error('[tcmb:work_control] failed to remove working data.');
 
@@ -67,16 +61,16 @@ system.afterEvents.scriptEventReceive.subscribe( ev => {
                 }else if(msg.type == "getStatus" && typeof msg.response == "string"){
                     if(typeof msg.playerName == 'string'){
                         let response_obj = {}
-                        if(typeof working[msg.playerName] != 'undefined') response_obj = {
+                        if(working.has(msg.playerName)) response_obj = {
                             entity: working.get(msg.playerName)
                         };
                         overworld.runCommandAsync(`scriptevent ${msg.response} ${JSON.stringify(response_obj)}`);
 
                     }else if(typeof msg.entity == 'string'){
-                        let response_obj = {}
+                        let response_obj = {playerName:[]}
                         for(let [playerName, train] of working){
                             if(train.id == msg.entity){
-                                response_obj['playerName'] = playerName;
+                                response_obj['playerName'].push(playerName);
                                 break;
                             }
                         }
@@ -243,7 +237,7 @@ world.afterEvents.playerJoin.subscribe((event)=>{
             working_train = overworld.getEntities({tags:['tcmb_carid_'+working_train]})[0];
             working[event.playerName] = working_train;
         }
-    }, 10);
+    }, 20);
 });
 
 overworld.runCommandAsync('scriptevent tcmb:initialized');

@@ -10,6 +10,7 @@ if (typeof speedObject == "undefined") {
     world.scoreboard.addObjective("speed", "");
 }
 const perf_obj = world.scoreboard.getObjective('tcmb_perfomance');
+const door_orders = ['open_a', 'open_b', 'open_all', 'oneman_open_a', 'oneman_open_b'];
 let perf = {
     main: 0,
     spawn: 0,
@@ -59,29 +60,13 @@ system.runInterval(() => {
         var speed = speedObject.getScore(tcmb_car);
         if (typeof speed == "undefined")
             continue;
-        let direc;
         //tcmb_car(fast_run)
-        if (speed == 108)
-            train.rotation = direc;
         if (speed > 108) {
             var distance = speed / 72;
             if (!tags.includes("backward"))
                 distance = -distance;
-            if (tags.includes('z_plus'))
-                direc = 0;
-            if (tags.includes('x_minus'))
-                direc = 90;
-            if (tags.includes('z_minus'))
-                direc = 180;
-            if (tags.includes('x_plus')) {
-                direc = 270;
-            }
-            else {
-                direc = 0;
-            }
-            tcmb_car.triggerEvent("109km");
-            world.sendMessage(train.rotation.toString() + ' ' + speed);
-            tcmb_car.runCommandAsync(`tp @s ^${distance}^^ ${train.rotation}`);
+            tcmb_car.runCommandAsync(`tp @s ^${distance}^^`);
+            tcmb_car.triggerEvent('109km');
         }
         else {
             tcmb_car.triggerEvent(speed + "km");
@@ -90,9 +75,7 @@ system.runInterval(() => {
         var bodies = train.body;
         //var doorRequest = tcmb_car.getDynamicProperty("door");
         //door operation
-        let isclosing = false;
-        let close_order = tags.filter((name) => name.includes("close"))[0];
-        let open_order = tags.filter((name) => name.includes("open"))[0];
+        let open_order = tags.filter((name) => door_orders.includes(name))[0];
         for (const body of bodies) {
             body.triggerEvent(speed + "km");
             if (speed > 108)
@@ -105,6 +88,7 @@ system.runInterval(() => {
             if (open_order) {
                 //door event
                 let door_direction;
+                body.triggerEvent(open_order);
                 if (tags.includes("backward")) {
                     if (open_order == "open_b") {
                         door_direction = "left";
@@ -140,58 +124,6 @@ system.runInterval(() => {
                     }
                 }
             }
-            if (close_order) {
-                body.triggerEvent(close_order);
-                isclosing = true;
-                //door event
-                let door_direction;
-                if (tags.includes("backward")) {
-                    if (close_order == "close_b") {
-                        door_direction = "left";
-                    }
-                    else if (close_order == "close_a") {
-                        door_direction = "right";
-                    }
-                    else if (close_order == "oneman_close_a") {
-                        door_direction = "oneman_left";
-                    }
-                    else if (close_order == "oneman_close_b") {
-                        door_direction = "oneman_right";
-                    }
-                    else if (close_order == "close_all") {
-                        door_direction = "all";
-                    }
-                }
-                else {
-                    if (close_order == "close_b") {
-                        door_direction = "right";
-                    }
-                    else if (close_order == "close_a") {
-                        door_direction = "left";
-                    }
-                    else if (close_order == "oneman_close_a") {
-                        door_direction = "oneman_right";
-                    }
-                    else if (close_order == "oneman_close_b") {
-                        door_direction = "oneman_left";
-                    }
-                    else if (close_order == "close_all") {
-                        door_direction = "all";
-                    }
-                }
-            }
-            /*if(typeof doorRequest != 'undefined'){
-                body.triggerEvent(doorRequest);
-                if(doorRequest.includes("close")) tcmb_car.setDynamicProperty("door", "undefined")
-            }*/
-            if (speed > 108)
-                body.runCommandAsync("tp @s @e[type=tcmb:tcmb_car,c=1]");
-        }
-        //door operation
-        if (isclosing) {
-            tcmb_car.removeTag(close_order.replace("close", "open"));
-            tcmb_car.removeTag(close_order);
-            isclosing = false;
         }
         let carid_tag_exists = findFirstMatch(tags, 'tcmb_carid_');
         if (carid_tag_exists == -1) {
@@ -269,7 +201,7 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                         if (!train.hasTag("voltage_0")) {
                             if (!(train.hasTag('eb') && evdata.status["operation"] == "break") && !(train.hasTag('p4') && evdata.status["operation"] == "power") && !(train.hasTag("n") && evdata.status["operation"] == "neutral") && !(train.hasTag('eb') && evdata.status['operation'] == 'eb')) {
                                 train.runCommandAsync("playsound notch @a[r=25]");
-                                if (!train.hasTag("stopping") && speedObject.getScore(train) == 0 && evdata.status["operation"] == "neutral")
+                                if (speedObject.getScore(train) == 0 && ((evdata.status["operation"] == "neutral") || (train.hasTag('b1') && evdata.status['operation'] == 'power')))
                                     train.runCommandAsync("playsound break_remission @a[r=100]");
                                 let event_report = new Event('notch', evdata.status, train, player);
                                 event_report.reply();
@@ -342,10 +274,90 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
             }
             break;
         case "tcmb:engine_door":
-            train = ev.sourceEntity;
-            var bodies = tcmb_trains.filter((car) => car.entity.id == ev.sourceEntity.id)[0].body;
-            for (const body of bodies) {
-                body.triggerEvent(ev.message);
+            if (ev.message.includes('close')) {
+                train = ev.sourceEntity;
+                var bodies = tcmb_trains.filter((car) => car.entity.id == ev.sourceEntity.id)[0].body;
+                if (ev.message.includes('close'))
+                    train.removeTag(ev.message.replace('close', 'open'));
+                for (const body of bodies) {
+                    body.triggerEvent(ev.message);
+                }
+                //door event
+                let door_direction;
+                if (ev.message.includes('open')) {
+                    //door event
+                    let door_direction;
+                    if (train.hasTag("backward")) {
+                        if (ev.message == "open_b") {
+                            door_direction = "left";
+                        }
+                        else if (ev.message == "open_a") {
+                            door_direction = "right";
+                        }
+                        else if (ev.message == "oneman_open_a") {
+                            door_direction = "oneman_left";
+                        }
+                        else if (ev.message == "oneman_open_b") {
+                            door_direction = "oneman_right";
+                        }
+                        else if (ev.message == "open_all") {
+                            door_direction = "all";
+                        }
+                    }
+                    else {
+                        if (ev.message == "open_b") {
+                            door_direction = "right";
+                        }
+                        else if (ev.message == "open_a") {
+                            door_direction = "left";
+                        }
+                        else if (ev.message == "oneman_open_a") {
+                            door_direction = "oneman_right";
+                        }
+                        else if (ev.message == "oneman_open_b") {
+                            door_direction = "oneman_left";
+                        }
+                        else if (ev.message == "open_all") {
+                            door_direction = "all";
+                        }
+                    }
+                }
+                if (train.hasTag("backward")) {
+                    if (ev.message == "close_b") {
+                        door_direction = "left";
+                    }
+                    else if (ev.message == "close_a") {
+                        door_direction = "right";
+                    }
+                    else if (ev.message == "oneman_close_a") {
+                        door_direction = "oneman_left";
+                    }
+                    else if (ev.message == "oneman_close_b") {
+                        door_direction = "oneman_right";
+                    }
+                    else if (ev.message == "close_all") {
+                        door_direction = "all";
+                    }
+                }
+                else {
+                    if (ev.message == "close_b") {
+                        door_direction = "right";
+                    }
+                    else if (ev.message == "close_a") {
+                        door_direction = "left";
+                    }
+                    else if (ev.message == "oneman_close_a") {
+                        door_direction = "oneman_right";
+                    }
+                    else if (ev.message == "oneman_close_b") {
+                        door_direction = "oneman_left";
+                    }
+                    else if (ev.message == "close_all") {
+                        door_direction = "all";
+                    }
+                }
+                let event_report = new Event('door', { door_direction }, train, undefined);
+                event_report.reply();
             }
             break;
         case "tcmb:engine_delete":
@@ -455,7 +467,7 @@ world.afterEvents.entitySpawn.subscribe(async (event) => {
         tcmb_trains_key[event.entity.id] = tcmb_trains.push(new TCMBTrain(event.entity, undefined, overworld.getEntities(query))) - 1;
         writing_train_db = false;
         if (perf_monitor)
-            perf_obj.setScore('remove', (new Date().getTime()) - start);
+            perf_obj.setScore('spawn', (new Date().getTime()) - start);
     }
 });
 world.afterEvents.entityRemove.subscribe(async (event) => {
