@@ -182,6 +182,26 @@
                     "range": [-32, 4], 
                     "default": -32
                 },
+                "tcmb:max_speed":{
+                    "type": "int",
+                    "range": [0, 65535],
+                    "default": 0
+                },
+                "tcmb:tcmanifest":{
+                    "type": "int",
+                    "range": [0, 512],
+                    "default": 0
+                },
+                "tcmb:battery_capacity":{
+                    "type": "int",
+                    "range": [0, 2147483647],
+                    "default": 0
+                },
+                "tcmb:battery_level":{
+                    "type": "int",
+                    "range": [0, 2147483647],
+                    "default": 0
+                },
                 "tcmb:tasc_break": { 
                     "type": "int", 
                     "range": [-31, 4], 

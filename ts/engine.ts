@@ -34,12 +34,9 @@ for(let i=0; i<init_entities.length; i++){
     }
     tcmb_trains[i] = new TCMBTrain(init_entities[i], undefined, overworld.getEntities(query))
 }
-
-let tcmb_trains_key: object = {};
-tcmb_trains.forEach((train, index)=>{
-    tcmb_trains_key[train.entity.id] = index;
-});
 let writing_train_db:boolean = false;
+
+let trains_manifest : object = {};
 
 crew_panel_buttons.push(new PanelButton(true, '電気系統', 'textures/items/electricity_control', 'tcmb:engine_electricity_control'));
 crew_panel_buttons.push(new PanelButton(true, 'ドア操作', 'textures/items/door_control', undefined));
@@ -80,44 +77,19 @@ system.runInterval(() =>{
         //door operation
         let open_order = tags.filter((name)=> door_orders.includes(name))[0];
         for(const body of bodies){
-            body.triggerEvent(speed +"km");
+            try{
+                body.triggerEvent(speed +"km");
+            }catch(err){
+                tcmb_car.kill();
+                console.error(err, ' | Deleted the associated tcmb_car.');
+                continue;
+            }
             if(speed > 108) body.teleport(tcmb_car.location);
 
             let carid_onbody_tag_exists = findFirstMatch(body.getTags(), 'tcmb_body_');
             if(carid_onbody_tag_exists == -1){
                 let car_entity_id = tcmb_car.id;
                 body.addTag('tcmb_body_'+car_entity_id);
-            }
-
-            if(open_order){
-                //door event
-                let door_direction;
-                body.triggerEvent(open_order);
-                if(tags.includes("backward")){
-                    if(open_order == "open_b"){
-                        door_direction = "left";
-                    }else if(open_order == "open_a"){
-                        door_direction = "right";
-                    }else if(open_order == "oneman_open_a"){
-                        door_direction = "oneman_left";
-                    }else if(open_order == "oneman_open_b"){
-                        door_direction = "oneman_right";
-                    }else if(open_order == "open_all"){
-                        door_direction = "all";
-                    }
-                }else{
-                    if(open_order == "open_b"){
-                        door_direction ="right";
-                    }else if(open_order == "open_a"){
-                        door_direction = "left";
-                    }else if(open_order == "oneman_open_a"){
-                        door_direction = "oneman_right";
-                    }else if(open_order == "oneman_open_b"){
-                        door_direction = "oneman_left";
-                    }else if(open_order == "open_all"){
-                        door_direction = "all";
-                    }
-                }
             }
         }
 
@@ -224,6 +196,20 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                     let event_report = new Event('delete', undefined, train, player);
                     event_report.reply();
                 break;
+                case "destBefore":{
+                    let train:Entity = overworld.getEntities(train_query)[0];
+                    if(!train.hasTag("voltage_0")){
+                        if(evdata.status["operation"] == 'foward'){
+                            player.runCommandAsync("playsound random.click @p");
+                            train.runCommandAsync("function dest");
+                            if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommandAsync("function tc_dest");
+                        }else{
+                            player.runCommandAsync("playsound random.click @p");
+                            train.runCommandAsync("function dest_reverse");
+                            if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommandAsync("function tc_dest_reverse");
+                        }
+                    }
+                }
                 case "open_crew_panelBefore":
                     train = overworld.getEntities(train_query)[0];
                     if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
@@ -333,7 +319,19 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
             event_report.reply();
         break;
         case "tcmb:engine_delete":
+            let delete_train: TCMBTrain = tcmb_trains.filter((train)=> train.body[0].id == ev.sourceEntity.id || train.body[1].id == ev.sourceEntity.id)[0];
+            let tcmb_cars: Entity[] = overworld.getEntities({
+                type: 'tcmb:tcmb_car',
+                maxDistance: 2,
+                location: ev.sourceEntity.location
+            });
 
+            for(const tcmb_car of tcmb_cars){
+                tcmb_car.triggerEvent('delete');
+            }
+            for(const body of delete_train.body){
+                body.teleport({ x: body.location.x, y: -128, z: body.location.z});
+            }
             break;
             
         case "tcmb:engine_electricity_control":
@@ -408,6 +406,60 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                 
             }
             break;
+            case 'tcmb:speed':{
+                if(ev.sourceEntity.typeId != 'tcmb:tcmb_car') return;
+                let train: Entity = ev.sourceEntity;
+                let tags = train.getTags();
+                let speed = speedObject.getScore(train);
+
+                if(ev.message == 'up'){
+                    let max_speed: number | string | boolean = train.getProperty('tcmb:max_speed');
+                    if(typeof max_speed != 'number') return;
+                    if(max_speed == 0){
+                        let maxspeed_tag: string = tags.filter((tag) => tag.startsWith('max_'))[0];
+                        max_speed = Number(maxspeed_tag.substring(4, maxspeed_tag.length-2));
+                        train.setProperty('tcmb:max_speed', max_speed);
+                    }
+
+                    if(tags.filter((tag) => tag.includes('open')).length == 0 && speed <= 1){
+                        if(!tags.includes('backward')){
+                            train.runCommandAsync('summon tcmb:tcmb_starter ^1^^');
+                        }else{
+                            train.runCommandAsync('summon tcmb:tcmb_starter ^-1^^');
+                        }
+                    }
+                    if(!tags.includes('tc_child') && !tags.includes('stopping') && speed < max_speed){
+                        if(max_speed <= 108){
+                            speedObject.addScore(train, 1);
+                        }else if(!tags.includes('tc_parent')){
+                            speedObject.addScore(train, 1);
+                        }
+                    }
+                    if(tags.includes('tc_parent') && !tags.includes('stopping') && speed < max_speed && speed < 108){
+                        speedObject.addScore(train, 1);
+                        train.runCommandAsync('function train_connect');
+                    }
+                }else if(ev.message == 'down'){
+                    let target_notch = ['eb', 'b7', 'b6', 'b5', 'b4', 'b3', 'b2', 'b1', 'n'];
+                    if(tags.filter((notch)=>target_notch.includes(notch))){
+                        if(!train.hasTag('backward')){
+                            train.runCommandAsync('summon tcmb:tcmb_starter ^1^^');
+                        }else{
+                            train.runCommandAsync('summon tcmb:tcmb_starter ^-1^^');
+                        }
+                        if(speed > 0 && !train.hasTag('tc_child')){
+                            speedObject.addScore(train, -1);
+                        }
+                        train.runCommandAsync('function train_connect');
+                    }
+                }
+            }
+            case "tcmb:regist_tcmanifest":{
+                let message: unknown = JSON.parse(ev.message);
+                if(typeof message == "object" && typeof message['typeId'] == 'string'){
+                    trains_manifest[message['typeId']] = message['manifest'];
+                }
+            }
             // perfomance monitor
             case "tcmb:perf_monitor":
                 if(ev.message == "true" || ev.message == "on" || ev.message == "1"){
@@ -433,7 +485,24 @@ world.afterEvents.entitySpawn.subscribe(async (event)=>{
         }
         while(writing_train_db);
         writing_train_db = true;
-        tcmb_trains_key[event.entity.id] = tcmb_trains.push(new TCMBTrain(event.entity, undefined, overworld.getEntities(query))) - 1;
+        tcmb_trains.push(new TCMBTrain(event.entity, undefined, overworld.getEntities(query))) - 1;
+        writing_train_db = false;
+        if(perf_monitor) perf_obj.setScore('spawn', (new Date().getTime()) - start);
+    }
+});
+
+world.afterEvents.entityLoad.subscribe(async (event)=>{
+    if(event.entity.typeId == 'tcmb:tcmb_car'){
+        console.warn('[minecart engine] Fired entityLoad');
+        if(perf_monitor) var start: number = (new Date()).getTime();
+        var query: EntityQueryOptions = {
+            families: ["tcmb_body"],
+            closest: 2,
+            location: event.entity.location
+        }
+        while(writing_train_db);
+        writing_train_db = true;
+        tcmb_trains.push(new TCMBTrain(event.entity, undefined, overworld.getEntities(query))) - 1;
         writing_train_db = false;
         if(perf_monitor) perf_obj.setScore('spawn', (new Date().getTime()) - start);
     }
@@ -444,7 +513,6 @@ world.afterEvents.entityRemove.subscribe(async (event)=>{
     while(writing_train_db);
     writing_train_db = true;
     tcmb_trains = tcmb_trains.filter((train)=> train.entity.id != event.removedEntityId);
-    delete tcmb_trains_key[event.removedEntityId];
     writing_train_db = false;
     if(perf_monitor) perf_obj.setScore('remove', (new Date().getTime()) - start);
 }, {

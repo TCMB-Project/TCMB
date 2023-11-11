@@ -55,6 +55,7 @@ export class TCMBTrain {
         this.body = body;
         this.id = car.id;
         this.rotation = 0;
+        this.sessionStore = {};
     }
     setWorkingPlayer(working) {
         this.working = working;

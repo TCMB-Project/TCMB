@@ -1,5 +1,5 @@
 import { world, system, Dimension, ScoreboardObjective, Entity, EntityQueryOptions, Player } from "@minecraft/server";
-import { Event, StringablePlayer } from "./classes";
+import { Event } from "./classes";
 import { dumy } from "./engine";
 
 new dumy;
@@ -8,6 +8,17 @@ const overworld: Dimension = world.getDimension("overworld");
 
 let events = ["door", "notch", "direction", "dest", "electricity", "delete"];
 let working: Map<string, Entity> = new Map();
+
+let ridden_train: Entity[] = overworld.getEntities({
+    tags: ['tcmb_riding']
+});
+for(const train of ridden_train){
+    let tags = train.getTags();
+    tags = tags.filter((tag)=> tag.startsWith('tcmb_riding_'));
+    for(const playerName of tags){
+        working.set(playerName.substring(11), train);
+    }
+}
 
 let engine = {};
 
@@ -32,10 +43,15 @@ system.afterEvents.scriptEventReceive.subscribe( ev => {
                     if(typeof work_player == "undefined") throw Error('[tcmb:work_control] player not found');
 
                     working.set(msg.playerName, work_train);
+                    work_train.addTag('tcmb_riding');
+                    work_train.addTag('tcmb_riding_'+msg.playerName);
                     work_player.sendMessage('乗務を開始しました。');
 
                 }else if(msg.type == "end" && typeof msg.playerName == "string"){
                     if(!working.has(msg.playerName)) throw Error(`[tcmb:work_control] ${msg.playerName} is not working`);
+                    let worked_train = working.get(msg.playerName);
+                    try{ worked_train.removeTag('tcmb_riding'); } catch(err){ throw Error('[tcmb:work_control] failed to remove tcmb_riding tag') }
+                    try{ worked_train.removeTag('tcmb_riding_'+msg.playerName); } catch(err){ throw Error('[tcmb:work_control] failed to remove playerName tag') } 
                     let end_result = working.delete(msg.playerName);
                     if(!end_result) throw Error('[tcmb:work_control] failed to remove working data.');
 
@@ -44,6 +60,17 @@ system.afterEvents.scriptEventReceive.subscribe( ev => {
 
                 }else if(msg.type == 'toggle' && typeof msg.playerName == 'string' && typeof msg.entity == 'string'){
                     if(working.has(msg.playerName)){
+                        if(!working.has(msg.playerName)) throw Error(`[tcmb:work_control] ${msg.playerName} is not working`);
+                        let worked_train = working.get(msg.playerName);
+                        try{ worked_train.removeTag('tcmb_riding_'+msg.playerName); } catch(err){ throw Error('[tcmb:work_control] failed to remove playerName tag') } 
+                        let working_player: string[] = worked_train.getTags().filter((tag)=> tag.startsWith('tcmb_riding_'));
+                        if(working_player.length == 0){
+                            try{
+                                worked_train.removeTag('tcmb_riding');
+                            }catch(err){
+                                throw Error('[tcmb:work_control] failed to remove tcmb_riding tag')
+                            }
+                        }
                         let end_result = working.delete(msg.playerName);
                         if(!end_result) throw Error('[tcmb:work_control] failed to remove working data.');
     
@@ -56,6 +83,8 @@ system.afterEvents.scriptEventReceive.subscribe( ev => {
                         if(typeof work_player == "undefined") throw Error('[tcmb:work_control] player not found');
     
                         working.set(msg.playerName, work_train);
+                        work_train.addTag('tcmb_riding');
+                        work_train.addTag('tcmb_riding_'+msg.playerName);
                         work_player.sendMessage('乗務を開始しました。');
                     }
                 }else if(msg.type == "getStatus" && typeof msg.response == "string"){
@@ -87,10 +116,6 @@ world.afterEvents.itemUse.subscribe((ev)=>{
     let item_type_id: string = ev.itemStack.typeId;
     let train: Entity;
 
-    let train_query = {
-        type: "tcmb:tcmb_car",
-        closest: 1
-    };
     let event_train_query:EntityQueryOptions = {
         families: ["tcmb_car"],
         location: ev.source.location,
@@ -201,20 +226,24 @@ world.afterEvents.itemUse.subscribe((ev)=>{
             evdata.send();
         break;
         case "tcmb:dest":
-            train = overworld.getEntities(train_query)[0];
-            if(!train.hasTag("voltage_0")){
-                ev.source.runCommandAsync("playsound random.click @p");
-                train.runCommandAsync("function dest");
-                if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommandAsync("function tc_dest");
+            if(working.has(ev.source.name)){
+                train = working.get(ev.source.name);
+            }else{
+                train = overworld.getEntities(event_train_query)[0];
             }
+            if(typeof train == "undefined") return;
+            evdata = new Event('destBefore', {'operation':'foward'}, train, ev.source);
+            evdata.send();
         break;
         case "tcmb:dest_reverse":
-            train = overworld.getEntities(train_query)[0];
-            if(!train.hasTag("voltage_0")){
-                ev.source.runCommandAsync("playsound random.click @p");
-                train.runCommandAsync("function dest_reverse");
-                if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommandAsync("function tc_dest_reverse");
+            if(working.has(ev.source.name)){
+                train = working.get(ev.source.name);
+            }else{
+                train = overworld.getEntities(event_train_query)[0];
             }
+            if(typeof train == "undefined") return;
+            evdata = new Event('destBefore', {'operation':'reverse'}, train, ev.source);
+            evdata.send();
         break;
         case "tcmb:crew_panel":
             if(working.has(ev.source.name)){
@@ -227,17 +256,6 @@ world.afterEvents.itemUse.subscribe((ev)=>{
             evdata.send();
         break;
     }
-});
-
-world.afterEvents.playerJoin.subscribe((event)=>{
-    system.runTimeout(()=>{
-        let player: Player = world.getPlayers({name:event.playerName})[0];
-        if(player.hasTag('tcmb_isworking')){
-            let working_train: string | Entity = player.getTags().filter((tag)=>tag.startsWith('tcmb_workingat_'))[0];
-            working_train = overworld.getEntities({tags:['tcmb_carid_'+working_train]})[0];
-            working[event.playerName] = working_train;
-        }
-    }, 20);
 });
 
 overworld.runCommandAsync('scriptevent tcmb:initialized');

@@ -1,2 +1,8 @@
-itemGroup.name.tcmb = TCMB
-action.interact.ride.tcmb_seat = 座る
+itemGroup.name.tcmb=TCMB
+action.interact.ride.tcmb_seat=座る
+item.tcmb:crew_panel.name=乗務パネル
+item.tcmb:notch_power.name=加速(P)
+item.tcmb:notch_neutral.name=切(N)
+item.tcmb:notch_break.name=減速(B)
+item.tcmb:notch_eb.name=非常ブレーキ(EB)
+item.tcmb:delete_train.name=車両を消す

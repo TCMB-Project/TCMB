@@ -6,7 +6,7 @@
             "loop": true,
             "timeline": {
                "0.0": [
-                "/execute if entity @s[tag=!tc_child] run function speed_down",
+                "/execute if entity @s[tag=!tc_child] run scriptevent tcmb:speed down",
                 "/function train_connect",
                 "/playanimation @e[tag=body,r=1] eb eb 32767",
                 "@s tasc_remove",
@@ -22,7 +22,7 @@
             "loop": true,
             "timeline": {
                "0.0": [
-                "/execute if entity @s[tag=!tc_child] run function speed_down",
+                "/execute if entity @s[tag=!tc_child] run scriptevent tcmb:speed down",
                 "/function train_connect",
                 "/playanimation @e[tag=body,r=1] b7 b7 32767"
                ]
@@ -33,7 +33,7 @@
             "loop": true,
             "timeline": {
                "0.0": [
-                "/execute if entity @s[tag=!tc_child] run function speed_down",
+                "/execute if entity @s[tag=!tc_child] run scriptevent tcmb:speed down",
                 "/function train_connect",
                 "/playanimation @e[tag=body,r=1] b6 b6 32767"
                ]
@@ -44,7 +44,7 @@
             "loop": true,
             "timeline": {
                "0.0": [
-                "/execute if entity @s[tag=!tc_child] run function speed_down",
+                "/execute if entity @s[tag=!tc_child] run scriptevent tcmb:speed down",
                 "/function train_connect",
                 "/playanimation @e[tag=body,r=1] b5 b5 32767"
                ]
@@ -55,7 +55,7 @@
             "loop": true,
             "timeline": {
                "0.0": [
-                "/execute if entity @s[tag=!tc_child] run function speed_down",
+                "/execute if entity @s[tag=!tc_child] run scriptevent tcmb:speed down",
                 "/function train_connect",
                 "/playanimation @e[tag=body,r=1] b4 b4 32767"
                ] 
@@ -66,7 +66,7 @@
             "loop": true,
             "timeline": {
                "0.0": [
-                "/execute if entity @s[tag=!tc_child] run function speed_down",
+                "/execute if entity @s[tag=!tc_child] run scriptevent tcmb:speed down",
                 "/function train_connect",
                 "/playanimation @e[tag=body,r=1] b3 b3 32767"
                ]
@@ -77,7 +77,7 @@
             "loop": true,
             "timeline": {
                "0.0": [
-                "/execute if entity @s[tag=!tc_child] run function speed_down",
+                "/execute if entity @s[tag=!tc_child] run scriptevent tcmb:speed down",
                 "/function train_connect",
                 "/playanimation @e[tag=body,r=1] b2 b2 32767"
                ]
@@ -88,7 +88,7 @@
             "loop": true,
             "timeline": {
                "0.0": [
-                "/execute if entity @s[tag=!tc_child] run function speed_down",
+                "/execute if entity @s[tag=!tc_child] run scriptevent tcmb:speed down",
                 "/function train_connect",
                 "/playanimation @e[tag=body,r=1] b1 b1 32767"
                ]
@@ -109,8 +109,7 @@
             "loop": true,
             "timeline": {
                "0.0": [
-                "/function speed_up",
-                "/function train_connect",
+                "/scriptevent tcmb:speed up",
                 "/playanimation @e[tag=body,r=1] p1 p1 32767"
                ]     
             }
@@ -120,8 +119,7 @@
             "loop": true,
             "timeline": {
                "0.0": [
-                "/function speed_up",
-                "/function train_connect",
+                "/scriptevent tcmb:speed up",
                 "/playanimation @e[tag=body,r=1] p2 p2 32767"
                ]
             }
@@ -131,8 +129,7 @@
             "loop": true,
             "timeline": {
                "0.0": [
-                "/function speed_up",
-                "/function train_connect",
+                "/scriptevent tcmb:speed up",
                 "/playanimation @e[tag=body,r=1] p3 p3 32767"
                ]  
             }
@@ -142,8 +139,7 @@
             "loop": true,
             "timeline": {
                "0.0": [
-                "/function speed_up",
-                "/function train_connect",
+                "/scriptevent tcmb:speed up",
                 "/playanimation @e[tag=body,r=1] p4 p4 32767"
                ]
             }
