@@ -19,6 +19,12 @@ let perf = {
 let perf_monitor = false;
 let monitor_runid = 0;
 let crew_panel_buttons = [];
+crew_panel_buttons.push(new PanelButton(true, '電気系統', 'textures/items/electricity_control', 'tcmb:engine_electricity_control'));
+crew_panel_buttons.push(new PanelButton(true, 'ドア操作', 'textures/items/door_control', undefined));
+crew_panel_buttons.push(new PanelButton(true, '非常ブレーキ', 'textures/items/notch_eb', undefined));
+crew_panel_buttons.push(new PanelButton(true, '進行方向反転', 'textures/items/direction', undefined));
+crew_panel_buttons.push(new PanelButton(true, '乗務開始/終了', 'textures/items/crew_panel', 'tcmb:engine_work'));
+let trains_manifest = {};
 let init_entities = overworld.getEntities({ families: ["tcmb_car"], type: "tcmb:tcmb_car" });
 let tcmb_trains = [];
 for (let i = 0; i < init_entities.length; i++) {
@@ -30,12 +36,6 @@ for (let i = 0; i < init_entities.length; i++) {
     tcmb_trains[i] = new TCMBTrain(init_entities[i], undefined, overworld.getEntities(query));
 }
 let writing_train_db = false;
-let trains_manifest = {};
-crew_panel_buttons.push(new PanelButton(true, '電気系統', 'textures/items/electricity_control', 'tcmb:engine_electricity_control'));
-crew_panel_buttons.push(new PanelButton(true, 'ドア操作', 'textures/items/door_control', undefined));
-crew_panel_buttons.push(new PanelButton(true, '非常ブレーキ', 'textures/items/notch_eb', undefined));
-crew_panel_buttons.push(new PanelButton(true, '進行方向反転', 'textures/items/direction', undefined));
-crew_panel_buttons.push(new PanelButton(true, '乗務開始/終了', 'textures/items/crew_panel', 'tcmb:engine_work'));
 //main operation
 system.runInterval(() => {
     if (perf_monitor)
@@ -78,11 +78,13 @@ system.runInterval(() => {
                 body.triggerEvent(speed + "km");
             }
             catch (err) {
-                console.error(err, ' | Deleted the associated tcmb_car.');
                 tcmb_car.kill();
+                console.error(err, ' | Deleted the associated tcmb_car.');
                 continue;
             }
-            if (speed > 108)
+            if (open_order)
+                body.triggerEvent(open_order);
+            if (speed >= 108)
                 body.teleport(tcmb_car.location);
             let carid_onbody_tag_exists = findFirstMatch(body.getTags(), 'tcmb_body_');
             if (carid_onbody_tag_exists == -1) {
@@ -100,7 +102,6 @@ system.runInterval(() => {
         perf['main'] = (new Date().getTime()) - start;
 }, 1);
 system.afterEvents.scriptEventReceive.subscribe(ev => {
-    const playerLocation = ev.sourceEntity ? ev.sourceEntity.location : undefined;
     var train;
     switch (ev.id) {
         case "tcmb:event":
@@ -260,7 +261,7 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
             let door_direction;
             if (ev.message.includes('open')) {
                 //door event
-                if (train.hasTag("backward")) {
+                if (ev.sourceEntity.hasTag("backward")) {
                     if (ev.message == "open_b") {
                         door_direction = "left";
                     }
@@ -431,64 +432,68 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                 player.runCommandAsync('scriptevent tcmb:work_control ' + JSON.stringify(work_req));
             }
             break;
-        case 'tcmb:speed': {
-            if (ev.sourceEntity.typeId != 'tcmb:tcmb_car')
-                return;
-            let train = ev.sourceEntity;
-            let tags = train.getTags();
-            let speed = speedObject.getScore(train);
-            if (ev.message == 'up') {
-                let max_speed = train.getProperty('tcmb:max_speed');
-                if (typeof max_speed != 'number')
+        case 'tcmb:speed':
+            {
+                if (ev.sourceEntity.typeId != 'tcmb:tcmb_car')
                     return;
-                if (max_speed == 0) {
-                    let maxspeed_tag = tags.filter((tag) => tag.startsWith('max_'))[0];
-                    max_speed = Number(maxspeed_tag.substring(4, maxspeed_tag.length - 2));
-                    train.setProperty('tcmb:max_speed', max_speed);
-                }
-                if (tags.filter((tag) => tag.includes('open')).length == 0 && speed <= 1) {
-                    if (!tags.includes('backward')) {
-                        train.runCommandAsync('summon tcmb:tcmb_starter ^1^^');
+                let train = ev.sourceEntity;
+                let tags = train.getTags();
+                let speed = speedObject.getScore(train);
+                if (ev.message == 'up') {
+                    let max_speed = train.getProperty('tcmb:max_speed');
+                    if (typeof max_speed != 'number')
+                        return;
+                    if (max_speed == 0) {
+                        let maxspeed_tag = tags.filter((tag) => tag.startsWith('max_'))[0];
+                        max_speed = Number(maxspeed_tag.substring(4, maxspeed_tag.length - 2));
+                        train.setProperty('tcmb:max_speed', max_speed);
                     }
-                    else {
-                        train.runCommandAsync('summon tcmb:tcmb_starter ^-1^^');
+                    if (tags.filter((tag) => tag.includes('open')).length == 0 && speed <= 1) {
+                        if (!tags.includes('backward')) {
+                            train.runCommandAsync('summon tcmb:tcmb_starter ^1^^');
+                        }
+                        else {
+                            train.runCommandAsync('summon tcmb:tcmb_starter ^-1^^');
+                        }
                     }
-                }
-                if (!tags.includes('tc_child') && !tags.includes('stopping') && speed < max_speed) {
-                    if (max_speed <= 108) {
+                    if (!tags.includes('tc_child') && !tags.includes('stopping') && speed < max_speed) {
+                        if (max_speed <= 108) {
+                            speedObject.addScore(train, 1);
+                        }
+                        else if (!tags.includes('tc_parent')) {
+                            speedObject.addScore(train, 1);
+                        }
+                    }
+                    if (tags.includes('tc_parent') && !tags.includes('stopping') && speed < max_speed && speed < 108) {
                         speedObject.addScore(train, 1);
-                    }
-                    else if (!tags.includes('tc_parent')) {
-                        speedObject.addScore(train, 1);
+                        train.runCommandAsync('function train_connect');
                     }
                 }
-                if (tags.includes('tc_parent') && !tags.includes('stopping') && speed < max_speed && speed < 108) {
-                    speedObject.addScore(train, 1);
-                    train.runCommandAsync('function train_connect');
+                else if (ev.message == 'down') {
+                    let target_notch = ['eb', 'b7', 'b6', 'b5', 'b4', 'b3', 'b2', 'b1', 'n'];
+                    if (tags.filter((notch) => target_notch.includes(notch))) {
+                        if (!train.hasTag('backward')) {
+                            train.runCommandAsync('summon tcmb:tcmb_starter ^1^^');
+                        }
+                        else {
+                            train.runCommandAsync('summon tcmb:tcmb_starter ^-1^^');
+                        }
+                        if (speed > 0 && !train.hasTag('tc_child')) {
+                            speedObject.addScore(train, -1);
+                        }
+                        train.runCommandAsync('function train_connect');
+                    }
                 }
             }
-            else if (ev.message == 'down') {
-                let target_notch = ['eb', 'b7', 'b6', 'b5', 'b4', 'b3', 'b2', 'b1', 'n'];
-                if (tags.filter((notch) => target_notch.includes(notch))) {
-                    if (!train.hasTag('backward')) {
-                        train.runCommandAsync('summon tcmb:tcmb_starter ^1^^');
-                    }
-                    else {
-                        train.runCommandAsync('summon tcmb:tcmb_starter ^-1^^');
-                    }
-                    if (speed > 0 && !train.hasTag('tc_child')) {
-                        speedObject.addScore(train, -1);
-                    }
-                    train.runCommandAsync('function train_connect');
+            break;
+        case "tcmb:regist_tcmanifest":
+            {
+                let message = JSON.parse(ev.message);
+                if (typeof message == "object" && typeof message['typeId'] == 'string') {
+                    trains_manifest[message['typeId']] = message['manifest'];
                 }
             }
-        }
-        case "tcmb:regist_tcmanifest": {
-            let message = JSON.parse(ev.message);
-            if (typeof message == "object" && typeof message['typeId'] == 'string') {
-                trains_manifest[message['typeId']] = message['manifest'];
-            }
-        }
+            break;
         // perfomance monitor
         case "tcmb:perf_monitor":
             if (ev.message == "true" || ev.message == "on" || ev.message == "1") {
@@ -516,8 +521,11 @@ world.afterEvents.entitySpawn.subscribe(async (event) => {
         while (writing_train_db)
             ;
         writing_train_db = true;
-        tcmb_trains.push(new TCMBTrain(event.entity, undefined, overworld.getEntities(query))) - 1;
+        let bodies = overworld.getEntities(query);
+        tcmb_trains.push(new TCMBTrain(event.entity, undefined, bodies)) - 1;
         writing_train_db = false;
+        let car_entity_id = event.entity.id;
+        event.entity.addTag('tcmb_carid_' + car_entity_id);
         if (perf_monitor)
             perf_obj.setScore('spawn', (new Date().getTime()) - start);
     }

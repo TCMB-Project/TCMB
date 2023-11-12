@@ -55,9 +55,18 @@ export class TCMBTrain {
         this.body = body;
         this.id = car.id;
         this.rotation = 0;
-        this.sessionStore = {};
+        this.sessionStorage = {};
     }
     setWorkingPlayer(working) {
         this.working = working;
+    }
+    setStore(key, value) {
+        this.sessionStorage[key] = value;
+    }
+    getStore(key) {
+        return this.sessionStorage[key];
+    }
+    removeStore(key) {
+        delete this.sessionStorage[key];
     }
 }

@@ -68,22 +68,33 @@ export class PanelButton{
     }
 }
 
+export type StorageData = string | number | undefined | null | Entity; 
+
 export class TCMBTrain{
     entity: Entity;
     working: Player | undefined;
     body: Entity[];
     id: string;
     rotation: number;
-    sessionStore: object;
+    sessionStorage: object;
     constructor(car:Entity, working:Player | undefined = undefined, body:Entity[] | undefined = undefined){
         this.entity = car;
         this.working = working;
         this.body = body;
         this.id = car.id;
         this.rotation = 0;
-        this.sessionStore = {}
+        this.sessionStorage = {}
     }
     setWorkingPlayer(working:Player | undefined){
         this.working = working;
+    }
+    setStore(key: string, value: StorageData){
+        this.sessionStorage[key] = value;
+    }
+    getStore(key: string){
+        return this.sessionStorage[key];
+    }
+    removeStore(key){
+        delete this.sessionStorage[key];
     }
 }
