@@ -1,4 +1,4 @@
-import { Vector3 } from "@minecraft/server";
+import { Vector3, system } from "@minecraft/server";
 
 export function findFirstMatch(array, searchString) {
     let match = array.find(element => element.startsWith(searchString));
@@ -16,4 +16,12 @@ export function distance(p1: Vector3, p2: Vector3): number {
   const dz = p1.z - p2.z;
 
   return Math.sqrt(dx * dx + dy * dy + dz * dz);
+}
+
+export function sleep(tick: number){
+  return new Promise((resolve)=>{
+    system.runInterval(()=>{
+      resolve(true);
+    }, tick);
+  })
 }

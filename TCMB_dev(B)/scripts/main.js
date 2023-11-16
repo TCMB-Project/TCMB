@@ -6,13 +6,14 @@ const overworld = world.getDimension("overworld");
 let events = ["door", "notch", "direction", "dest", "electricity", "delete"];
 let working = new Map();
 let ridden_train = overworld.getEntities({
-    tags: ['tcmb_riding']
+    tags: ['tcmb_riding'],
+    families: ['tcmb_car']
 });
 for (const train of ridden_train) {
     let tags = train.getTags();
     tags = tags.filter((tag) => tag.startsWith('tcmb_riding_'));
     for (const playerName of tags) {
-        working.set(playerName.substring(11), train);
+        working.set(playerName.substring(12), train);
     }
 }
 let engine = {};
@@ -132,6 +133,7 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
 world.afterEvents.itemUse.subscribe((ev) => {
     let item_type_id = ev.itemStack.typeId;
     let train;
+    let isworking;
     let event_train_query = {
         families: ["tcmb_car"],
         location: ev.source.location,
@@ -148,55 +150,63 @@ world.afterEvents.itemUse.subscribe((ev) => {
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('deleteBefore', undefined, train, ev.source);
+            evdata = new Event('deleteBefore', undefined, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:notch_power":
             if (working.has(ev.source.name)) {
                 train = working.get(ev.source.name);
+                isworking = true;
             }
             else {
                 train = overworld.getEntities(event_train_query)[0];
+                isworking = false;
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('notchBefore', { operation: 'power' }, train, ev.source);
+            evdata = new Event('notchBefore', { operation: 'power' }, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:notch_neutral":
             if (working.has(ev.source.name)) {
                 train = working.get(ev.source.name);
+                isworking = true;
             }
             else {
                 train = overworld.getEntities(event_train_query)[0];
+                isworking = false;
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('notchBefore', { operation: 'neutral' }, train, ev.source);
+            evdata = new Event('notchBefore', { operation: 'neutral' }, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:notch_break":
             if (working.has(ev.source.name)) {
                 train = working.get(ev.source.name);
+                isworking = true;
             }
             else {
                 train = overworld.getEntities(event_train_query)[0];
+                isworking = false;
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('notchBefore', { operation: 'break' }, train, ev.source);
+            evdata = new Event('notchBefore', { operation: 'break' }, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:notch_eb":
             if (working.has(ev.source.name)) {
                 train = working.get(ev.source.name);
+                isworking = true;
             }
             else {
                 train = overworld.getEntities(event_train_query)[0];
+                isworking = false;
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('notchBefore', { operation: 'eb' }, train, ev.source);
+            evdata = new Event('notchBefore', { operation: 'eb' }, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:open_left":
@@ -222,74 +232,86 @@ world.afterEvents.itemUse.subscribe((ev) => {
         case "tcmb:door_control":
             if (working.has(ev.source.name)) {
                 train = working.get(ev.source.name);
+                isworking = true;
             }
             else {
                 train = overworld.getEntities(event_train_query)[0];
+                isworking = false;
             }
             if (typeof train == "undefined")
                 return;
             //"execute as @p at @s run scriptevent tcmb:door_control"
-            evdata = new Event('door_control', undefined, train, ev.source);
+            evdata = new Event('door_control', undefined, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:ride":
             if (working.has(ev.source.name)) {
                 train = working.get(ev.source.name);
+                isworking = true;
             }
             else {
                 train = overworld.getEntities(event_train_query)[0];
+                isworking = false;
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('rideBefore', undefined, train, ev.source);
+            evdata = new Event('rideBefore', undefined, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:direction":
             if (working.has(ev.source.name)) {
                 train = working.get(ev.source.name);
+                isworking = true;
             }
             else {
                 train = overworld.getEntities(event_train_query)[0];
+                isworking = false;
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('directionBefore', undefined, train, ev.source);
+            evdata = new Event('directionBefore', undefined, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:dest":
             if (working.has(ev.source.name)) {
                 train = working.get(ev.source.name);
+                isworking = true;
             }
             else {
                 train = overworld.getEntities(event_train_query)[0];
+                isworking = false;
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('destBefore', { 'operation': 'foward' }, train, ev.source);
+            evdata = new Event('destBefore', { 'operation': 'foward' }, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:dest_reverse":
             if (working.has(ev.source.name)) {
                 train = working.get(ev.source.name);
+                isworking = true;
             }
             else {
                 train = overworld.getEntities(event_train_query)[0];
+                isworking = false;
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('destBefore', { 'operation': 'reverse' }, train, ev.source);
+            evdata = new Event('destBefore', { 'operation': 'reverse' }, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:crew_panel":
             if (working.has(ev.source.name)) {
                 train = working.get(ev.source.name);
+                isworking = true;
             }
             else {
                 train = overworld.getEntities(event_train_query)[0];
+                isworking = false;
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('open_crew_panelBefore', undefined, train, ev.source, working.has(ev.source.name));
+            evdata = new Event('open_crew_panelBefore', undefined, train, ev.source, isworking);
             evdata.send();
             break;
     }

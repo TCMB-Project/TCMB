@@ -2,5 +2,23 @@
   "dependencies": {
     "@minecraft/server": "^1.6.0",
     "@minecraft/server-ui": "^1.1.0"
-  }
+  },
+  "name": "tcmb",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TCMB-Project/TCMB.git"
+  },
+  "author": "gensokyo-kenken",
+  "license": "LGPL-2.1-or-later",
+  "bugs": {
+    "url": "https://github.com/TCMB-Project/TCMB/issues"
+  },
+  "homepage": "https://github.com/TCMB-Project/TCMB#readme",
+  "description": ""
 }
