@@ -1,1 +1,1 @@
-execute as @e[type=tcmb:tcmb_car,c=1] at @s run scriptevent tcmb:engine_battery
+execute as @e[type=tcmb:tcmb_car,c=1] at @s run scriptevent tcmb_minecart_engine:voltage_battery

@@ -6,7 +6,7 @@ new dumy;
 
 const overworld: Dimension = world.getDimension("overworld");
 
-let events = ["door", "notch", "direction", "dest", "electricity", "delete"];
+let events = ["door", "notch", "direction", "dest", "delete"];
 let working: Map<string, Entity> = new Map();
 
 let ridden_train: Entity[] = overworld.getEntities({
@@ -101,7 +101,6 @@ system.afterEvents.scriptEventReceive.subscribe( ev => {
                         for(let [playerName, train] of working){
                             if(train.id == msg.entity){
                                 response_obj['playerName'].push(playerName);
-                                break;
                             }
                         }
                         overworld.runCommandAsync(`scriptevent ${msg.response} ${JSON.stringify(response_obj)}`);
@@ -109,6 +108,11 @@ system.afterEvents.scriptEventReceive.subscribe( ev => {
                 }else{
                     throw Error('[tcmb:work_control] Invalid JSON Message.');
                 }
+            break;
+            case "tcmb:chat_echo":{
+                world.sendMessage('[tcmb:chat_echo] '+ev.message);
+            }
+
     }
 });
 
@@ -128,11 +132,21 @@ world.afterEvents.itemUse.subscribe((ev)=>{
     switch(item_type_id){
         case "tcmb:delete_train":
             train = overworld.getEntities(event_train_query)[0];
+            if(typeof train == "undefined") return;
             if(working.has(ev.source.name) && working.get(ev.source.name).id == train.id){
                 ev.source.sendMessage('§c乗務中のため削除できません。');
                 return;
+            }else if(train.hasTag('tcmb_riding')){
+                let working_player = [];
+                let world_players = world.getAllPlayers();
+                for(let [playerName, work_train] of working){
+                    if(train.id == work_train.id){
+                        working_player.push(playerName);
+                    }
+                }
+                ev.source.sendMessage(`§cまだ${working_player.join(', ')}が乗務しています。`);
+                return;
             }
-            if(typeof train == "undefined") return;
             evdata = new Event('deleteBefore', undefined, train, ev.source, isworking);
             evdata.send();
         break;

@@ -202,6 +202,11 @@
                     "range": [0, 2147483647],
                     "default": 0
                 },
+                "tcmb:battery_no_op_interval":{
+                    "type": "int",
+                    "range": [0, 2147483647],
+                    "default": 0
+                },
                 "tcmb:tasc_break": { 
                     "type": "int", 
                     "range": [-31, 4], 

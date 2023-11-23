@@ -1,4 +1,4 @@
-import { Vector3, system } from "@minecraft/server";
+import { Vector3, system, Vector2 } from "@minecraft/server";
 
 export function findFirstMatch(array, searchString) {
     let match = array.find(element => element.startsWith(searchString));
