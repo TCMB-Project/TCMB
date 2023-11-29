@@ -5,6 +5,11 @@ new dumy;
 const overworld = world.getDimension("overworld");
 let events = ["door", "notch", "direction", "dest", "delete"];
 let working = new Map();
+let optionObject = world.scoreboard.getObjective("option");
+if (typeof optionObject == "undefined") {
+    optionObject = world.scoreboard.addObjective("option", "");
+    optionObject.setScore('auto_speed_down', 0);
+}
 let ridden_train = overworld.getEntities({
     tags: ['tcmb_riding'],
     families: ['tcmb_car']
@@ -123,6 +128,19 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                     overworld.runCommandAsync(`scriptevent ${msg.response} ${JSON.stringify(response_obj)}`);
                 }
             }
+            else if (msg.type == "reload") {
+                let ridden_train = overworld.getEntities({
+                    tags: ['tcmb_riding'],
+                    families: ['tcmb_car']
+                });
+                for (const train of ridden_train) {
+                    let tags = train.getTags();
+                    tags = tags.filter((tag) => tag.startsWith('tcmb_riding_'));
+                    for (const playerName of tags) {
+                        working.set(playerName.substring(12), train);
+                    }
+                }
+            }
             else {
                 throw Error('[tcmb:work_control] Invalid JSON Message.');
             }
@@ -136,12 +154,17 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
 world.afterEvents.itemUse.subscribe((ev) => {
     let item_type_id = ev.itemStack.typeId;
     let train;
+    let ground_facilitiy;
+    let block_location;
     let isworking;
     let event_train_query = {
         families: ["tcmb_car"],
         location: ev.source.location,
         closest: 1,
         maxDistance: 40
+    };
+    let raycast_query = {
+        maxDistance: 10
     };
     let evdata;
     switch (item_type_id) {
@@ -155,7 +178,6 @@ world.afterEvents.itemUse.subscribe((ev) => {
             }
             else if (train.hasTag('tcmb_riding')) {
                 let working_player = [];
-                let world_players = world.getAllPlayers();
                 for (let [playerName, work_train] of working) {
                     if (train.id == work_train.id) {
                         working_player.push(playerName);
@@ -328,6 +350,20 @@ world.afterEvents.itemUse.subscribe((ev) => {
             evdata = new Event('open_crew_panelBefore', undefined, train, ev.source, isworking);
             evdata.send();
             break;
+        case "tcmb:delete_ground_facilities":
+            block_location = ev.source.getBlockFromViewDirection(raycast_query);
+            if (typeof block_location == 'undefined')
+                return;
+            ground_facilitiy = overworld.getEntities({
+                families: ['ground_facilities'],
+                closest: 1,
+                maxDistance: 5,
+                location: block_location.block.location
+            })[0];
+            if (typeof ground_facilitiy != 'undefined') {
+                ev.source.runCommandAsync('playsound random.click @s');
+                ground_facilitiy.triggerEvent('delete');
+            }
     }
 });
 overworld.runCommandAsync('scriptevent tcmb:initialized');

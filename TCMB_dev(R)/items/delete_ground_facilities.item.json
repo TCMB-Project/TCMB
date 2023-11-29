@@ -1,0 +1,13 @@
+{
+	"format_version": "1.10",
+	"minecraft:item": {
+		"description": {
+			"identifier": "tcmb:delete_ground_facilities",
+			"category": "Items"
+		},
+		"components": {
+			"minecraft:icon": "tcmb_delete_ground_facilities",
+			"minecraft:render_offsets": "tools"
+		}
+	}
+}

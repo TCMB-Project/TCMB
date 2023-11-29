@@ -13,6 +13,8 @@ if(typeof speedObject == "undefined"){
 if(typeof world.scoreboard.getObjective('atc') == 'undefined'){
     world.scoreboard.addObjective('atc', '');
 }
+let optionObject: ScoreboardObjective | undefined = world.scoreboard.getObjective("option");
+
 const perf_obj: ScoreboardObjective = world.scoreboard.getObjective('tcmb_perfomance');
 const door_orders: String[] = ['open_a', 'open_b', 'open_all', 'oneman_open_a', 'oneman_open_b'];
 const reverse_direction = {
@@ -191,11 +193,8 @@ async function initializeTrain(entity: Entity){
     }
 }
 
-let init_entities: Entity[] = overworld.getEntities({families: ["tcmb_car"], type: "tcmb:tcmb_car"}); 
+
 let tcmb_trains: TCMBTrain[] = [];
-for(let i=0; i<init_entities.length; i++){
-    initializeTrain(init_entities[i]);
-}
 
 //main operation
 system.runInterval(() =>{
@@ -264,6 +263,7 @@ system.runInterval(() =>{
     if(perf_monitor) perf['main'] = (new Date().getTime()) - start;
 },1);
 
+//battery charge and self-discharge
 system.runInterval(()=>{
     for(const train of tcmb_trains){
         let typeId = train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
@@ -271,46 +271,60 @@ system.runInterval(()=>{
             let battery = trains_manifest[typeId]['battery'];
             if(typeof battery != 'object') continue;
             train.entity.addTag('has_battery');
+            let now_level = train.entity.getProperty('tcmb:battery_level');
+
             if(train.entity.hasTag('voltage_1')){
-                let now_level = train.entity.getProperty('tcmb:battery_level');
                 let charge_perf = trains_manifest[typeId]['battery']['performance']['voltage_1']['charge'];
-                if(typeof charge_perf != 'undefined' && now_level < battery['capacity']){
+                if((now_level + charge_perf) >= battery['capacity']){
+                    train.entity.setProperty('tcmb:battery_level', battery['capacity']);
+                }else if(typeof charge_perf != 'undefined' && now_level < battery['capacity']){
                     train.entity.setProperty('tcmb:battery_level', now_level + charge_perf);
-                    for(const body of train.body){
-                        body.setProperty(typeId+':battery_level', now_level + charge_perf);
-                    }
+                    train.entity.removeTag('voltage_0');
                 }
             }else if(train.entity.hasTag('voltage_2')){
-                let now_level = train.entity.getProperty('tcmb:battery_level');
-                let charge_perf = trains_manifest[typeId]['battery']['perfomance']['voltage_2']['charge'];
-                if(typeof charge_perf != 'undefined' && now_level < battery['capacity']){
+                let charge_perf = trains_manifest[typeId]['battery']['performance']['voltage_2']['charge'];
+                if((now_level + charge_perf) >= battery['capacity']){
+                    train.entity.setProperty('tcmb:battery_level', battery['capacity']);
+                }else if(typeof charge_perf != 'undefined' && now_level < battery['capacity']){
                     train.entity.setProperty('tcmb:battery_level', now_level + charge_perf);
-                }
-                for(const body of train.body){
-                    body.setProperty(typeId+':battery_level', now_level + charge_perf)
+                    train.entity.removeTag('voltage_0');
                 }
             }else if(train.entity.hasTag('voltage_b')){
-                if(typeof train.getStore('time_interval') == 'undefined') train.setStore('time_interval', 0);
-                train.setStore('time_interval', train.getStore('time_interval') + 1);
-                if(train.getStore('time_interval') >= trains_manifest[typeId]['battery']['perfomance']['no_operation']['TimeInterval']){
-                    let now_level = train.entity.getProperty('tcmb:battery_level');
-                    let perf = trains_manifest[typeId]['battery']['perfomance']['no_operation']['TimeInterval'];
-                    let interval = train.entity.getProperty('tcmb:battery_no_op_interval');
-                    if(typeof interval == 'number'){
-                        train.entity.setProperty("tcmb:battery_no_op_interval", interval + 1);
-                        if(typeof perf != 'undefined' && typeof now_level == 'number' && now_level < battery['capacity'] && perf <= interval + 1){
-                            train.entity.setProperty('tcmb:battery_level', now_level - perf);
-                        }
-                    }
-                    for(const body of train.body){
-                        if(typeof now_level == 'number') body.setProperty(typeId+':battery_level', now_level - perf)
+                let perf: object = trains_manifest[typeId]['battery']['performance']['no_operation'];
+                let interval = train.entity.getProperty('tcmb:battery_no_op_interval');
+                if(typeof interval == 'number'){
+                    interval++;
+                    train.entity.setProperty('tcmb:battery_no_op_interval', interval);
+
+                    if(typeof now_level == 'number' && (now_level - perf['use']) <= 0){
+                        train.entity.setProperty('tcmb:battery_level', 0);
+                        train.entity.setProperty('tcmb:battery_no_op_interval', 0);
+                        train.entity.addTag('voltage_0');
+                    }else if(typeof perf != 'undefined' && typeof now_level == 'number' && now_level >= 0 && interval >= perf['TimeInterval']){
+                        train.entity.setProperty('tcmb:battery_level', now_level - perf['use']);
+                        train.entity.setProperty('tcmb:battery_no_op_interval', 0);
                     }
                 }
+            }
+            let level = train.entity.getProperty('tcmb:battery_level');
+            for(const body of train.body){
+                if(typeof now_level == 'number') body.setProperty(typeId+':battery_level', level);
             }
         }
     }
 }, 20)
 
+system.runInterval(()=>{
+    if(optionObject instanceof ScoreboardObjective && optionObject.getScore('auto_speed_down') != 0){
+        for(const train of tcmb_trains){
+            if(train.entity.hasTag('n') && !train.entity.hasTag('tasc_on') && !train.entity.hasTag('tc_child')){
+                train.entity.runCommandAsync('scriptevent tcmb:speed down');
+            }
+        }
+    }
+}, 120);
+
+//events/functions
 system.afterEvents.scriptEventReceive.subscribe( ev =>{
     var train: Entity;
     switch(ev.id){
@@ -352,7 +366,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                     }
                 break;
                 case "notchBefore":
-                    train = tcmb_trains.filter((train)=> train.entity.id == evdata.entity.id)[0].entity
+                    train = tcmb_trains.filter((train)=> train.entity.id == evdata.entity.id)[0].entity;
                     if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
                         if(!train.hasTag("voltage_0")){
                             if(!(train.hasTag('eb') && evdata.status["operation"] == "break") && !(train.hasTag('p4') && evdata.status["operation"] == "power") && !(train.hasTag("n") && evdata.status["operation"] == "neutral") && !(train.hasTag('eb') && evdata.status['operation'] == 'eb')){
@@ -528,7 +542,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
             
         case "tcmb:engine_electricity_control":
             var player:any = ev.sourceEntity;
-            var train:Entity = overworld.getEntities({tags:[`tcmb_carid_${JSON.parse(ev.message)['entity']['id']}`]})[0];
+            var train:Entity = tcmb_trains.filter((train)=> train.entity.id == evdata.entity.id)[0].entity;
             var currentDest: number;
             var currentOnemanStatus: boolean;
             var currentVoltage: number;
@@ -538,6 +552,8 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
             let rollVoltage: number = findFirstMatch(tags, "voltage");
             var currentVoltage: number = Number(tags[rollVoltage].replace("voltage_",""));
             var currentOnemanStatus: boolean = tags.includes('oneman');
+            if(tags[rollVoltage] == 'voltage_b') currentVoltage = 0;
+
             const Electricityform = new ModalFormData()
                 .title("電気系統管理パネル")
                 .slider("行先・種別幕", 1, 20, 1, currentDest)
@@ -603,55 +619,60 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
             break;
             case 'tcmb:speed':{
                 if(ev.sourceEntity.typeId != 'tcmb:tcmb_car') return;
-                let train: Entity = ev.sourceEntity;
-                let tags = train.getTags();
-                let speed = speedObject.getScore(train);
+                let train: TCMBTrain = tcmb_trains.filter((train)=>train.entity.id == ev.sourceEntity.id)[0];
+                let tags = train.entity.getTags();
+                let speed: unknown = train.entity.getProperty('tcmb:speed');
 
-                if(ev.message == 'up'){
-                    let max_speed: number | string | boolean = train.getProperty('tcmb:max_speed');
+                if(ev.message == 'up' && !tags.includes('voltage_0') && typeof speed == 'number'){
+                    let max_speed: number | string | boolean = train.entity.getProperty('tcmb:max_speed');
                     if(typeof max_speed != 'number') return;
                     if(max_speed == 0){
                         let maxspeed_tag: string = tags.filter((tag) => tag.startsWith('max_'))[0];
                         max_speed = Number(maxspeed_tag.substring(4, maxspeed_tag.length-2));
-                        train.setProperty('tcmb:max_speed', max_speed);
+                        train.entity.setProperty('tcmb:max_speed', max_speed);
                     }
+                    let typeId = train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
+                    let perf: object;
+                    if(trains_manifest[typeId] && trains_manifest[typeId]['battery']) perf = trains_manifest[typeId]['battery']['performance']['speed_up'];
+                    let level = train.entity.getProperty('tcmb:battery_level');
+                    if(!(trains_manifest[typeId] && trains_manifest[typeId]['battery'])) level = undefined;
 
                     if(tags.filter((tag) => tag.includes('open')).length == 0 && speed <= 1){
                         if(!tags.includes('backward')){
-                            train.runCommandAsync('summon tcmb:tcmb_starter ^1^^');
+                            train.entity.runCommandAsync('summon tcmb:tcmb_starter ^1^^');
                         }else{
-                            train.runCommandAsync('summon tcmb:tcmb_starter ^-1^^');
+                            train.entity.runCommandAsync('summon tcmb:tcmb_starter ^-1^^');
                         }
                     }
                     if(!tags.includes('tc_child') && !tags.includes('stopping') && speed < max_speed){
                         if(max_speed <= 108){
-                            speedObject.addScore(train, 1);
+                            train.entity.setProperty('tcmb:speed', speed + 1);
+                            speedObject.setScore(train.entity, speed + 1);
+                            if(typeof level == 'number' && tags.includes('voltage_b')) level -= perf['use'];
                         }else if(!tags.includes('tc_parent')){
-                            speedObject.addScore(train, 1);
-                        }
-                        if(train.getProperty('tcmb:battery_capacity') != 0 && tags.includes('voltage_b')){
-                            let now_level: unknown = train.getProperty('tcmb:battery_level');
-                            if(typeof now_level == 'number' && now_level != 0){
-                                train.setProperty('tcmb:battery_level', ((now_level - 2) >= 0 )?now_level - 2:0);
-                            }
+                            speedObject.setScore(train.entity, speed + 1);
+                            if(typeof level == 'number'&& tags.includes('voltage_b')) level -= perf['use'];
                         }
                     }
                     if(tags.includes('tc_parent') && !tags.includes('stopping') && speed < max_speed && speed < 108){
-                        speedObject.addScore(train, 1);
-                        train.runCommandAsync('function train_connect');
+                        speedObject.addScore(train.entity, 1);
+                        train.entity.runCommandAsync('function train_connect');
                     }
-                }else if(ev.message == 'down'){
+                    console.log(level);
+                    if(trains_manifest[typeId] && trains_manifest[typeId]['battery'] && tags.includes('voltage_b')) train.entity.setProperty('tcmb:battery_level', level);
+                }else if(ev.message == 'down' && typeof speed == 'number'){
                     let target_notch = ['eb', 'b7', 'b6', 'b5', 'b4', 'b3', 'b2', 'b1', 'n'];
                     if(tags.filter((notch)=>target_notch.includes(notch))){
-                        if(!train.hasTag('backward')){
-                            train.runCommandAsync('summon tcmb:tcmb_starter ^1^^');
+                        if(!train.entity.hasTag('backward')){
+                            train.entity.runCommandAsync('summon tcmb:tcmb_starter ^1^^');
                         }else{
-                            train.runCommandAsync('summon tcmb:tcmb_starter ^-1^^');
+                            train.entity.runCommandAsync('summon tcmb:tcmb_starter ^-1^^');
                         }
-                        if(speed > 0 && !train.hasTag('tc_child')){
-                            speedObject.addScore(train, -1);
+                        if(speed > 0 && !train.entity.hasTag('tc_child')){
+                            
+                            speedObject.addScore(train.entity, -1);
                         }
-                        train.runCommandAsync('function train_connect');
+                        train.entity.runCommandAsync('function train_connect');
                     }
                 }
             }
@@ -664,7 +685,19 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
             }
             break;
             case "tcmb_minecart_engine:voltage_battery":{
-                
+                if(ev.sourceEntity.hasTag('has_battery')){
+                    let train: TCMBTrain = tcmb_trains.filter((train)=>train.entity.id == ev.sourceEntity.id)[0];
+                    train.entity.removeTag('voltage_0');
+                    train.entity.removeTag('voltage_1');
+                    train.entity.removeTag('voltage_2');
+                    train.entity.addTag('voltage_b');
+                    for(const body of train.body){
+                        body.removeTag('voltage_0');
+                        body.removeTag('voltage_1');
+                        body.removeTag('voltage_2');
+                        body.addTag('voltage_b');
+                    }
+                }
             }
             break;
             // perfomance monitor
@@ -682,16 +715,24 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
     }
 })
 
+// initialize Spawn train
 world.afterEvents.entitySpawn.subscribe(async (event)=>{
     initializeTrain(event.entity);
 });
 
+// initialize Loaded train
 world.afterEvents.entityLoad.subscribe(async (event)=>{
     if(event.entity.typeId == 'tcmb:tcmb_car'){
         console.warn('[minecart engine] Fired entityLoad');
         initializeTrain(event.entity);
     }
 });
+
+let init_entities: Entity[] = overworld.getEntities({families: ["tcmb_car"], type: "tcmb:tcmb_car"});
+for(const init_train of init_entities){
+    let initialized_train = tcmb_trains.filter((train)=> train.entity.id == init_train.id);
+    initializeTrain(init_train);
+}
 
 world.afterEvents.entityRemove.subscribe(async (event)=>{
     if(perf_monitor) var start: number = (new Date()).getTime();
@@ -743,15 +784,17 @@ function door_ctrl(player:Player, train:Entity){
                 break;
         }
         let event_report: Event;
-        train.runCommandAsync("execute as @s[tag=!voltage_0] at @s run function " + door_order);
-        train.runCommandAsync("execute as @s[tag=!voltage_0,tag=tc_parent] at @s run function tc_" + door_order);
-        train.runCommandAsync("execute as @s[tag=!voltage_0,tag=tc_child] at @s run function tc_" + door_order);
-        if(door_order != "close") {
-            event_report = new Event("door", {door_direction:door_order, open:true}, train, player);
-        }else{
-            event_report = new Event("door", {open:false}, train, player);
+        if(!train.hasTag("voltage_0")){
+            train.runCommandAsync("function " + door_order);
+            train.runCommandAsync("execute as @s[tag=tc_parent] at @s run function tc_" + door_order);
+            train.runCommandAsync("execute as @s[tag=tc_child] at @s run function tc_" + door_order);
+            if(door_order != "close") {
+                event_report = new Event("door", {door_direction:door_order, open:true}, train, player);
+            }else{
+                event_report = new Event("door", {open:false}, train, player);
+            }
+            event_report.reply();
         }
-        event_report.reply();
     }).catch( e => {
         console.error(e, e.stack);
     });
