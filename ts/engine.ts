@@ -159,7 +159,7 @@ crew_panel_buttons.push(new PanelButton(true, '非常ブレーキ', 'textures/it
 crew_panel_buttons.push(new PanelButton(true, '進行方向反転', 'textures/items/direction', undefined));
 crew_panel_buttons.push(new PanelButton(true, '乗務開始/終了', 'textures/items/crew_panel', 'tcmb:engine_work'));
 
-let trains_manifest : object = {};
+let trains_manifest : Map<string, object> = new Map();
 
 async function initializeTrain(entity: Entity){
     if(entity.typeId == 'tcmb:tcmb_car'){
@@ -176,10 +176,6 @@ async function initializeTrain(entity: Entity){
         let train = new TCMBTrain(entity, undefined, bodies);
 
         let type = bodies[0].typeId;
-        let manifest = trains_manifest[type.substring(0, type.length - 5)]; 
-        if(typeof manifest != 'undefined'){
-            train.setStore('manifest', manifest);
-        }
 
         tcmb_trains.push(train);
         writing_train_db = false;
@@ -202,6 +198,7 @@ system.runInterval(() =>{
     var tcmb_cars: TCMBTrain[] = tcmb_trains;
     for(const train of tcmb_cars){
         const tcmb_car = train.entity;
+        var bodies = train.body;
         if(typeof speedObject == "undefined") continue;
         let tags: string[];
         try{
@@ -210,6 +207,7 @@ system.runInterval(() =>{
             console.error(e);
             continue;
         }
+        let manifest = trains_manifest.get(bodies[0].typeId.substring(0, bodies[0].typeId.length - 5));
         //tcmb_car(speed)
         var speed: number | undefined = speedObject.getScore(tcmb_car);
         if(typeof speed == "undefined") continue;
@@ -222,11 +220,12 @@ system.runInterval(() =>{
         }else{
             tcmb_car.triggerEvent(speed +"km");
         }
-        //body
-        var bodies = train.body;
-        //var doorRequest = tcmb_car.getDynamicProperty("door");
 
-        //door operation
+        if(typeof manifest == 'object' && typeof manifest['speed'] == 'object'){
+
+        }
+
+        //body
         let open_order = tags.filter((name)=> door_orders.includes(name))[0];
         for(const body of bodies){
             try{
@@ -267,30 +266,32 @@ system.runInterval(() =>{
 system.runInterval(()=>{
     for(const train of tcmb_trains){
         let typeId = train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
-        if(typeof trains_manifest[typeId] == 'object'){
-            let battery = trains_manifest[typeId]['battery'];
+        if(trains_manifest.has(typeId)){
+            let battery = trains_manifest.get(typeId)['battery'];
             if(typeof battery != 'object') continue;
             train.entity.addTag('has_battery');
             let now_level = train.entity.getProperty('tcmb:battery_level');
 
             if(train.entity.hasTag('voltage_1')){
-                let charge_perf = trains_manifest[typeId]['battery']['performance']['voltage_1']['charge'];
+                let charge_perf = trains_manifest.get(typeId)['battery']['performance']['voltage_1']['charge'];
                 if((now_level + charge_perf) >= battery['capacity']){
                     train.entity.setProperty('tcmb:battery_level', battery['capacity']);
                 }else if(typeof charge_perf != 'undefined' && now_level < battery['capacity']){
                     train.entity.setProperty('tcmb:battery_level', now_level + charge_perf);
                     train.entity.removeTag('voltage_0');
                 }
-            }else if(train.entity.hasTag('voltage_2')){
-                let charge_perf = trains_manifest[typeId]['battery']['performance']['voltage_2']['charge'];
+            }
+            else if(train.entity.hasTag('voltage_2')){
+                let charge_perf = trains_manifest.get(typeId)['battery']['performance']['voltage_2']['charge'];
                 if((now_level + charge_perf) >= battery['capacity']){
                     train.entity.setProperty('tcmb:battery_level', battery['capacity']);
                 }else if(typeof charge_perf != 'undefined' && now_level < battery['capacity']){
                     train.entity.setProperty('tcmb:battery_level', now_level + charge_perf);
                     train.entity.removeTag('voltage_0');
                 }
-            }else if(train.entity.hasTag('voltage_b')){
-                let perf: object = trains_manifest[typeId]['battery']['performance']['no_operation'];
+            }
+            else if(train.entity.hasTag('voltage_b')){
+                let perf: object = trains_manifest.get(typeId)['battery']['performance']['no_operation'];
                 let interval = train.entity.getProperty('tcmb:battery_no_op_interval');
                 if(typeof interval == 'number'){
                     interval++;
@@ -306,13 +307,14 @@ system.runInterval(()=>{
                     }
                 }
             }
+
             let level = train.entity.getProperty('tcmb:battery_level');
             for(const body of train.body){
                 if(typeof now_level == 'number') body.setProperty(typeId+':battery_level', level);
             }
         }
     }
-}, 20)
+}, 20);
 
 system.runInterval(()=>{
     if(optionObject instanceof ScoreboardObjective && optionObject.getScore('auto_speed_down') != 0){
@@ -633,9 +635,9 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                     }
                     let typeId = train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
                     let perf: object;
-                    if(trains_manifest[typeId] && trains_manifest[typeId]['battery']) perf = trains_manifest[typeId]['battery']['performance']['speed_up'];
+                    if(trains_manifest.has(typeId) && trains_manifest.get(typeId)['battery']) perf = trains_manifest.get(typeId)['battery']['performance']['speed_up'];
                     let level = train.entity.getProperty('tcmb:battery_level');
-                    if(!(trains_manifest[typeId] && trains_manifest[typeId]['battery'])) level = undefined;
+                    if(!(trains_manifest.has(typeId) && trains_manifest.get(typeId)['battery'])) level = undefined;
 
                     if(tags.filter((tag) => tag.includes('open')).length == 0 && speed <= 1){
                         if(!tags.includes('backward')){
@@ -659,7 +661,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                         train.entity.runCommandAsync('function train_connect');
                     }
                     console.log(level);
-                    if(trains_manifest[typeId] && trains_manifest[typeId]['battery'] && tags.includes('voltage_b')) train.entity.setProperty('tcmb:battery_level', level);
+                    if(trains_manifest.has(typeId) && trains_manifest.get(typeId)['battery'] && tags.includes('voltage_b')) train.entity.setProperty('tcmb:battery_level', level);
                 }else if(ev.message == 'down' && typeof speed == 'number'){
                     let target_notch = ['eb', 'b7', 'b6', 'b5', 'b4', 'b3', 'b2', 'b1', 'n'];
                     if(tags.filter((notch)=>target_notch.includes(notch))){
@@ -680,7 +682,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
             case "tcmb_minecart_engine:regist_tcmanifest":{
                 let message: unknown = JSON.parse(ev.message);
                 if(typeof message == "object" && typeof message['type'] == 'string'){
-                    trains_manifest[message['type']] = message;
+                    trains_manifest.set(message['type'], message);
                 }
             }
             break;
@@ -723,15 +725,14 @@ world.afterEvents.entitySpawn.subscribe(async (event)=>{
 // initialize Loaded train
 world.afterEvents.entityLoad.subscribe(async (event)=>{
     if(event.entity.typeId == 'tcmb:tcmb_car'){
-        console.warn('[minecart engine] Fired entityLoad');
         initializeTrain(event.entity);
     }
 });
 
 let init_entities: Entity[] = overworld.getEntities({families: ["tcmb_car"], type: "tcmb:tcmb_car"});
 for(const init_train of init_entities){
-    let initialized_train = tcmb_trains.filter((train)=> train.entity.id == init_train.id);
-    initializeTrain(init_train);
+    let initialized = tcmb_trains.filter((train)=> train.entity.id == init_train.id)[0];
+    if(typeof initialized == 'undefined') initializeTrain(init_train);
 }
 
 world.afterEvents.entityRemove.subscribe(async (event)=>{

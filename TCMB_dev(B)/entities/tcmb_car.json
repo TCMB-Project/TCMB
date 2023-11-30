@@ -189,7 +189,7 @@
                 },
                 "tcmb:speed_decimal":{
                     "type": "float",
-                    "range": [0, 2],
+                    "range": [-2, 2],
                     "default": 0
                 },
                 "tcmb:tcmanifest":{

@@ -183,11 +183,7 @@ async function initializeTrain(entity) {
             perf_obj.setScore('spawn', (new Date().getTime()) - start);
     }
 }
-let init_entities = overworld.getEntities({ families: ["tcmb_car"], type: "tcmb:tcmb_car" });
 let tcmb_trains = [];
-for (let i = 0; i < init_entities.length; i++) {
-    initializeTrain(init_entities[i]);
-}
 //main operation
 system.runInterval(() => {
     if (perf_monitor)
@@ -762,10 +758,15 @@ world.afterEvents.entitySpawn.subscribe(async (event) => {
 // initialize Loaded train
 world.afterEvents.entityLoad.subscribe(async (event) => {
     if (event.entity.typeId == 'tcmb:tcmb_car') {
-        console.warn('[minecart engine] Fired entityLoad');
         initializeTrain(event.entity);
     }
 });
+let init_entities = overworld.getEntities({ families: ["tcmb_car"], type: "tcmb:tcmb_car" });
+for (const init_train of init_entities) {
+    let initialized = tcmb_trains.filter((train) => train.entity.id == init_train.id)[0];
+    if (typeof initialized == 'undefined')
+        initializeTrain(init_train);
+}
 world.afterEvents.entityRemove.subscribe(async (event) => {
     if (perf_monitor)
         var start = (new Date()).getTime();
