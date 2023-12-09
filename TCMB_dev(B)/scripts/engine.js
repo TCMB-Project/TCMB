@@ -1,7 +1,7 @@
-import { world, system, ScoreboardObjective } from "@minecraft/server";
+import { world, system, ScoreboardObjective, ScriptEventSource } from "@minecraft/server";
 import { ModalFormData, ActionFormData, MessageFormData } from "@minecraft/server-ui";
-import { Event, PanelButton, TCMBTrain } from "./classes";
-import { findFirstMatch } from "./util";
+import { Event, PanelButton, TCMBTrain, TCManifest } from "./classes";
+import { findFirstMatch, getTrainSpec } from "./util";
 export class dumy {
 }
 const overworld = world.getDimension("overworld");
@@ -15,129 +15,6 @@ if (typeof world.scoreboard.getObjective('atc') == 'undefined') {
 let optionObject = world.scoreboard.getObjective("option");
 const perf_obj = world.scoreboard.getObjective('tcmb_perfomance');
 const door_orders = ['open_a', 'open_b', 'open_all', 'oneman_open_a', 'oneman_open_b'];
-const reverse_direction = {
-    north: 'south'
-};
-const rail_direction = {
-    0: {
-        straight: true,
-        gradient: false,
-        rotation: [{
-                from: 'south',
-                to: 'south'
-            }, {
-                from: 'north',
-                to: 'north'
-            }]
-    },
-    1: {
-        straight: true,
-        gradient: false,
-        rotation: [{
-                from: 'west',
-                to: 'west'
-            }, {
-                from: 'east',
-                to: 'east'
-            }]
-    },
-    2: {
-        straight: true,
-        gradient: true,
-        rotation: [{
-                from: 'west',
-                y: 'down',
-                to: 'west'
-            }, {
-                from: 'east',
-                y: 'up',
-                to: 'east'
-            }]
-    },
-    3: {
-        straight: true,
-        gradient: true,
-        rotation: [{
-                from: 'west',
-                y: 'up',
-                to: 'west'
-            }, {
-                from: 'east',
-                y: 'down',
-                to: 'east'
-            }]
-    },
-    4: {
-        straight: true,
-        gradient: true,
-        rotation: [{
-                from: 'south',
-                y: 'up',
-                to: 'south'
-            }, {
-                from: 'north',
-                y: 'down',
-                to: 'north'
-            }]
-    },
-    5: {
-        straight: true,
-        gradient: true,
-        rotation: [{
-                from: 'south',
-                y: 'down',
-                to: 'south'
-            }, {
-                from: 'north',
-                y: 'up',
-                to: 'north'
-            }]
-    },
-    6: {
-        straight: false,
-        gradient: false,
-        rotation: [{
-                from: 'south',
-                to: 'east'
-            }, {
-                from: 'west',
-                to: 'north'
-            }]
-    },
-    7: {
-        straight: false,
-        gradient: false,
-        rotation: [{
-                from: 'east',
-                to: 'north'
-            }, {
-                from: 'south',
-                to: 'west'
-            }]
-    },
-    8: {
-        straight: false,
-        gradient: false,
-        rotation: [{
-                from: 'east',
-                to: 'south'
-            }, {
-                from: 'north',
-                to: 'west'
-            }]
-    },
-    9: {
-        straight: false,
-        gradient: false,
-        rotation: [{
-                from: 'north',
-                to: 'east'
-            }, {
-                from: 'east',
-                to: 'south'
-            }]
-    },
-};
 let perf = {
     main: 0,
     spawn: 0,
@@ -152,35 +29,37 @@ crew_panel_buttons.push(new PanelButton(true, 'ドア操作', 'textures/items/do
 crew_panel_buttons.push(new PanelButton(true, '非常ブレーキ', 'textures/items/notch_eb', undefined));
 crew_panel_buttons.push(new PanelButton(true, '進行方向反転', 'textures/items/direction', undefined));
 crew_panel_buttons.push(new PanelButton(true, '乗務開始/終了', 'textures/items/crew_panel', 'tcmb:engine_work'));
-let trains_manifest = {};
+let trains_manifest = new Map();
 async function initializeTrain(entity) {
-    if (entity.typeId == 'tcmb:tcmb_car') {
-        if (perf_monitor)
-            var start = (new Date()).getTime();
-        var query = {
-            families: ["tcmb_body"],
-            closest: 2,
-            location: entity.location
-        };
-        while (writing_train_db)
-            ;
-        writing_train_db = true;
-        let bodies = overworld.getEntities(query);
-        let train = new TCMBTrain(entity, undefined, bodies);
-        let type = bodies[0].typeId;
-        let manifest = trains_manifest[type.substring(0, type.length - 5)];
-        if (typeof manifest != 'undefined') {
-            train.setStore('manifest', manifest);
+    try {
+        if (entity.typeId == 'tcmb:tcmb_car') {
+            if (perf_monitor)
+                var start = (new Date()).getTime();
+            var query = {
+                families: ["tcmb_body"],
+                closest: 2,
+                location: entity.location
+            };
+            while (writing_train_db)
+                ;
+            writing_train_db = true;
+            let bodies = overworld.getEntities(query);
+            let train = new TCMBTrain(entity, undefined, bodies);
+            let type = bodies[0].typeId;
+            tcmb_trains.push(train);
+            writing_train_db = false;
+            if (entity.hasTag('tcmanifest')) {
+                entity.setProperty('tcmb:tcmanifest', bodies[0].getProperty(type.substring(0, type.length - 5) + ':tcmanifest'));
+            }
+            let car_entity_id = entity.id;
+            entity.addTag('tcmb_carid_' + car_entity_id);
+            if (perf_monitor)
+                perf_obj.setScore('spawn', (new Date().getTime()) - start);
         }
-        tcmb_trains.push(train);
+    }
+    catch (error) {
         writing_train_db = false;
-        if (entity.hasTag('tcmanifest')) {
-            entity.setProperty('tcmb:tcmanifest', bodies[0].getProperty(type.substring(0, type.length - 5) + ':tcmanifest'));
-        }
-        let car_entity_id = entity.id;
-        entity.addTag('tcmb_carid_' + car_entity_id);
-        if (perf_monitor)
-            perf_obj.setScore('spawn', (new Date().getTime()) - start);
+        throw error;
     }
 }
 let tcmb_trains = [];
@@ -191,6 +70,7 @@ system.runInterval(() => {
     var tcmb_cars = tcmb_trains;
     for (const train of tcmb_cars) {
         const tcmb_car = train.entity;
+        var bodies = train.body;
         if (typeof speedObject == "undefined")
             continue;
         let tags;
@@ -201,6 +81,7 @@ system.runInterval(() => {
             console.error(e);
             continue;
         }
+        let manifest = trains_manifest.get(bodies[0].typeId.substring(0, bodies[0].typeId.length - 5));
         //tcmb_car(speed)
         var speed = speedObject.getScore(tcmb_car);
         if (typeof speed == "undefined")
@@ -217,9 +98,6 @@ system.runInterval(() => {
             tcmb_car.triggerEvent(speed + "km");
         }
         //body
-        var bodies = train.body;
-        //var doorRequest = tcmb_car.getDynamicProperty("door");
-        //door operation
         let open_order = tags.filter((name) => door_orders.includes(name))[0];
         for (const body of bodies) {
             try {
@@ -261,34 +139,34 @@ system.runInterval(() => {
 system.runInterval(() => {
     for (const train of tcmb_trains) {
         let typeId = train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
-        if (typeof trains_manifest[typeId] == 'object') {
-            let battery = trains_manifest[typeId]['battery'];
+        if (trains_manifest.has(typeId)) {
+            let battery = trains_manifest.get(typeId).battery;
             if (typeof battery != 'object')
                 continue;
             train.entity.addTag('has_battery');
             let now_level = train.entity.getProperty('tcmb:battery_level');
             if (train.entity.hasTag('voltage_1')) {
-                let charge_perf = trains_manifest[typeId]['battery']['performance']['voltage_1']['charge'];
+                let charge_perf = trains_manifest.get(typeId)['battery']['performance']['voltage_1']['charge'];
                 if ((now_level + charge_perf) >= battery['capacity']) {
                     train.entity.setProperty('tcmb:battery_level', battery['capacity']);
                 }
-                else if (typeof charge_perf != 'undefined' && now_level < battery['capacity']) {
+                else if (typeof charge_perf != 'undefined' && typeof now_level == 'number' && now_level < battery.capacity) {
                     train.entity.setProperty('tcmb:battery_level', now_level + charge_perf);
                     train.entity.removeTag('voltage_0');
                 }
             }
             else if (train.entity.hasTag('voltage_2')) {
-                let charge_perf = trains_manifest[typeId]['battery']['performance']['voltage_2']['charge'];
+                let charge_perf = trains_manifest.get(typeId)['battery']['performance']['voltage_2']['charge'];
                 if ((now_level + charge_perf) >= battery['capacity']) {
                     train.entity.setProperty('tcmb:battery_level', battery['capacity']);
                 }
-                else if (typeof charge_perf != 'undefined' && now_level < battery['capacity']) {
+                else if (typeof charge_perf != 'undefined' && typeof now_level == 'number' && now_level < battery['capacity']) {
                     train.entity.setProperty('tcmb:battery_level', now_level + charge_perf);
                     train.entity.removeTag('voltage_0');
                 }
             }
             else if (train.entity.hasTag('voltage_b')) {
-                let perf = trains_manifest[typeId]['battery']['performance']['no_operation'];
+                let perf = trains_manifest.get(typeId)['battery']['performance']['no_operation'];
                 let interval = train.entity.getProperty('tcmb:battery_no_op_interval');
                 if (typeof interval == 'number') {
                     interval++;
@@ -647,24 +525,16 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                 if (ev.sourceEntity.typeId != 'tcmb:tcmb_car')
                     return;
                 let train = tcmb_trains.filter((train) => train.entity.id == ev.sourceEntity.id)[0];
+                let typeId = train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
                 let tags = train.entity.getTags();
-                let speed = train.entity.getProperty('tcmb:speed');
+                let speed = speedObject.getScore(train.entity);
+                let level = train.entity.getProperty('tcmb:battery_level');
+                if (!(trains_manifest.has(typeId) && trains_manifest.get(typeId)['battery']))
+                    level = undefined;
                 if (ev.message == 'up' && !tags.includes('voltage_0') && typeof speed == 'number') {
-                    let max_speed = train.entity.getProperty('tcmb:max_speed');
-                    if (typeof max_speed != 'number')
-                        return;
-                    if (max_speed == 0) {
-                        let maxspeed_tag = tags.filter((tag) => tag.startsWith('max_'))[0];
-                        max_speed = Number(maxspeed_tag.substring(4, maxspeed_tag.length - 2));
-                        train.entity.setProperty('tcmb:max_speed', max_speed);
-                    }
-                    let typeId = train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
                     let perf;
-                    if (trains_manifest[typeId] && trains_manifest[typeId]['battery'])
-                        perf = trains_manifest[typeId]['battery']['performance']['speed_up'];
-                    let level = train.entity.getProperty('tcmb:battery_level');
-                    if (!(trains_manifest[typeId] && trains_manifest[typeId]['battery']))
-                        level = undefined;
+                    if (trains_manifest.has(typeId) && trains_manifest.get(typeId)['battery'])
+                        perf = trains_manifest.get(typeId)['battery']['performance']['speed_up'];
                     if (tags.filter((tag) => tag.includes('open')).length == 0 && speed <= 1) {
                         if (!tags.includes('backward')) {
                             train.entity.runCommandAsync('summon tcmb:tcmb_starter ^1^^');
@@ -673,7 +543,8 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                             train.entity.runCommandAsync('summon tcmb:tcmb_starter ^-1^^');
                         }
                     }
-                    if (!tags.includes('tc_child') && !tags.includes('stopping') && speed < max_speed) {
+                    let max_speed = getTrainSpec(train, trains_manifest)['limit'];
+                    if (!tags.includes('tc_child') && !tags.includes('stopping') && typeof max_speed == 'number' && speed < max_speed) {
                         if (max_speed <= 108) {
                             train.entity.setProperty('tcmb:speed', speed + 1);
                             speedObject.setScore(train.entity, speed + 1);
@@ -686,16 +557,18 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                                 level -= perf['use'];
                         }
                     }
-                    if (tags.includes('tc_parent') && !tags.includes('stopping') && speed < max_speed && speed < 108) {
+                    if (tags.includes('tc_parent') && !tags.includes('stopping') && typeof max_speed == 'number' && speed < max_speed && speed < 108) {
                         speedObject.addScore(train.entity, 1);
                         train.entity.runCommandAsync('function train_connect');
                     }
-                    console.log(level);
-                    if (trains_manifest[typeId] && trains_manifest[typeId]['battery'] && tags.includes('voltage_b'))
+                    if (trains_manifest.has(typeId) && trains_manifest.get(typeId)['battery'] && tags.includes('voltage_b'))
                         train.entity.setProperty('tcmb:battery_level', level);
                 }
                 else if (ev.message == 'down' && typeof speed == 'number') {
-                    let target_notch = ['eb', 'b7', 'b6', 'b5', 'b4', 'b3', 'b2', 'b1', 'n'];
+                    const target_notch = ['eb', 'b7', 'b6', 'b5', 'b4', 'b3', 'b2', 'b1', 'n'];
+                    let perf;
+                    if (trains_manifest.has(typeId) && trains_manifest.get(typeId)['battery'])
+                        perf = trains_manifest.get(typeId)['battery']['performance']['speed_down'];
                     if (tags.filter((notch) => target_notch.includes(notch))) {
                         if (!train.entity.hasTag('backward')) {
                             train.entity.runCommandAsync('summon tcmb:tcmb_starter ^1^^');
@@ -704,9 +577,13 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                             train.entity.runCommandAsync('summon tcmb:tcmb_starter ^-1^^');
                         }
                         if (speed > 0 && !train.entity.hasTag('tc_child')) {
+                            if (typeof level == 'number' && tags.includes('voltage_b'))
+                                level += perf['charge'];
                             speedObject.addScore(train.entity, -1);
                         }
                         train.entity.runCommandAsync('function train_connect');
+                        if (trains_manifest.has(typeId) && trains_manifest.get(typeId)['battery'] && tags.includes('voltage_b'))
+                            train.entity.setProperty('tcmb:battery_level', level);
                     }
                 }
             }
@@ -714,8 +591,11 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
         case "tcmb_minecart_engine:regist_tcmanifest":
             {
                 let message = JSON.parse(ev.message);
+                if (ev.sourceType != ScriptEventSource.Server) {
+                    console.warn('[tcmb:reply] Evnt source is not Server.');
+                }
                 if (typeof message == "object" && typeof message['type'] == 'string') {
-                    trains_manifest[message['type']] = message;
+                    trains_manifest.set(message['type'], new TCManifest(ev.message));
                 }
             }
             break;
@@ -734,6 +614,11 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                         body.addTag('voltage_b');
                     }
                 }
+            }
+            break;
+        case "tcmb_minecart_engine:deprecated":
+            {
+                console.warn(ev.message);
             }
             break;
         // perfomance monitor

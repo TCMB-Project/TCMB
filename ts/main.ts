@@ -1,4 +1,4 @@
-import { world, system, Dimension, Entity, EntityQueryOptions, Player, BlockRaycastOptions, Vector3, BlockRaycastHit } from "@minecraft/server";
+import { world, system, Dimension, Entity, EntityQueryOptions, Player, BlockRaycastOptions, Vector3, BlockRaycastHit, ScriptEventSource } from "@minecraft/server";
 import { Event } from "./classes";
 import { dumy } from "./engine";
 
@@ -35,6 +35,10 @@ system.afterEvents.scriptEventReceive.subscribe( ev => {
     switch(ev.id){
             // event
             case "tcmb:reply":
+                if(ev.sourceType != "Server"){
+                    console.warn('[tcmb:reply] Evnt source is not Server.');
+                    return;
+                }
                 let re_msg = JSON.parse(ev.message);
                 if(events.includes(re_msg.name)){
                     let evdata = new Event(re_msg.name, re_msg.status, re_msg.entity, undefined);

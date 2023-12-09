@@ -68,3 +68,124 @@ export class TCMBTrain {
         delete this.sessionStorage[key];
     }
 }
+export class TrainSpeedSpec {
+    constructor(origin) {
+        this.acceleration = {
+            startup: 4,
+            rated_limit: 0
+        };
+        this.deceleration = {
+            service: 4.5,
+            emergency: 5.0,
+            coasting: 0.1666666667
+        };
+        if (typeof origin['limit'] == 'number') {
+            this.limit = origin['limit'];
+        }
+        else {
+            throw TypeError(`{tcmanifest}.speed.limit is not a number. (${typeof origin['limit']})`);
+        }
+        if (typeof origin['deceleration'] == 'number') {
+            this.limit = origin['deceleration'];
+        }
+        else {
+            throw TypeError(`{tcmanifest}.speed.deceleration is not an object. (${typeof origin['deceleration']})`);
+        }
+        if (typeof origin['acceleration'] == 'object') {
+            this.acceleration = origin['acceleration'];
+        }
+        else {
+            throw TypeError(`{tcmanifest}.speed.acceleration is not number. (${typeof origin['acceleration']})`);
+        }
+    }
+}
+export class TrainNotch {
+    constructor(origin) {
+        if (typeof origin['power'] == 'number') {
+            this.power = origin['power'];
+        }
+        else {
+            throw TypeError(`{tcmanifest}.notch.power is not number. (${typeof origin['power']})`);
+        }
+        if (typeof origin['break'] == 'number') {
+            this.break = origin['break'];
+        }
+        else {
+            throw TypeError(`{tcmanifest}.notch.break is not number. (${typeof origin['break']})`);
+        }
+    }
+}
+export class TrainBattery {
+    constructor(origin) {
+        if (typeof origin['capacity'] == 'number') {
+            this.capacity = origin['capacity'];
+        }
+        else {
+            throw TypeError(`{tcmanifest}.battery.capacity is not number. (${typeof origin['capacity']})`);
+        }
+        if (typeof origin['performance'] == 'object') {
+            this.performance = origin['performance'];
+        }
+        else {
+            throw TypeError(`{tcmanifest}.battery.performance is not object. (${typeof origin['performance']})`);
+        }
+    }
+}
+export class TCManifest {
+    constructor(origin_json) {
+        let origin = JSON.parse(origin_json);
+        if (typeof origin == 'object') {
+            if (typeof origin['name'] == 'string' || typeof origin['name'] == 'undefined') {
+                this.name = origin['name'];
+            }
+            else {
+                throw TypeError(`{tcmanifest}.name is not string. (${typeof origin['name']})`);
+            }
+            if (typeof origin['company'] == 'string' || typeof origin['company'] == 'undefined') {
+                this.company = origin['company'];
+            }
+            else {
+                throw TypeError(`{tcmanifest}.company is not string. (${typeof origin['company']})`);
+            }
+            if (typeof origin['type'] == 'string') {
+                this.type = origin['type'];
+            }
+            else {
+                throw TypeError(`{tcmanifest}.type is not string. (${typeof origin['type']})`);
+            }
+            if (typeof origin['summon_command'] == 'string' || typeof origin['summon_command'] == 'undefined') {
+                this.company = origin['summon_command'];
+            }
+            else {
+                throw TypeError('{tcmanifest}.summon_command is not string.');
+            }
+            if (typeof origin['speed'] == 'object') {
+                this.speed = new TrainSpeedSpec(origin['speed']);
+            }
+            else if (typeof origin['speed'] == 'undefined') {
+                this.speed = undefined;
+            }
+            else {
+                throw TypeError(`{tcmanifest}.speed is not TrainSpeedSpec. (${typeof origin['speed']})`);
+            }
+            if (typeof origin['notch'] == 'object') {
+                this.notch = new TrainNotch(origin['notch']);
+            }
+            else if (typeof origin['notch'] == 'undefined') {
+                this.notch = undefined;
+            }
+            else {
+                throw TypeError(`{tcmanifest}.notch is not TrainNotch. (${typeof origin['notch']})`);
+            }
+            if (typeof origin['battery'] == 'object') {
+                this.battery = new TrainBattery(origin['battery']);
+            }
+            else if (typeof origin['battery'] == 'undefined') {
+                this.battery = undefined;
+            }
+            else {
+                throw TypeError(`{tcmanifest}.notch is not TrainBattery. (${typeof origin['battery']})`);
+            }
+        }
+    }
+}
