@@ -39,63 +39,12 @@ export function getTCManifest(train: TCMBTrain, trains_manifest: TCManifestMap):
   }
 }
 
-export function getTrainSpec(train: TCMBTrain, trains_manifest: TCManifestMap): object{
-  let acceleration_spec = {
-      startup: train.entity.getProperty('tcmb:startup_acceleration'),
-      limit: train.entity.getProperty('tcmb:max_speed'),
-      break: train.entity.getProperty('tcmb:deceleration'),
-      eb: train.entity.getProperty('tcmb:eb_deceleration'),
-      constant_acceleration_limit: train.entity.getProperty('constant_acceleration_limit'),
-      coasting_deceleration: train.entity.getProperty('tcmb:coasting_deceleration')
-  };
-
-  let manifest = getTCManifest(train, trains_manifest);
-
-  if(acceleration_spec.startup == 0){
-      if(typeof manifest == 'object' && typeof manifest['speed'] == 'object'){
-          acceleration_spec.startup = manifest['speed']['startup'];
-      }
-  }
-  if(acceleration_spec.break == 0){
-      if(typeof manifest == 'object' && typeof manifest['speed'] == 'object'){
-          acceleration_spec.break = manifest['speed']['break'];
-      }else{
-          acceleration_spec.startup = 4.5;
-      }
-  }
-  if(acceleration_spec.limit == 0){
-      if(typeof manifest == 'object' && typeof manifest['speed'] == 'object'){
-          acceleration_spec.limit = manifest['speed']['limit'];
-      }else{
-          let max_speed: number;
-          let maxspeed_tag: string = train.entity.getTags().filter((tag) => tag.startsWith('max_'))[0];
-          max_speed = Number(maxspeed_tag.substring(4, maxspeed_tag.length-2));
-          train.entity.setProperty('tcmb:max_speed', max_speed);
-      }
-  }
-  if(acceleration_spec.eb == 0){
-      if(typeof manifest == 'object' && typeof manifest['speed'] == 'object'){
-          acceleration_spec.eb = manifest['speed']['eb'];
-      }else{
-          acceleration_spec.eb = 5;
-      }
-  }
-  if(acceleration_spec.constant_acceleration_limit == 0){
-      if(typeof manifest == 'object' && typeof manifest['speed'] == 'object'){
-          acceleration_spec.constant_acceleration_limit = manifest['speed']['constant_acceleration_limit'];
-      }else{
-          acceleration_spec.constant_acceleration_limit = 4;
-      }
-  }
-  if(acceleration_spec.coasting_deceleration == 0){
-    if(typeof manifest == 'object' && typeof manifest['speed'] == 'object'){
-        acceleration_spec.coasting_deceleration = manifest.speed.deceleration['coasting_deceleration'];
+export function hasTCManifest(train: TCMBTrain, trains_manifest: TCManifestMap): boolean{
+    if(trains_manifest.has(getTrainTypeId(train))){
+        return true;
     }else{
-        acceleration_spec.coasting_deceleration = 4;
+        return false;
     }
-}
-
-  return acceleration_spec;
 }
 
 export const reverse_direction = {

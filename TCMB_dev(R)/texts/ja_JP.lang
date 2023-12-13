@@ -13,6 +13,12 @@ item.tcmb:open_right.name=開く(右)
 item.tcmb:open_all.name=開く(両ドア)
 item.tcmb:close.name=閉じる
 item.tcmb:door_control.name=ドア操作
+item.tcmb:num_adjust_check.name=地上設備数値確認
+item.tcmb:num_adjust_plus.name=地上設備数値加算
+item.tcmb:num_adjust_minus.name=地上設備数値減算
 item.tcmb:delete_ground_facilities.name=地上設備撤去
+
 tcmb.message.auto_speed_down.enabled=ノッチ切時の自動減速を§a有効§rに設定しました。
 tcmb.message.auto_speed_down.disabled=ノッチ切時の自動減速を§c無効§rに設定しました。
+
+tcmb.ui.crew_panel.title=乗務パネル

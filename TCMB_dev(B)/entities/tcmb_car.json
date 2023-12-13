@@ -189,33 +189,8 @@
                 },
                 "tcmb:speed_decimal":{
                     "type": "float",
-                    "range": [-10, 10],
-                    "default": 0
-                },
-                "tcmb:startup_acceleration":{
-                    "type": "float",
-                    "range": [0, 65535],
-                    "default": 0
-                },
-                "tcmb:constant_acceleration_limit":{
-                    "type": "float",
-                    "range": [0, 65535],
-                    "default": 0
-                },
-                "tcmb:deceleration":{
-                    "type": "float",
-                    "range": [0, 65535],
-                    "default": 0
-                },
-                "tcmb:eb_deceleration":{
-                    "type": "float",
-                    "range": [0, 65535],
-                    "default": 0
-                },
-                "tcmb:coasting_deceleration":{
-                    "type": "float",
-                    "range": [0, 65535],
-                    "default": 0
+                    "range": [-10.0, 10.0],
+                    "default": 0.0
                 },
                 "tcmb:tcmanifest":{
                     "type": "int",

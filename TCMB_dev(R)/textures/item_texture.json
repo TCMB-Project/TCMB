@@ -62,6 +62,9 @@
         "tcmb_delete_train": {
             "textures": "textures/items/delete_train"
         },
+        "tcmb_horn":{
+            "textures": "textures/items/tcmb_horn"
+        },
         "tcmb_seat_control": {
             "textures": "textures/items/seat"
         },

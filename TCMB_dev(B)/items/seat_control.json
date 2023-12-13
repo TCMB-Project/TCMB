@@ -2,18 +2,18 @@
     "format_version":"1.19.50",
     "minecraft:item": {
         "description": {
-            "identifier": "tcmb:delete_ground_facilities",
+            "identifier": "tcmb:seat_control",
             "category": "Items"
         },
         "components": {
             "minecraft:icon": {
-                "texture": "tcmb_delete_ground_facilities"
+                "texture": "tcmb_seat_control"
             },
             "minecraft:creative_category": {
                 "parent": "itemGroup.name.tcmb"
             },
             "minecraft:display_name":{
-                "value": "地上設備撤去"
+                "value": "座席管理パネル"
             },
             "minecraft:on_use_on": {
                 "on_use_on": {
@@ -35,8 +35,7 @@
             "tcmb:click": {
                 "run_command": {
                     "command": [
-                        "playsound random.click @p",
-                        "event entity @e[family=ground_facilities,c=1,r=5] delete"
+                        "execute as @p at @s run scriptevent tcmb:seat_control"
                     ]
                 }
             }
