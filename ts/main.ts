@@ -5,6 +5,8 @@ import { dumy } from "./engine";
 new dumy;
 
 const overworld: Dimension = world.getDimension("overworld");
+const nether: Dimension = world.getDimension("nether");
+const the_end: Dimension = world.getDimension("the_end");
 
 let events = ["door", "notch", "direction", "dest", "delete"];
 let working: Map<string, Entity> = new Map();
@@ -17,18 +19,6 @@ if(typeof optionObject == "undefined"){
     optionObject.setScore('require_work', 0);
     optionObject.setScore('item_distance', 40);
     optionObject.setScore('antirolling_by_eb', 1);
-}
-
-let ridden_train: Entity[] = overworld.getEntities({
-    tags: ['tcmb_riding'],
-    families: ['tcmb_car']
-});
-for(const train of ridden_train){
-    let tags = train.getTags();
-    tags = tags.filter((tag)=> tag.startsWith('tcmb_riding_'));
-    for(const playerID of tags){
-        working.set(playerID.substring(12), train);
-    }
 }
 
 system.runInterval(()=>{
@@ -49,7 +39,6 @@ system.runInterval(()=>{
     }
 }, 1);
 
-
 // event operation
 system.afterEvents.scriptEventReceive.subscribe( ev => {
     switch(ev.id){
@@ -68,7 +57,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev => {
             case "tcmb:work_control":
                 let msg = JSON.parse(ev.message);
                 if(msg.type == "start" && typeof msg.entity == "string" && typeof msg.playerName == "string"){
-                    let work_train: Entity | undefined = overworld.getEntities({tags:['tcmb_carid_'+msg.entity]})[0];
+                    let work_train: Entity | undefined = world.getEntity(msg.entity);
                     if(typeof work_train == "undefined") throw Error('[tcmb:work_control] operation entity not found');
                     let work_player: Player | undefined = world.getPlayers({name:msg.playerName})[0];
                     if(typeof work_player == "undefined") throw Error('[tcmb:work_control] player not found');
@@ -110,7 +99,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev => {
     
                         work_player.sendMessage('乗務を終了しました。');
                     }else{
-                        let work_train: Entity | undefined = overworld.getEntities({tags:['tcmb_carid_'+msg.entity]})[0];
+                        let work_train: Entity | undefined = world.getEntity(msg.entity);
                         if(typeof work_train == "undefined") throw Error('[tcmb:work_control] operation entity not found');
                         let work_player: Player | undefined = world.getPlayers({name:msg.playerName})[0];
                         if(typeof work_player == "undefined") throw Error('[tcmb:work_control] player not found');
@@ -145,6 +134,14 @@ system.afterEvents.scriptEventReceive.subscribe( ev => {
                         tags: ['tcmb_riding'],
                         families: ['tcmb_car']
                     });
+                    ridden_train = ridden_train.concat(nether.getEntities({
+                        tags: ['tcmb_riding'],
+                        families: ['tcmb_car']
+                    }));
+                    ridden_train = ridden_train.concat(the_end.getEntities({
+                        tags: ['tcmb_riding'],
+                        families: ['tcmb_car']
+                    }));
                     for(const train of ridden_train){
                         let tags = train.getTags();
                         tags = tags.filter((tag)=> tag.startsWith('tcmb_riding_'));
@@ -500,4 +497,5 @@ world.afterEvents.itemUse.subscribe((ev)=>{
     }
 });
 
+overworld.runCommandAsync('scriptevent tcmb:work_control {"type":"reload"}')
 overworld.runCommandAsync('scriptevent tcmb:initialized');
