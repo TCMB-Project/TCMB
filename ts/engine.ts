@@ -1,4 +1,4 @@
-import { world, system, Dimension, ScoreboardObjective, Entity, Player, EntityQueryOptions, ScriptEventSource } from "@minecraft/server";
+import { world, system, Dimension, ScoreboardObjective, Entity, Player, EntityQueryOptions, ScriptEventSource, Vector2 } from "@minecraft/server";
 import { ModalFormData, ActionFormData, MessageFormData } from "@minecraft/server-ui";
 import { Event, PanelButton, TCMBTrain, TCManifest, TCManifestMap } from "./classes";
 import { findFirstMatch, getTCManifest, hasTCManifest } from "./util";
@@ -6,6 +6,9 @@ import { findFirstMatch, getTCManifest, hasTCManifest } from "./util";
 export class dumy{}
 
 const overworld: Dimension = world.getDimension("overworld");
+const nether: Dimension = world.getDimension("nether");
+const the_end: Dimension = world.getDimension("the_end");
+
 let speedObject: ScoreboardObjective | undefined = world.scoreboard.getObjective("speed");
 if(typeof speedObject == "undefined"){
     speedObject = world.scoreboard.addObjective("speed", "");
@@ -21,7 +24,9 @@ const door_orders: String[] = ['open_a', 'open_b', 'open_all', 'oneman_open_a', 
 let perf:object = {
     main: 0,
     spawn: 0,
-    remove: 0
+    remove: 0,
+    speed: 0,
+    battery: 0
 }
 
 let perf_monitor: boolean = false;
@@ -50,7 +55,7 @@ async function initializeTrain(entity: Entity){
             
             while(writing_train_db);
             writing_train_db = true;
-            let bodies: Entity[] = overworld.getEntities(query);
+            let bodies: Entity[] = entity.dimension.getEntities(query);
             let train = new TCMBTrain(entity, undefined, bodies);
 
             let type = bodies[0].typeId;
@@ -101,6 +106,15 @@ system.runInterval(() =>{
             tcmb_car.triggerEvent('109km');
         }else{
             tcmb_car.triggerEvent(speed +"km");
+        }
+        let block = tcmb_car.dimension.getBlock(tcmb_car.location);
+
+        if(!block.permutation.matches('minecraft:golden_rail')){
+            if(!tags.includes('backward')){
+                train.entity.runCommandAsync('summon tcmb:tcmb_starter ^0.5^^');
+            }else{
+                train.entity.runCommandAsync('summon tcmb:tcmb_starter ^-0.5^^');
+            }
         }
 
         //body
@@ -263,7 +277,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                         closest: 1,
                         location: player.location
                     };
-                    train = overworld.getEntities(delete_train_query)[0];
+                    train = player.dimension.getEntities(delete_train_query)[0];
 
                     train.runCommandAsync("execute as @e[type=tcmb:tcmb_car,r=2,tag=tc_parent] at @s run function tc_delete_train");
                     train.runCommandAsync("execute as @e[type=tcmb:tcmb_car,r=2,tag=tc_child] at @s run function tc_delete_train");
@@ -274,7 +288,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                 case "destBefore":{
                     let train:Entity = world.getEntity(evdata.entity.id);
                     var player:any = world.getPlayers({name:evdata.player.name})[0];
-                    if(!train.hasTag("voltage_0")){
+                    if(!train.hasTag("voltage_0") && speedObject.getScore(train) == 0){
                         if(evdata.status["operation"] == 'foward'){
                             player.runCommandAsync("playsound random.click @p");
                             train.runCommandAsync("function dest");
@@ -292,7 +306,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                     if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
                         var player:any = world.getPlayers({name:evdata.player.name})[0];
                         let crewpanel = new ActionFormData()
-                            .title('乗務パネル')
+                            .title({translate: 'item.tcmb:crew_panel.name'})
                         for(const button of crew_panel_buttons){
                             crewpanel.button(button.title, button.texture);
                         }
@@ -402,6 +416,16 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                 maxDistance: 2,
                 location: ev.sourceEntity.location
             });
+            tcmb_cars = tcmb_cars.concat(nether.getEntities({
+                type: 'tcmb:tcmb_car',
+                maxDistance: 2,
+                location: ev.sourceEntity.location
+            }));
+            tcmb_cars = tcmb_cars.concat(the_end.getEntities({
+                type: 'tcmb:tcmb_car',
+                maxDistance: 2,
+                location: ev.sourceEntity.location
+            }));
 
             for(const tcmb_car of tcmb_cars){
                 tcmb_car.triggerEvent('delete');
@@ -602,6 +626,16 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                 console.warn(ev.message);
             }
             break;
+            case "tcmb_minecart_engine:rotate":{
+                if(ev.sourceType == 'Entity'){
+                    let rotation: Vector2 = ev.sourceEntity.getRotation();
+                    ev.sourceEntity.setRotation({
+                        x: rotation.x,
+                        y: rotation.y + Number(ev.message)
+                    });
+                }
+            }
+            break;
             // perfomance monitor
             case "tcmb:perf_monitor":
                 if(ev.message == "true" || ev.message == "on" || ev.message == "1"){
@@ -630,6 +664,8 @@ world.afterEvents.entityLoad.subscribe(async (event)=>{
 });
 
 let init_entities: Entity[] = overworld.getEntities({families: ["tcmb_car"], type: "tcmb:tcmb_car"});
+init_entities = init_entities.concat(nether.getEntities({families: ["tcmb_car"], type: "tcmb:tcmb_car"}));
+init_entities = init_entities.concat(the_end.getEntities({families: ["tcmb_car"], type: "tcmb:tcmb_car"}));
 for(const init_train of init_entities){
     let initialized = tcmb_trains.filter((train)=> train.entity.id == init_train.id)[0];
     if(typeof initialized == 'undefined') initializeTrain(init_train);

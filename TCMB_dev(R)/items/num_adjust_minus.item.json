@@ -6,7 +6,7 @@
 			"category": "Items"
 		},
 		"components": {
-			"minecraft:icon": "tcmb_oneman_open_minus",
+			"minecraft:icon": "tcmb_num_adjust_minus",
 			"minecraft:render_offsets": "tools"
 		}
 	}

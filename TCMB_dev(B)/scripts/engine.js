@@ -18,7 +18,9 @@ const door_orders = ['open_a', 'open_b', 'open_all', 'oneman_open_a', 'oneman_op
 let perf = {
     main: 0,
     spawn: 0,
-    remove: 0
+    remove: 0,
+    speed: 0,
+    battery: 0
 };
 let perf_monitor = false;
 let monitor_runid = 0;
@@ -96,6 +98,15 @@ system.runInterval(() => {
         }
         else {
             tcmb_car.triggerEvent(speed + "km");
+        }
+        let block = tcmb_car.dimension.getBlock(tcmb_car.location);
+        if (!block.permutation.matches('minecraft:golden_rail')) {
+            if (!tags.includes('backward')) {
+                train.entity.runCommandAsync('summon tcmb:tcmb_starter ^0.5^^');
+            }
+            else {
+                train.entity.runCommandAsync('summon tcmb:tcmb_starter ^-0.5^^');
+            }
         }
         //body
         let open_order = tags.filter((name) => door_orders.includes(name))[0];
@@ -272,7 +283,7 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                     {
                         let train = world.getEntity(evdata.entity.id);
                         var player = world.getPlayers({ name: evdata.player.name })[0];
-                        if (!train.hasTag("voltage_0")) {
+                        if (!train.hasTag("voltage_0") && speedObject.getScore(train) == 0) {
                             if (evdata.status["operation"] == 'foward') {
                                 player.runCommandAsync("playsound random.click @p");
                                 train.runCommandAsync("function dest");
@@ -293,7 +304,7 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                     if (typeof train != "undefined" && train.typeId == "tcmb:tcmb_car") {
                         var player = world.getPlayers({ name: evdata.player.name })[0];
                         let crewpanel = new ActionFormData()
-                            .title('乗務パネル');
+                            .title({ translate: 'item.tcmb:crew_panel.name' });
                         for (const button of crew_panel_buttons) {
                             crewpanel.button(button.title, button.texture);
                         }
@@ -633,6 +644,17 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
         case "tcmb_minecart_engine:deprecated":
             {
                 console.warn(ev.message);
+            }
+            break;
+        case "tcmb_minecart_engine:rotate":
+            {
+                if (ev.sourceType == 'Entity') {
+                    let rotation = ev.sourceEntity.getRotation();
+                    ev.sourceEntity.setRotation({
+                        x: rotation.x,
+                        y: rotation.y + Number(ev.message)
+                    });
+                }
             }
             break;
         // perfomance monitor

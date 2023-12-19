@@ -41,7 +41,10 @@ export function hasTCManifest(train, trains_manifest) {
     }
 }
 export const reverse_direction = {
-    north: 'south'
+    north: 'south',
+    south: 'north',
+    east: 'west',
+    west: 'east'
 };
 export const rail_direction = {
     0: {

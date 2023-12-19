@@ -20,5 +20,3 @@ item.tcmb:delete_ground_facilities.name=地上設備撤去
 
 tcmb.message.auto_speed_down.enabled=ノッチ切時の自動減速を§a有効§rに設定しました。
 tcmb.message.auto_speed_down.disabled=ノッチ切時の自動減速を§c無効§rに設定しました。
-
-tcmb.ui.crew_panel.title=乗務パネル
