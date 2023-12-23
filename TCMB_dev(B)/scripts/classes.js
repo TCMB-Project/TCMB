@@ -1,3 +1,8 @@
+/*
+* TCMB v1.2.0
+* (c) TCMB Project
+* Apache License 2.0
+*/
 import { world } from "@minecraft/server";
 export class StringableEntity {
     constructor(entity) {

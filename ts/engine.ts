@@ -1,3 +1,8 @@
+/*
+* TCMB v1.2.0
+* (c) TCMB Project
+* Apache License 2.0
+*/
 import { world, system, Dimension, ScoreboardObjective, Entity, Player, EntityQueryOptions, ScriptEventSource, Vector2 } from "@minecraft/server";
 import { ModalFormData, ActionFormData, MessageFormData } from "@minecraft/server-ui";
 import { Event, PanelButton, TCMBTrain, TCManifest, TCManifestMap } from "./classes";
@@ -35,11 +40,11 @@ let monitor_runid = 0;
 let writing_train_db:boolean = false;
 
 let crew_panel_buttons: PanelButton[] = [];
-crew_panel_buttons.push(new PanelButton(true, '電気系統', 'textures/items/electricity_control', 'tcmb:engine_electricity_control'));
-crew_panel_buttons.push(new PanelButton(true, 'ドア操作', 'textures/items/door_control', undefined));
-crew_panel_buttons.push(new PanelButton(true, '非常ブレーキ', 'textures/items/notch_eb', undefined));
-crew_panel_buttons.push(new PanelButton(true, '進行方向反転', 'textures/items/direction', undefined));
-crew_panel_buttons.push(new PanelButton(true, '乗務開始/終了', 'textures/items/crew_panel', 'tcmb:engine_work'));
+crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.electricity_control'}, 'textures/items/electricity_control', 'tcmb:engine_electricity_control'));
+crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.door_control'}, 'textures/items/door_control', undefined));
+crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.eb'}, 'textures/items/notch_eb', undefined));
+crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.direction'}, 'textures/items/direction', undefined));
+crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.work'}, 'textures/items/crew_panel', 'tcmb:engine_work'));
 
 let trains_manifest : TCManifestMap = new Map();
 
@@ -85,6 +90,7 @@ system.runInterval(() =>{
     var tcmb_cars: TCMBTrain[] = tcmb_trains;
     for(const train of tcmb_cars){
         const tcmb_car = train.entity;
+        if(!tcmb_car.isValid()) continue;
         var bodies = train.body;
         if(typeof speedObject == "undefined") continue;
         let tags: string[];
@@ -215,7 +221,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
     switch(ev.id){
         case "tcmb:event":
             let evmsg = JSON.parse(ev.message);
-            let evdata = new Event(evmsg.name, evmsg.status, evmsg.entity, evmsg.player);
+            let evdata = new Event(evmsg.name, evmsg.status, evmsg.entity, evmsg.player, evmsg.isWorking);
             let train_query;
             if(typeof evdata.player != "undefined"){
                 train_query = {
@@ -308,7 +314,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                         let crewpanel = new ActionFormData()
                             .title({translate: 'item.tcmb:crew_panel.name'})
                         for(const button of crew_panel_buttons){
-                            crewpanel.button(button.title, button.texture);
+                            crewpanel.button(button.text, button.texture);
                         }
                         crewpanel.show(player).then((response)=>{
                             if(response.canceled) return;
@@ -336,6 +342,60 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                             }
                         })
                     }
+                break;
+                case "open_seat_controlBefore":{
+                    var tcmb_car = world.getEntity(evdata.entity.id);
+                    let player: Player;
+                    let playerEntity: Entity = world.getEntity(evdata.player.id);
+                    if(playerEntity instanceof Player){
+                        player = playerEntity;
+                    }else{
+                        return;
+                    }
+
+                    //tcmb_car
+                    let tags = tcmb_car.getTags();
+                    var rollSeat: number = findFirstMatch(tags, "seat");
+                    var currentSeatStatus: number = Number(tags[rollSeat].replace("seat",""));
+                    var currentCustomSeatStatus = tags.includes('custom_seat');
+                    tcmb_car.removeTag(tags[rollSeat]);
+                    tcmb_car.addTag("seat8");
+                    //body
+                    const tcmbCarLocation = tcmb_car.location;
+                    var query = {
+                        families: ["tcmb_body"],
+                        closest: 2,
+                        location: { x: tcmbCarLocation.x, y: tcmbCarLocation.y, z: tcmbCarLocation.z }
+                    }
+                    var bodies = overworld.getEntities(query);
+
+                    const Seatform = new ModalFormData()
+                        .title("電気系統管理パネル")
+                        .slider("座席設定", 1, 8, 1, currentSeatStatus);
+                    if(currentCustomSeatStatus && evdata.isWorking){
+                        Seatform.toggle("カスタム座席(一度オンにするとオフにできません。)",currentCustomSeatStatus);
+                    }
+                    Seatform.show(player).then( rawResponse => {
+                        if(rawResponse.canceled) return;
+                        var [ seatStatus, customSeatStatus ] = rawResponse.formValues;
+                        //座席設定
+                        if(typeof seatStatus != 'number') return;
+                        for(let i=0; i<seatStatus; i++){
+                            ev.sourceEntity.runCommandAsync("function seat");
+                        }
+                        //カスタム座席
+                        if(customSeatStatus){
+                            for(const body of bodies){
+                                var seat = 8;
+                                for(let i=0; i<seat; i++){
+                                    body.runCommandAsync("ride @s summon_rider tcmb:seat");
+                                }
+                            }
+                        }
+                    }).catch( e => {
+                        console.error(e, e.stack);
+                    });
+                }
                 break;
             }
         break;
@@ -409,7 +469,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
             let event_report = new Event('door', {door_direction}, train, undefined);
             event_report.reply();
         break;
-        case "tcmb:engine_delete":
+        case "tcmb:engine_delete":{
             let delete_train: TCMBTrain = tcmb_trains.filter((train)=> train.body[0].id == ev.sourceEntity.id || train.body[1].id == ev.sourceEntity.id)[0];
             let tcmb_cars: Entity[] = overworld.getEntities({
                 type: 'tcmb:tcmb_car',
@@ -433,7 +493,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
             for(const body of delete_train.body){
                 body.teleport({ x: body.location.x, y: -128, z: body.location.z});
             }
-            break;
+        }break;
             
         case "tcmb:engine_electricity_control":{
             let evdata = JSON.parse(ev.message);
@@ -443,7 +503,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
             var currentDest: number;
             var currentOnemanStatus: boolean;
             var currentVoltage: number;
-            let tags: String[] = train.getTags();
+            let tags: string[] = train.getTags();
             let rollDest = findFirstMatch(tags, "dest");
             var currentDest: number = Number(tags[rollDest].replace("dest",""));
             let rollVoltage: number = findFirstMatch(tags, "voltage");

@@ -1,3 +1,8 @@
+/*
+* TCMB v1.2.0
+* (c) TCMB Project
+* Apache License 2.0
+*/
 import { system } from "@minecraft/server";
 export function findFirstMatch(array, searchString) {
     let match = array.find(element => element.startsWith(searchString));

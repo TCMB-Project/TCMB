@@ -1,4 +1,9 @@
-import { world, Entity, Player } from "@minecraft/server";
+/*
+* TCMB v1.2.0
+* (c) TCMB Project
+* Apache License 2.0
+*/
+import { world, Entity, Player, RawMessage } from "@minecraft/server";
 
 export class StringableEntity{
     type: string;
@@ -50,16 +55,13 @@ export class Event{
 
 export class PanelButton{
     official: boolean;
-    title: string;
+    text: string | RawMessage;
     texture: string | undefined;
     response: string | undefined;
     uuid: string | undefined;
-    constructor(official:boolean, title:string, texture:string | undefined, response: string | undefined){
-        if(!official && typeof texture != "undefined"){
-            throw new TypeError('non-official button must not defined texture.');
-        }
+    constructor(official:boolean, text:string | RawMessage, texture:string | undefined, response: string | undefined){
         this.official = official;
-        this.title = title;
+        this.text = text;
         this.texture = texture;
         this.response = response;
     }

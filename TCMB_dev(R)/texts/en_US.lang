@@ -11,6 +11,8 @@ item.tcmb:direction.name=Reversal of direction
 item.tcmb:open_left.name=Open(left)
 item.tcmb:open_right.name=Open(right)
 item.tcmb:open_all.name=Open(all doors)
+item.tcmb:oneman_open_left.name=Open(front side only/left)
+item.tcmb:oneman_open_right.name=Open(front side only/right)
 item.tcmb:close.name=Close
 item.tcmb:door_control.name=Door control
 item.tcmb:num_adjust_check.name=Confirmation of ground facility values
@@ -20,3 +22,9 @@ item.tcmb:delete_ground_facilities.name=Delete ground facility
 
 tcmb.message.auto_speed_down.enabled=Deceleration when coasting is §aenabled§r.
 tcmb.message.auto_speed_down.disabled=Deceleration when coasting is §cdisabled§r.
+
+tcmb.ui.crew_panel.electricity_control=Electrical system
+tcmb.ui.crew_panel.door_control=Door control
+tcmb.ui.crew_panel.eb=Emergency Break
+tcmb.ui.crew_panel.direction=Reversal of direction
+tcmb.ui.crew_panel.work=Start/End Working

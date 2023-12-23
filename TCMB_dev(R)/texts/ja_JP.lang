@@ -11,6 +11,8 @@ item.tcmb:direction.name=進行方向反転
 item.tcmb:open_left.name=開く(左)
 item.tcmb:open_right.name=開く(右)
 item.tcmb:open_all.name=開く(両ドア)
+item.tcmb:oneman_open_left.name=開く(ワンマン/左)
+item.tcmb:oneman_open_right.name=開く(ワンマン/右)
 item.tcmb:close.name=閉じる
 item.tcmb:door_control.name=ドア操作
 item.tcmb:num_adjust_check.name=地上設備数値確認
@@ -20,3 +22,9 @@ item.tcmb:delete_ground_facilities.name=地上設備撤去
 
 tcmb.message.auto_speed_down.enabled=ノッチ切時の自動減速を§a有効§rに設定しました。
 tcmb.message.auto_speed_down.disabled=ノッチ切時の自動減速を§c無効§rに設定しました。
+
+tcmb.ui.crew_panel.electricity_control=電気系統
+tcmb.ui.crew_panel.door_control=ドア操作
+tcmb.ui.crew_panel.eb=非常ブレーキ
+tcmb.ui.crew_panel.direction=進行方向反転
+tcmb.ui.crew_panel.work=乗務開始/終了

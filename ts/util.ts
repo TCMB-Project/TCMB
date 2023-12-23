@@ -1,7 +1,12 @@
+/*
+* TCMB v1.2.0
+* (c) TCMB Project
+* Apache License 2.0
+*/
 import { Vector3, system } from "@minecraft/server";
-import { TCMBTrain, TCManifest, TCManifestMap, TrainSpeedSpec } from "./classes";
+import { TCMBTrain, TCManifest, TCManifestMap } from "./classes";
 
-export function findFirstMatch(array, searchString) {
+export function findFirstMatch(array: string[], searchString: string):number {
     let match = array.find(element => element.startsWith(searchString));
     if (match) {
       return array.indexOf(match);
