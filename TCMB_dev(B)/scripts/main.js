@@ -663,6 +663,26 @@ world.afterEvents.itemUse.subscribe((ev) => {
                 }
             }
             break;
+        case "tcmb:rotate_ground_facilities":
+            block_location = ev.source.getBlockFromViewDirection(raycast_query);
+            if (typeof block_location == 'undefined')
+                return;
+            block_dimension = block_location.block.dimension;
+            ground_facilitiy = block_dimension.getEntities({
+                families: ['num_adjust'],
+                closest: 1,
+                maxDistance: 5,
+                location: block_location.block.location
+            })[0];
+            if (typeof ground_facilitiy != 'undefined') {
+                if (ground_facilitiy.matches({ families: ['pdft'] })) {
+                    ground_facilitiy.runCommandAsync('function pdft_rotate');
+                }
+                else {
+                    ground_facilitiy.runCommandAsync('function transponder_rotate');
+                }
+            }
+            break;
     }
 });
 overworld.runCommandAsync('scriptevent tcmb:work_control {"type":"reload"}');

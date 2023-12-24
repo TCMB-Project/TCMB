@@ -33,11 +33,12 @@ let perf_monitor = false;
 let monitor_runid = 0;
 let writing_train_db = false;
 let crew_panel_buttons = [];
-crew_panel_buttons.push(new PanelButton(true, '電気系統', 'textures/items/electricity_control', 'tcmb:engine_electricity_control'));
-crew_panel_buttons.push(new PanelButton(true, 'ドア操作', 'textures/items/door_control', undefined));
-crew_panel_buttons.push(new PanelButton(true, '非常ブレーキ', 'textures/items/notch_eb', undefined));
-crew_panel_buttons.push(new PanelButton(true, '進行方向反転', 'textures/items/direction', undefined));
-crew_panel_buttons.push(new PanelButton(true, '乗務開始/終了', 'textures/items/crew_panel', 'tcmb:engine_work'));
+crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.door_control' }, 'textures/items/door_control', undefined));
+crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.electricity_control' }, 'textures/items/electricity_control', 'tcmb:engine_electricity_control'));
+crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.eb' }, 'textures/items/notch_eb', undefined));
+crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.seat_control' }, 'textures/items/seat', 'tcmb_minecart_engine:seat_control'));
+crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.direction' }, 'textures/items/direction', undefined));
+crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.work' }, 'textures/items/crew_panel', 'tcmb:engine_work'));
 let trains_manifest = new Map();
 async function initializeTrain(entity) {
     try {
@@ -148,6 +149,8 @@ system.runInterval(() => {
 //battery charge and self-discharge
 system.runInterval(() => {
     for (const train of tcmb_trains) {
+        if (!train.entity.isValid())
+            continue;
         let typeId = train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
         if (trains_manifest.has(typeId)) {
             let battery = trains_manifest.get(typeId)['battery'];
@@ -315,20 +318,20 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                         let crewpanel = new ActionFormData()
                             .title({ translate: 'item.tcmb:crew_panel.name' });
                         for (const button of crew_panel_buttons) {
-                            crewpanel.button(button.title, button.texture);
+                            crewpanel.button(button.text, button.texture);
                         }
                         crewpanel.show(player).then((response) => {
                             if (response.canceled)
                                 return;
                             if (typeof crew_panel_buttons[response.selection].response == 'undefined') {
                                 switch (response.selection) {
-                                    case 1:
+                                    case 0:
                                         door_ctrl(player, train);
                                         break;
                                     case 2:
                                         train.runCommandAsync('function eb');
                                         break;
-                                    case 3:
+                                    case 4:
                                         if (!train.hasTag("voltage_0")) {
                                             train.runCommand("function direction");
                                             if (train.hasTag("tc_parent") || train.hasTag("tc_child"))
@@ -341,68 +344,20 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                                 }
                             }
                             else {
-                                let send_event = new Event('click', undefined, train, player);
+                                let send_event = new Event('click', undefined, train, player, evdata.isWorking);
                                 player.runCommandAsync(`scriptevent ${crew_panel_buttons[response.selection].response} ${JSON.stringify(send_event)}`);
                             }
                         });
                     }
                     break;
-                case "open_seat_controlBefore":
-                    {
-                        var tcmb_car = world.getEntity(evdata.entity.id);
-                        let player;
-                        let playerEntity = world.getEntity(evdata.player.id);
-                        if (playerEntity instanceof Player) {
-                            player = playerEntity;
-                        }
-                        else {
-                            return;
-                        }
-                        //tcmb_car
-                        let tags = tcmb_car.getTags();
-                        var rollSeat = findFirstMatch(tags, "seat");
-                        var currentSeatStatus = Number(tags[rollSeat].replace("seat", ""));
-                        var currentCustomSeatStatus = tags.includes('custom_seat');
-                        tcmb_car.removeTag(tags[rollSeat]);
-                        tcmb_car.addTag("seat8");
-                        //body
-                        const tcmbCarLocation = tcmb_car.location;
-                        var query = {
-                            families: ["tcmb_body"],
-                            closest: 2,
-                            location: { x: tcmbCarLocation.x, y: tcmbCarLocation.y, z: tcmbCarLocation.z }
-                        };
-                        var bodies = overworld.getEntities(query);
-                        const Seatform = new ModalFormData()
-                            .title("電気系統管理パネル")
-                            .slider("座席設定", 1, 8, 1, currentSeatStatus);
-                        if (currentCustomSeatStatus && evdata.isWorking) {
-                            Seatform.toggle("カスタム座席(一度オンにするとオフにできません。)", currentCustomSeatStatus);
-                        }
-                        Seatform.show(player).then(rawResponse => {
-                            if (rawResponse.canceled)
-                                return;
-                            var [seatStatus, customSeatStatus] = rawResponse.formValues;
-                            //座席設定
-                            if (typeof seatStatus != 'number')
-                                return;
-                            for (let i = 0; i < seatStatus; i++) {
-                                ev.sourceEntity.runCommandAsync("function seat");
-                            }
-                            //カスタム座席
-                            if (customSeatStatus) {
-                                for (const body of bodies) {
-                                    var seat = 8;
-                                    for (let i = 0; i < seat; i++) {
-                                        body.runCommandAsync("ride @s summon_rider tcmb:seat");
-                                    }
-                                }
-                            }
-                        }).catch(e => {
-                            console.error(e, e.stack);
-                        });
-                    }
-                    break;
+                case "open_seat_controlBefore": {
+                    let train = world.getEntity(evdata.entity.id);
+                    let player = world.getEntity(evdata.player.id);
+                    if (!(player instanceof Player))
+                        return;
+                    let send_event = new Event('click', undefined, train, player, evdata.isWorking);
+                    overworld.runCommandAsync('scriptevent tcmb_minecart_engine:seat_control ' + JSON.stringify(send_event));
+                }
             }
             break;
         case "tcmb:engine_door":
@@ -603,7 +558,11 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
             break;
         case 'tcmb:speed':
             {
+                if (ev.sourceType != 'Entity')
+                    return;
                 if (ev.sourceEntity.typeId != 'tcmb:tcmb_car')
+                    return;
+                if (!ev.sourceEntity.isValid())
                     return;
                 let train = tcmb_trains.filter((train) => train.entity.id == ev.sourceEntity.id)[0];
                 let typeId = train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
@@ -716,6 +675,67 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                         body.addTag('voltage_b');
                     }
                 }
+            }
+            break;
+        case "tcmb_minecart_engine:seat_control":
+            {
+                let evmsg = JSON.parse(ev.message);
+                let evdata = new Event(evmsg.name, evmsg.status, evmsg.entity, evmsg.player, evmsg.isWorking);
+                var tcmb_car = world.getEntity(evdata.entity.id);
+                let player;
+                let playerEntity = world.getEntity(evdata.player.id);
+                if (playerEntity instanceof Player) {
+                    player = playerEntity;
+                }
+                else {
+                    return;
+                }
+                //tcmb_car
+                let tags = tcmb_car.getTags();
+                var rollSeat = findFirstMatch(tags, "seat");
+                var currentSeatStatus = Number(tags[rollSeat].replace("seat", ""));
+                var currentCustomSeatStatus = tags.includes('custom_seat');
+                //body
+                const tcmbCarLocation = tcmb_car.location;
+                var query = {
+                    families: ["tcmb_body"],
+                    closest: 2,
+                    location: { x: tcmbCarLocation.x, y: tcmbCarLocation.y, z: tcmbCarLocation.z }
+                };
+                var bodies = overworld.getEntities(query);
+                console.log(JSON.stringify(evdata));
+                const Seatform = new ModalFormData()
+                    .title("座席管理パネル")
+                    .slider("座席設定", 1, 8, 1, currentSeatStatus);
+                if (!currentCustomSeatStatus && evdata.isWorking) {
+                    Seatform.toggle("カスタム座席 ※一度オンにするとオフにできません。", currentCustomSeatStatus);
+                }
+                Seatform.show(player).then(rawResponse => {
+                    if (rawResponse.canceled)
+                        return;
+                    var [seatStatus, customSeatStatus] = rawResponse.formValues;
+                    //座席設定
+                    if (typeof seatStatus != 'number')
+                        return;
+                    tcmb_car.removeTag(tags[rollSeat]);
+                    tcmb_car.addTag('seat8');
+                    for (let i = 0; i < seatStatus; i++) {
+                        tcmb_car.runCommandAsync("function seat");
+                    }
+                    //カスタム座席
+                    if (customSeatStatus) {
+                        tcmb_car.addTag('custom_seat');
+                        for (const body of bodies) {
+                            var seat = 8;
+                            body.runCommandAsync('ride @s evict_riders');
+                            for (let i = 0; i < seat; i++) {
+                                body.runCommandAsync("ride @s summon_rider tcmb:seat");
+                            }
+                        }
+                    }
+                }).catch(e => {
+                    console.error(e, e.stack);
+                });
             }
             break;
         case "tcmb_minecart_engine:deprecated":

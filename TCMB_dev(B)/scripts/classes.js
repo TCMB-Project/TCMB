@@ -40,12 +40,9 @@ export class Event {
     }
 }
 export class PanelButton {
-    constructor(official, title, texture, response) {
-        if (!official && typeof texture != "undefined") {
-            throw new TypeError('non-official button must not defined texture.');
-        }
+    constructor(official, text, texture, response) {
         this.official = official;
-        this.title = title;
+        this.text = text;
         this.texture = texture;
         this.response = response;
     }
