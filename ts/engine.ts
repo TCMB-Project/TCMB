@@ -8,7 +8,7 @@ import { ModalFormData, ActionFormData, MessageFormData } from "@minecraft/serve
 import { Event, PanelButton, TCMBTrain, TCManifest, TCManifestMap } from "./classes";
 import { findFirstMatch, getTCManifest, hasTCManifest } from "./util";
 
-export class dumy{}
+export class dummy{}
 
 const overworld: Dimension = world.getDimension("overworld");
 const nether: Dimension = world.getDimension("nether");

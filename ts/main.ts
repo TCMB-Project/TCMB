@@ -5,9 +5,9 @@
 */
 import { world, system, Dimension, Entity, EntityQueryOptions, Player, BlockRaycastOptions, BlockRaycastHit } from "@minecraft/server";
 import { Event } from "./classes";
-import { dumy } from "./engine";
+import { dummy } from "./engine";
 
-new dumy;
+new dummy;
 
 const overworld: Dimension = world.getDimension("overworld");
 const nether: Dimension = world.getDimension("nether");
