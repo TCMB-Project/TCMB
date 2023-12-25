@@ -1,7 +1,7 @@
 {
   "format_version": 2,
   "header": {
-    "name": "TCMB Dev",
+    "name": "TCMB",
     "description": "Train Controller for Minecraft BE",
     "version": [1, 2, 20],
     "uuid": "39be37e9-9be8-4d08-a0c6-4a750a4c4df8",
