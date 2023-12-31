@@ -499,9 +499,9 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                 }
                 //ワンマン
                 if(oneman){
-                    ev.sourceEntity.runCommandAsync("execute as @e[type=tcmb:tcmb_car,c=1] at @s run tag @e[r=1] add oneman")
+                    train.runCommandAsync("tag @e[r=1] add oneman");
                 }else{
-                    ev.sourceEntity.runCommandAsync("execute as @e[type=tcmb:tcmb_car,c=1] at @s run tag @e[r=1] remove oneman")
+                    train.runCommandAsync("tag @e[r=1] remove oneman");
                 }
                 //入力電源
                 if(train.hasTag('only_vol1')){
