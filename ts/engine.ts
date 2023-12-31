@@ -488,11 +488,13 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                 ev.sourceEntity.runCommandAsync("function dest_reset");
                 if(dest <= 10){
                     for(let i=0; i<dest-1; i++){
-                        ev.sourceEntity.runCommandAsync("execute as @e[type=tcmb:tcmb_car,c=1] at @s run function dest");
+                        train.runCommandAsync("function dest");
+                        if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommandAsync("function tc_dest");
                     }
                 }else{
                     for(let i=0; i<21-dest; i++){
-                        ev.sourceEntity.runCommandAsync("execute as @e[type=tcmb:tcmb_car,c=1] at @s run function dest_reverse");
+                        train.runCommandAsync("function dest_reverse");
+                        if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommandAsync("function tc_dest_reverse");
                     } 
                 }
                 //ワンマン
