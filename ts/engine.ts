@@ -708,9 +708,10 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
             case "tcmb_minecart_engine:rotate":{
                 if(ev.sourceType == 'Entity'){
                     let rotation: Vector2 = ev.sourceEntity.getRotation();
+                    let angle = ev.message.split(' ');
                     ev.sourceEntity.setRotation({
-                        x: rotation.x,
-                        y: rotation.y + Number(ev.message)
+                        x: rotation.x + Number(angle[1] || 0),
+                        y: rotation.y + Number(angle[0])
                     });
                 }
             }
