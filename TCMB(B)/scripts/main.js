@@ -735,20 +735,22 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
                 evdata.send();
             }
             break;
-        case "tcmb_mobile_items:notch_break": {
-            if (working.has(event.sourceEntity.id)) {
-                train = working.get(event.sourceEntity.id);
-                isworking = true;
+        case "tcmb_mobile_items:notch_break":
+            {
+                if (working.has(event.sourceEntity.id)) {
+                    train = working.get(event.sourceEntity.id);
+                    isworking = true;
+                }
+                else {
+                    train = dimension.getEntities(event_train_query)[0];
+                    isworking = false;
+                }
+                if (typeof train == "undefined")
+                    return;
+                let evdata = new Event('notchBefore', { operation: 'break' }, train, player, isworking);
+                evdata.send();
             }
-            else {
-                train = dimension.getEntities(event_train_query)[0];
-                isworking = false;
-            }
-            if (typeof train == "undefined")
-                return;
-            let evdata = new Event('notchBefore', { operation: 'break' }, train, player, isworking);
-            evdata.send();
-        }
+            break;
         case "tcmb_mobile_items:notch_eb":
             {
                 if (working.has(event.sourceEntity.id)) {

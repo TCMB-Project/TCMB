@@ -560,7 +560,7 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                 player.runCommandAsync('scriptevent tcmb:work_control ' + JSON.stringify(work_req));
             }
             break;
-        case 'tcmb:speed':
+        case 'tcmb_minecart_engine:speed':
             {
                 if (ev.sourceType != 'Entity')
                     return;

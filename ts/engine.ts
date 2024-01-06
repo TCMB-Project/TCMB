@@ -531,7 +531,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                 
             }
             break;
-            case 'tcmb:speed':{
+            case 'tcmb_minecart_engine:speed':{
                 if(ev.sourceType != 'Entity') return;
                 if(ev.sourceEntity.typeId != 'tcmb:tcmb_car') return;
                 if(!ev.sourceEntity.isValid()) return;

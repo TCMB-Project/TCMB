@@ -10,7 +10,7 @@
                 },
                 "run":{
                     "on_entry":[
-                        "/execute as @p at @s run scriptevent tcmb_mobile_item:notch_power",
+                        "/execute as @p at @s run scriptevent tcmb_mobile_items:notch_power",
                         "@s delete"
                     ]
                 }
@@ -25,7 +25,7 @@
                 },
                 "run":{
                     "on_entry":[
-                        "/execute as @p at @s run scriptevent tcmb_mobile_item:notch_neutral",
+                        "/execute as @p at @s run scriptevent tcmb_mobile_items:notch_neutral",
                         "@s delete"
                     ]
                 }
@@ -40,7 +40,7 @@
                 },
                 "run":{
                     "on_entry":[
-                        "/execute as @p at @s run scriptevent tcmb_mobile_item:notch_break",
+                        "/execute as @p at @s run scriptevent tcmb_mobile_items:notch_break",
                         "@s delete"
                     ]
                 }
@@ -55,7 +55,7 @@
                 },
                 "run":{
                     "on_entry":[
-                        "/execute as @p at @s run scriptevent tcmb_mobile_item:notch_eb",
+                        "/execute as @p at @s run scriptevent tcmb_mobile_items:notch_eb",
                         "@s delete"
                     ]
                 }

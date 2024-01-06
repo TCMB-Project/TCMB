@@ -660,6 +660,7 @@ system.afterEvents.scriptEventReceive.subscribe((event)=>{
             let evdata = new Event('notchBefore', {operation: 'break'}, train, player, isworking);
             evdata.send();
         }
+        break;
         case "tcmb_mobile_items:notch_eb":{
             if(working.has(event.sourceEntity.id)){
                 train = working.get(event.sourceEntity.id);
