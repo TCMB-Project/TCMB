@@ -164,7 +164,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev => {
             }
             break;
     }
-});
+}, { namespaces: ['tcmb'] });
 
 //item use operation
 world.afterEvents.itemUse.subscribe((ev)=>{
@@ -604,5 +604,79 @@ world.afterEvents.itemUse.subscribe((ev)=>{
     }
 });
 
-overworld.runCommandAsync('scriptevent tcmb:work_control {"type":"reload"}')
+//mobile enhance
+system.afterEvents.scriptEventReceive.subscribe((event)=>{
+    let dimension: Dimension = event.sourceEntity.dimension;
+    let train: Entity;
+    let isworking: boolean;
+    if(event.sourceType != 'Entity') return;
+    let playerEntity: Entity = event.sourceEntity;
+    let player: Player;
+    if(playerEntity instanceof Player) player = playerEntity;
+
+    let event_train_query:EntityQueryOptions = {
+        families: ["tcmb_car"],
+        location: player.location,
+        closest: 1,
+        maxDistance: 40
+    };
+
+    switch(event.id){
+        case "tcmb_mobile_items:notch_power":{
+            if(working.has(event.sourceEntity.id)){
+                train = working.get(event.sourceEntity.id);
+                isworking = true;
+            }else{
+                train = dimension.getEntities(event_train_query)[0];
+                isworking = false;
+            }
+            if(typeof train == "undefined") return;
+            let evdata = new Event('notchBefore', {operation: 'power'}, train, player, isworking);
+            evdata.send();
+        }
+        break;
+        case "tcmb_mobile_items:notch_neutral":{
+            if(working.has(event.sourceEntity.id)){
+                train = working.get(event.sourceEntity.id);
+                isworking = true;
+            }else{
+                train = dimension.getEntities(event_train_query)[0];
+                isworking = false;
+            }
+            if(typeof train == "undefined") return;
+            let evdata = new Event('notchBefore', {operation: 'neutral'}, train, player, isworking);
+            evdata.send();
+        }
+        break;
+        case "tcmb_mobile_items:notch_break":{
+            if(working.has(event.sourceEntity.id)){
+                train = working.get(event.sourceEntity.id);
+                isworking = true;
+            }else{
+                train = dimension.getEntities(event_train_query)[0];
+                isworking = false;
+            }
+            if(typeof train == "undefined") return;
+            let evdata = new Event('notchBefore', {operation: 'break'}, train, player, isworking);
+            evdata.send();
+        }
+        case "tcmb_mobile_items:notch_eb":{
+            if(working.has(event.sourceEntity.id)){
+                train = working.get(event.sourceEntity.id);
+                isworking = true;
+            }else{
+                train = dimension.getEntities(event_train_query)[0];
+                isworking = false;
+            }
+            if(typeof train == "undefined") return;
+            let evdata = new Event('notchBefore', {operation: 'eb'}, train, player, isworking);
+            evdata.send();
+        }
+        break;
+    }
+}, {
+    namespaces: ['tcmb_mobile_items']
+});
+
+overworld.runCommandAsync('scriptevent tcmb:work_control {"type":"reload"}');
 overworld.runCommandAsync('scriptevent tcmb:initialized');

@@ -709,10 +709,9 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                 if(ev.sourceType == 'Entity'){
                     let rotation: Vector2 = ev.sourceEntity.getRotation();
                     let angle = ev.message.split(' ');
-                    ev.sourceEntity.setRotation({
-                        x: rotation.x + Number(angle[1] || 0),
-                        y: rotation.y + Number(angle[0])
-                    });
+                    rotation.x += Number(angle[1] || 0);
+                    rotation.y += Number(angle[0]) 
+                    ev.sourceEntity.setRotation(rotation);
                 }
             }
             break;
@@ -729,7 +728,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                 }
             break;
     }
-})
+}, { namespaces: ['tcmb', 'tcmb_minecart_engine'] });
 
 // initialize Spawn train
 world.afterEvents.entitySpawn.subscribe(async (event)=>{
