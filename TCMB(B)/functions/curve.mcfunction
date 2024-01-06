@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 execute as @e[type=tcmb:tcmb_car,scores={speed=0},tag=!stopping] at @s run event entity @e[r=2] 0km 
 execute as @e[type=tcmb:tcmb_car,scores={speed=1}] at @s run event entity @e[r=2] 1km
 execute as @e[type=tcmb:tcmb_car,scores={speed=2}] at @s run event entity @e[r=2] 2km
@@ -359,6 +360,8 @@ execute as @e[type=tcmb:tcmb_car,scores={speed=357}] at @s run event entity @e[r
 execute as @e[type=tcmb:tcmb_car,scores={speed=358}] at @s run event entity @e[r=2] 358km
 execute as @e[type=tcmb:tcmb_car,scores={speed=359}] at @s run event entity @e[r=2] 359km
 execute as @e[type=tcmb:tcmb_car,scores={speed=360}] at @s run event entity @e[r=2] 360km
+=======
+>>>>>>> main
 execute as @e[type=tcmb:tcmb_car,tag=pt0] at @s run function curve/pt0
 execute as @e[type=tcmb:tcmb_car,tag=pt1] at @s run function curve/pt1
 execute as @e[type=tcmb:tcmb_car,tag=pt2] at @s run function curve/pt2

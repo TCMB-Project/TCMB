@@ -8,7 +8,7 @@ import { ModalFormData, ActionFormData, MessageFormData } from "@minecraft/serve
 import { Event, PanelButton, TCMBTrain, TCManifest, TCManifestMap } from "./classes";
 import { findFirstMatch, getTCManifest, hasTCManifest } from "./util";
 
-export class dumy{}
+export class dummy{}
 
 const overworld: Dimension = world.getDimension("overworld");
 const nether: Dimension = world.getDimension("nether");
@@ -488,18 +488,20 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                 ev.sourceEntity.runCommandAsync("function dest_reset");
                 if(dest <= 10){
                     for(let i=0; i<dest-1; i++){
-                        ev.sourceEntity.runCommandAsync("execute as @e[type=tcmb:tcmb_car,c=1] at @s run function dest");
+                        train.runCommandAsync("function dest");
+                        if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommandAsync("function tc_dest");
                     }
                 }else{
                     for(let i=0; i<21-dest; i++){
-                        ev.sourceEntity.runCommandAsync("execute as @e[type=tcmb:tcmb_car,c=1] at @s run function dest_reverse");
+                        train.runCommandAsync("function dest_reverse");
+                        if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommandAsync("function tc_dest_reverse");
                     } 
                 }
                 //ワンマン
                 if(oneman){
-                    ev.sourceEntity.runCommandAsync("execute as @e[type=tcmb:tcmb_car,c=1] at @s run tag @e[r=1] add oneman")
+                    train.runCommandAsync("tag @e[r=1] add oneman");
                 }else{
-                    ev.sourceEntity.runCommandAsync("execute as @e[type=tcmb:tcmb_car,c=1] at @s run tag @e[r=1] remove oneman")
+                    train.runCommandAsync("tag @e[r=1] remove oneman");
                 }
                 //入力電源
                 if(train.hasTag('only_vol1')){
@@ -706,10 +708,10 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
             case "tcmb_minecart_engine:rotate":{
                 if(ev.sourceType == 'Entity'){
                     let rotation: Vector2 = ev.sourceEntity.getRotation();
-                    ev.sourceEntity.setRotation({
-                        x: rotation.x,
-                        y: rotation.y + Number(ev.message)
-                    });
+                    let angle = ev.message.split(' ');
+                    rotation.x += Number(angle[1] || 0);
+                    rotation.y += Number(angle[0]) 
+                    ev.sourceEntity.setRotation(rotation);
                 }
             }
             break;
@@ -726,7 +728,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                 }
             break;
     }
-})
+}, { namespaces: ['tcmb', 'tcmb_minecart_engine'] });
 
 // initialize Spawn train
 world.afterEvents.entitySpawn.subscribe(async (event)=>{
