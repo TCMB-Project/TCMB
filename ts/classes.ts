@@ -100,15 +100,8 @@ export class TCMBTrain{
 
 export class TrainSpeedSpec{
     limit: number;
-    acceleration: object = {
-        startup: 4,
-        rated_limit: 0
-    };
-    deceleration: object = {
-        service: 4.5,
-        emergency: 5.0,
-        coasting: 0.1666666667
-    };
+    acceleration: object;
+    deceleration: object;
     constructor(origin: object){
         if(typeof origin['limit'] == 'number'){
             this.limit = origin['limit'];
@@ -128,24 +121,7 @@ export class TrainSpeedSpec{
     }
 }
 
-export class TrainNotch{
-    power: number;
-    break: number;
-    constructor(origin: object){
-        if(typeof origin['power'] == 'number'){
-            this.power = origin['power']
-        }else{
-            throw TypeError(`{tcmanifest}.notch.power is not number. (${typeof origin['power']})`);
-        }
-        if(typeof origin['break'] == 'number'){
-            this.break = origin['break']
-        }else{
-            throw TypeError(`{tcmanifest}.notch.break is not number. (${typeof origin['break']})`);
-        }
-    }
-}
-
-export class TrainBattery{
+class TrainBattery{
     capacity: number;
     performance: object;
     constructor(origin: object){
@@ -162,13 +138,31 @@ export class TrainBattery{
     }
 }
 
+class Notch{
+    id: string | undefined;
+    uuid: string | undefined;
+    config: object | undefined;
+    constructor(origin: object){
+        if(typeof origin['id'] == 'string'){
+            this.id = origin['id'];
+        }else if(typeof origin['uuid'] == 'string'){
+            this.id = origin['uuid'];
+        }else{
+            throw ReferenceError(`Notch ID is not defined.`);
+        }
+        if(typeof origin['config'] == 'object'){
+            this.config = origin['config'];
+        }
+    }
+}
+
 export class TCManifest{
     name: string | undefined;
     company: string | undefined;
     type: string;
     summon_command: string | undefined;
     speed: TrainSpeedSpec | undefined;
-    notch: TrainNotch | undefined;
+    notch: object[];
     battery: TrainBattery | undefined;
     constructor(origin_json: string){
         let origin: unknown = JSON.parse(origin_json);
@@ -202,7 +196,7 @@ export class TCManifest{
                 throw TypeError(`{tcmanifest}.speed is not TrainSpeedSpec. (${typeof origin['speed']})`);
             }
             if(typeof origin['notch'] == 'object'){
-                this.notch = new TrainNotch(origin['notch']);
+                this.notch = origin['notch'];
             }else if(typeof origin['notch'] == 'undefined'){
                 this.notch = undefined;
             }else{

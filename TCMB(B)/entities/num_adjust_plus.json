@@ -1,0 +1,42 @@
+{
+    "format_version":"1.18.0",
+    "minecraft:entity":{
+        "description":{
+            "identifier": "tcmb:num_adjust_plus",
+            "is_spawnable": true,
+            "is_summonable": true,
+            "is_experimental": false,
+            "animations":{
+                "num_adjust_plus_controller": "controller.animation.num_adjust_plus"
+            },
+            "scripts":{
+                "animate":[
+                    "num_adjust_plus_controller"
+                ]
+            }
+        },
+        "component_groups": {
+            "delete_self": {
+                "minecraft:instant_despawn": {}
+            }
+        },
+        "components":{
+            "minecraft:type_family": {
+                "family": [
+                    "tcmb",
+                    "tcmb_item"
+                ]
+            },
+            "minecraft:physics": {}
+        },
+        "events": {
+            "delete": {
+                "add": {
+                    "component_groups": [
+                        "delete_self"
+                    ]
+                }
+            }
+        }
+    }
+}

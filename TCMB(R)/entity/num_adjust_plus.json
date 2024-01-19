@@ -1,0 +1,24 @@
+{
+    "format_version": "1.18.0",
+    "minecraft:client_entity": {
+        "description": {
+            "identifier": "tcmb:num_adjust_plus",
+            "materials": {
+                "default": "skeleton"
+            },
+            "textures": {
+                "default":"textures/entity/null"
+            },
+            "geometry": {
+                "default": "geometry.null"
+            },
+            "render_controllers": [ 
+                "controller.render.default" 
+            ],
+            "spawn_egg": {
+                "texture": "tcmb_num_adjust_plus",
+                "texture_index": 0
+            }
+        }
+    }
+}
