@@ -217,7 +217,7 @@ world.afterEvents.itemUse.subscribe((ev)=>{
                 ev.source.sendMessage(message);
                 return;
             }
-            evdata = new Event('deleteBefore', undefined, train, ev.source, isworking);
+            evdata = new Event('deleteSignal', undefined, train, ev.source, isworking);
             evdata.send();
         break;
         case "tcmb:notch_power":
@@ -229,7 +229,7 @@ world.afterEvents.itemUse.subscribe((ev)=>{
                 isworking = false;
             }
             if(typeof train == "undefined") return;
-            evdata = new Event('notchBefore', {operation: 'power'}, train, ev.source, isworking);
+            evdata = new Event('notchSignal', {operation: 'power'}, train, ev.source, isworking);
             evdata.send();
         break;
         case "tcmb:notch_neutral":
@@ -241,7 +241,7 @@ world.afterEvents.itemUse.subscribe((ev)=>{
                 isworking = false;
             }
             if(typeof train == "undefined") return;
-            evdata = new Event('notchBefore', {operation: 'neutral'}, train, ev.source, isworking);
+            evdata = new Event('notchSignal', {operation: 'neutral'}, train, ev.source, isworking);
             evdata.send();
         break;
         case "tcmb:notch_break":
@@ -253,7 +253,7 @@ world.afterEvents.itemUse.subscribe((ev)=>{
                 isworking = false;
             }
             if(typeof train == "undefined") return;
-            evdata = new Event('notchBefore', {operation: 'break'}, train, ev.source, isworking);
+            evdata = new Event('notchSignal', {operation: 'break'}, train, ev.source, isworking);
             evdata.send();
         break;
         case "tcmb:notch_eb":
@@ -265,7 +265,7 @@ world.afterEvents.itemUse.subscribe((ev)=>{
                 isworking = false;
             }
             if(typeof train == "undefined") return;
-            evdata = new Event('notchBefore', {operation: 'eb'}, train, ev.source, isworking);
+            evdata = new Event('notchSignal', {operation: 'eb'}, train, ev.source, isworking);
             evdata.send();
         break;
         case "tcmb:open_left":
@@ -367,7 +367,7 @@ world.afterEvents.itemUse.subscribe((ev)=>{
                 isworking = false;
             }
             if(typeof train == "undefined") return;
-            evdata = new Event('rideBefore', undefined, train, ev.source, isworking);
+            evdata = new Event('rideSignal', undefined, train, ev.source, isworking);
             evdata.send();
         break;
         case "tcmb:direction":
@@ -379,7 +379,7 @@ world.afterEvents.itemUse.subscribe((ev)=>{
                 isworking = false;
             }
             if(typeof train == "undefined") return;
-            evdata = new Event('directionBefore', undefined, train, ev.source, isworking);
+            evdata = new Event('directionSignal', undefined, train, ev.source, isworking);
             evdata.send();
         break;
         case "tcmb:dest":
@@ -391,7 +391,7 @@ world.afterEvents.itemUse.subscribe((ev)=>{
                 isworking = false;
             }
             if(typeof train == "undefined") return;
-            evdata = new Event('destBefore', {'operation':'foward'}, train, ev.source, isworking);
+            evdata = new Event('destSignal', {'operation':'foward'}, train, ev.source, isworking);
             evdata.send();
         break;
         case "tcmb:dest_reverse":
@@ -403,7 +403,7 @@ world.afterEvents.itemUse.subscribe((ev)=>{
                 isworking = false;
             }
             if(typeof train == "undefined") return;
-            evdata = new Event('destBefore', {'operation':'reverse'}, train, ev.source, isworking);
+            evdata = new Event('destSignal', {'operation':'reverse'}, train, ev.source, isworking);
             evdata.send();
         break;
         case "tcmb:crew_panel":
@@ -415,7 +415,7 @@ world.afterEvents.itemUse.subscribe((ev)=>{
                 isworking = false;
             }
             if(typeof train == "undefined") return;
-            evdata = new Event('open_crew_panelBefore', undefined, train, ev.source, isworking);
+            evdata = new Event('open_crew_panelSignal', undefined, train, ev.source, isworking);
             evdata.send();
         break;
         case "tcmb:seat_control":{
@@ -427,7 +427,7 @@ world.afterEvents.itemUse.subscribe((ev)=>{
                 isworking = false;
             }
             if(typeof train == "undefined") return;
-            evdata = new Event('open_seat_controlBefore', undefined, train, ev.source, isworking);
+            evdata = new Event('open_seat_controlSignal', undefined, train, ev.source, isworking);
             evdata.send();
         }
         break;
@@ -631,7 +631,7 @@ system.afterEvents.scriptEventReceive.subscribe((event)=>{
                 isworking = false;
             }
             if(typeof train == "undefined") return;
-            let evdata = new Event('notchBefore', {operation: 'power'}, train, player, isworking);
+            let evdata = new Event('notchSignal', {operation: 'power'}, train, player, isworking);
             evdata.send();
         }
         break;
@@ -644,7 +644,7 @@ system.afterEvents.scriptEventReceive.subscribe((event)=>{
                 isworking = false;
             }
             if(typeof train == "undefined") return;
-            let evdata = new Event('notchBefore', {operation: 'neutral'}, train, player, isworking);
+            let evdata = new Event('notchSignal', {operation: 'neutral'}, train, player, isworking);
             evdata.send();
         }
         break;
@@ -657,7 +657,7 @@ system.afterEvents.scriptEventReceive.subscribe((event)=>{
                 isworking = false;
             }
             if(typeof train == "undefined") return;
-            let evdata = new Event('notchBefore', {operation: 'break'}, train, player, isworking);
+            let evdata = new Event('notchSignal', {operation: 'break'}, train, player, isworking);
             evdata.send();
         }
         break;
@@ -670,7 +670,7 @@ system.afterEvents.scriptEventReceive.subscribe((event)=>{
                 isworking = false;
             }
             if(typeof train == "undefined") return;
-            let evdata = new Event('notchBefore', {operation: 'eb'}, train, player, isworking);
+            let evdata = new Event('notchSignal', {operation: 'eb'}, train, player, isworking);
             evdata.send();
         }
         break;

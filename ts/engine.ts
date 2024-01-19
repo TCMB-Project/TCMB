@@ -94,14 +94,9 @@ system.runInterval(() =>{
         if(!tcmb_car.isValid()) continue;
         var bodies = train.body;
         if(typeof speedObject == "undefined") continue;
-        let tags: string[];
-        try{
-            tags = tcmb_car.getTags();
-        }catch(e){
-            console.error(e);
-            continue;
-        }
+        let tags = tcmb_car.getTags();
         let manifest = trains_manifest.get(bodies[0].typeId.substring(0, bodies[0].typeId.length - 5));
+        
         //tcmb_car(speed)
         var speed: number | undefined = speedObject.getScore(tcmb_car);
         if(typeof speed == "undefined") continue;
@@ -113,15 +108,6 @@ system.runInterval(() =>{
             tcmb_car.triggerEvent('109km');
         }else{
             tcmb_car.triggerEvent(speed +"km");
-        }
-        let block = tcmb_car.dimension.getBlock(tcmb_car.location);
-
-        if(!block.permutation.matches('minecraft:golden_rail')){
-            if(!tags.includes('backward')){
-                train.entity.runCommandAsync('summon tcmb:tcmb_starter ^0.5^^');
-            }else{
-                train.entity.runCommandAsync('summon tcmb:tcmb_starter ^-0.5^^');
-            }
         }
 
         //body
@@ -207,15 +193,34 @@ system.runInterval(()=>{
     }
 }, 20);
 
+//auto speed down
 system.runInterval(()=>{
     if(optionObject instanceof ScoreboardObjective && optionObject.getScore('auto_speed_down') != 0){
         for(const train of tcmb_trains){
+            if(!train.entity.isValid()) continue;
             if(train.entity.hasTag('n') && !train.entity.hasTag('tasc_on') && !train.entity.hasTag('tc_child')){
                 train.entity.runCommandAsync('scriptevent tcmb:speed down');
             }
         }
     }
 }, 120);
+
+//rail assist
+system.runInterval(()=>{
+    for(const train of tcmb_trains){
+        const tcmb_car = train.entity;
+        if(!tcmb_car.isValid()) continue;
+        let block = tcmb_car.dimension.getBlock(tcmb_car.location);
+
+        if(!block.permutation.matches('minecraft:golden_rail')){
+            if(!tcmb_car.hasTag('backward')){
+                train.entity.runCommandAsync('summon tcmb:tcmb_starter ^0.5^^');
+            }else{
+                train.entity.runCommandAsync('summon tcmb:tcmb_starter ^-0.5^^');
+            }
+        }
+    }
+}, 5);
 
 //events/functions
 system.afterEvents.scriptEventReceive.subscribe( ev =>{
@@ -224,15 +229,8 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
         case "tcmb:event":
             let evmsg = JSON.parse(ev.message);
             let evdata = new Event(evmsg.name, evmsg.status, evmsg.entity, evmsg.player, evmsg.isWorking);
-            let train_query;
-            if(typeof evdata.player != "undefined"){
-                train_query = {
-                    tags:['tcmb_carid_'+evdata.entity.id],
-                    type:'tcmb:tcmb_car'
-                };
-            }
             switch(evdata.name){
-                case "rideBefore":
+                case "rideSignal":
                     train = world.getEntity(evdata.entity.id);
                     if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
                         var player:any = world.getPlayers({name:evdata.player.name})[0];
@@ -246,7 +244,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                         door_ctrl(player, train);
                     }
                 break;
-                case "directionBefore":
+                case "directionSignal":
                     train = world.getEntity(evdata.entity.id);
                     if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
                         if(!train.hasTag("voltage_0")){
@@ -258,7 +256,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                         event_report.reply();
                     }
                 break;
-                case "notchBefore":
+                case "notchSignal":
                     train = world.getEntity(evdata.entity.id);
                     if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
                         if(!train.hasTag("voltage_0")){
@@ -277,7 +275,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                         }
                     }
                 break;
-                case "deleteBefore":
+                case "deleteSignal":
                     var player:any = world.getPlayers({name:evdata.player.name})[0];
                     player.runCommandAsync("playsound random.click @s");
                     let delete_train_query = {
@@ -293,7 +291,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                     let event_report = new Event('delete', undefined, train, player);
                     event_report.reply();
                 break;
-                case "destBefore":{
+                case "destSignal":{
                     let train:Entity = world.getEntity(evdata.entity.id);
                     var player:any = world.getPlayers({name:evdata.player.name})[0];
                     if(!train.hasTag("voltage_0") && speedObject.getScore(train) == 0){
@@ -309,7 +307,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                     }
                 }
                 break;
-                case "open_crew_panelBefore":
+                case "open_crew_panelSignal":
                     train = world.getEntity(evdata.entity.id);
                     if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
                         var player:any = world.getPlayers({name:evdata.player.name})[0];
@@ -345,7 +343,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                         })
                     }
                 break;
-                case "open_seat_controlBefore":{
+                case "open_seat_controlSignal":{
                     let train = world.getEntity(evdata.entity.id);
                     let player = world.getEntity(evdata.player.id);
                     if(!(player instanceof Player)) return;
