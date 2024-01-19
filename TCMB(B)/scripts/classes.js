@@ -72,15 +72,6 @@ export class TCMBTrain {
 }
 export class TrainSpeedSpec {
     constructor(origin) {
-        this.acceleration = {
-            startup: 4,
-            rated_limit: 0
-        };
-        this.deceleration = {
-            service: 4.5,
-            emergency: 5.0,
-            coasting: 0.1666666667
-        };
         if (typeof origin['limit'] == 'number') {
             this.limit = origin['limit'];
         }
@@ -101,23 +92,7 @@ export class TrainSpeedSpec {
         }
     }
 }
-export class TrainNotch {
-    constructor(origin) {
-        if (typeof origin['power'] == 'number') {
-            this.power = origin['power'];
-        }
-        else {
-            throw TypeError(`{tcmanifest}.notch.power is not number. (${typeof origin['power']})`);
-        }
-        if (typeof origin['break'] == 'number') {
-            this.break = origin['break'];
-        }
-        else {
-            throw TypeError(`{tcmanifest}.notch.break is not number. (${typeof origin['break']})`);
-        }
-    }
-}
-export class TrainBattery {
+class TrainBattery {
     constructor(origin) {
         if (typeof origin['capacity'] == 'number') {
             this.capacity = origin['capacity'];
@@ -130,6 +105,22 @@ export class TrainBattery {
         }
         else {
             throw TypeError(`{tcmanifest}.battery.performance is not object. (${typeof origin['performance']})`);
+        }
+    }
+}
+class Notch {
+    constructor(origin) {
+        if (typeof origin['id'] == 'string') {
+            this.id = origin['id'];
+        }
+        else if (typeof origin['uuid'] == 'string') {
+            this.id = origin['uuid'];
+        }
+        else {
+            throw ReferenceError(`Notch ID is not defined.`);
+        }
+        if (typeof origin['config'] == 'object') {
+            this.config = origin['config'];
         }
     }
 }
@@ -171,7 +162,7 @@ export class TCManifest {
                 throw TypeError(`{tcmanifest}.speed is not TrainSpeedSpec. (${typeof origin['speed']})`);
             }
             if (typeof origin['notch'] == 'object') {
-                this.notch = new TrainNotch(origin['notch']);
+                this.notch = origin['notch'];
             }
             else if (typeof origin['notch'] == 'undefined') {
                 this.notch = undefined;

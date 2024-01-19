@@ -242,7 +242,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
                 ev.source.sendMessage(message);
                 return;
             }
-            evdata = new Event('deleteBefore', undefined, train, ev.source, isworking);
+            evdata = new Event('deleteSignal', undefined, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:notch_power":
@@ -256,7 +256,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('notchBefore', { operation: 'power' }, train, ev.source, isworking);
+            evdata = new Event('notchSignal', { operation: 'power' }, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:notch_neutral":
@@ -270,7 +270,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('notchBefore', { operation: 'neutral' }, train, ev.source, isworking);
+            evdata = new Event('notchSignal', { operation: 'neutral' }, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:notch_break":
@@ -284,7 +284,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('notchBefore', { operation: 'break' }, train, ev.source, isworking);
+            evdata = new Event('notchSignal', { operation: 'break' }, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:notch_eb":
@@ -298,7 +298,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('notchBefore', { operation: 'eb' }, train, ev.source, isworking);
+            evdata = new Event('notchSignal', { operation: 'eb' }, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:open_left":
@@ -416,7 +416,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('rideBefore', undefined, train, ev.source, isworking);
+            evdata = new Event('rideSignal', undefined, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:direction":
@@ -430,7 +430,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('directionBefore', undefined, train, ev.source, isworking);
+            evdata = new Event('directionSignal', undefined, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:dest":
@@ -444,7 +444,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('destBefore', { 'operation': 'foward' }, train, ev.source, isworking);
+            evdata = new Event('destSignal', { 'operation': 'foward' }, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:dest_reverse":
@@ -458,7 +458,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('destBefore', { 'operation': 'reverse' }, train, ev.source, isworking);
+            evdata = new Event('destSignal', { 'operation': 'reverse' }, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:crew_panel":
@@ -472,7 +472,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('open_crew_panelBefore', undefined, train, ev.source, isworking);
+            evdata = new Event('open_crew_panelSignal', undefined, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:seat_control":
@@ -487,200 +487,8 @@ world.afterEvents.itemUse.subscribe((ev) => {
                 }
                 if (typeof train == "undefined")
                     return;
-                evdata = new Event('open_seat_controlBefore', undefined, train, ev.source, isworking);
+                evdata = new Event('open_seat_controlSignal', undefined, train, ev.source, isworking);
                 evdata.send();
-            }
-            break;
-        case "tcmb:delete_ground_facilities":
-            block_location = ev.source.getBlockFromViewDirection(raycast_query);
-            if (typeof block_location == 'undefined')
-                return;
-            block_dimension = block_location.block.dimension;
-            ground_facilitiy = block_dimension.getEntities({
-                families: ['ground_facilities'],
-                closest: 1,
-                maxDistance: 5,
-                location: block_location.block.location
-            })[0];
-            if (typeof ground_facilitiy != 'undefined') {
-                ev.source.runCommandAsync('playsound random.click @s');
-                ground_facilitiy.triggerEvent('delete');
-            }
-            break;
-        case "tcmb:num_adjust_check":
-            block_location = ev.source.getBlockFromViewDirection(raycast_query);
-            if (typeof block_location == 'undefined')
-                return;
-            block_dimension = block_location.block.dimension;
-            ground_facilitiy = block_dimension.getEntities({
-                families: ['num_adjust'],
-                closest: 1,
-                maxDistance: 5,
-                location: block_location.block.location
-            })[0];
-            if (typeof ground_facilitiy != 'undefined') {
-                ev.source.runCommandAsync('playsound random.click @s');
-                switch (true) {
-                    case ground_facilitiy.typeId == 'tcmb:atacs_transponder':
-                        {
-                            ground_facilitiy.runCommandAsync('function atacs_transponder_on_off_check');
-                        }
-                        break;
-                    case ground_facilitiy.matches({ families: ['pdft'] }):
-                        {
-                            ground_facilitiy.runCommandAsync('function pdft_channel');
-                        }
-                        break;
-                    case ground_facilitiy.matches({ families: ['ats'] }):
-                        {
-                            ground_facilitiy.runCommandAsync('function transponder/ats_speed');
-                        }
-                        break;
-                    case ground_facilitiy.typeId == 'tcmb:atc_transponder':
-                        {
-                            ground_facilitiy.runCommandAsync('function transponder/atc_speed');
-                        }
-                        break;
-                    case ground_facilitiy.typeId == 'tcmb:tasc_hosei':
-                        {
-                            ground_facilitiy.runCommandAsync('function tasc_distance');
-                        }
-                        break;
-                    case ground_facilitiy.typeId == 'tcmb:d-atc_line_transponder':
-                        {
-                            ground_facilitiy.runCommandAsync('function d-atc_line_check');
-                        }
-                        break;
-                    case ground_facilitiy.typeId == 'tcmb:d-atc_block_transponder':
-                        {
-                            ground_facilitiy.runCommandAsync('function d-atc_block_check');
-                        }
-                        break;
-                }
-            }
-            break;
-        case "tcmb:num_adjust_plus":
-            block_location = ev.source.getBlockFromViewDirection(raycast_query);
-            if (typeof block_location == 'undefined')
-                return;
-            block_dimension = block_location.block.dimension;
-            ground_facilitiy = block_dimension.getEntities({
-                families: ['num_adjust'],
-                closest: 1,
-                maxDistance: 5,
-                location: block_location.block.location
-            })[0];
-            if (typeof ground_facilitiy != 'undefined') {
-                ev.source.runCommandAsync('playsound random.click @s');
-                switch (true) {
-                    case ground_facilitiy.typeId == 'tcmb:atacs_transponder':
-                        {
-                            ground_facilitiy.runCommandAsync('function atacs_transponder_on_off');
-                        }
-                        break;
-                    case ground_facilitiy.matches({ families: ['pdft'] }):
-                        {
-                            ground_facilitiy.runCommandAsync('function pdft_channel_plus');
-                        }
-                        break;
-                    case ground_facilitiy.matches({ families: ['ats'] }):
-                        {
-                            ground_facilitiy.runCommandAsync('function transponder/ats_speed_plus');
-                        }
-                        break;
-                    case ground_facilitiy.typeId == 'tcmb:atc_transponder':
-                        {
-                            ground_facilitiy.runCommandAsync('function transponder/atc_speed_plus');
-                        }
-                        break;
-                    case ground_facilitiy.typeId == 'tcmb:tasc_hosei':
-                        {
-                            ground_facilitiy.runCommandAsync('function tasc_distance_plus');
-                        }
-                        break;
-                    case ground_facilitiy.typeId == 'tcmb:d-atc_line_transponder':
-                        {
-                            ground_facilitiy.runCommandAsync('function d-atc_line_plus');
-                        }
-                        break;
-                    case ground_facilitiy.typeId == 'tcmb:d-atc_block_transponder':
-                        {
-                            ground_facilitiy.runCommandAsync('function d-atc_block_plus');
-                        }
-                        break;
-                }
-            }
-            break;
-        case "tcmb:num_adjust_minus":
-            block_location = ev.source.getBlockFromViewDirection(raycast_query);
-            if (typeof block_location == 'undefined')
-                return;
-            block_dimension = block_location.block.dimension;
-            ground_facilitiy = block_dimension.getEntities({
-                families: ['num_adjust'],
-                closest: 1,
-                maxDistance: 5,
-                location: block_location.block.location
-            })[0];
-            if (typeof ground_facilitiy != 'undefined') {
-                ev.source.runCommandAsync('playsound random.click @s');
-                switch (true) {
-                    case ground_facilitiy.typeId == 'tcmb:atacs_transponder':
-                        {
-                            ground_facilitiy.runCommandAsync('function atacs_transponder_on_off');
-                        }
-                        break;
-                    case ground_facilitiy.matches({ families: ['pdft'] }):
-                        {
-                            ground_facilitiy.runCommandAsync('function pdft_channel_minus');
-                        }
-                        break;
-                    case ground_facilitiy.matches({ families: ['ats'] }):
-                        {
-                            ground_facilitiy.runCommandAsync('function transponder/ats_speed_minus');
-                        }
-                        break;
-                    case ground_facilitiy.typeId == 'tcmb:atc_transponder':
-                        {
-                            ground_facilitiy.runCommandAsync('function transponder/atc_speed_minus');
-                        }
-                        break;
-                    case ground_facilitiy.typeId == 'tcmb:tasc_hosei':
-                        {
-                            ground_facilitiy.runCommandAsync('function tasc_distance_minus');
-                        }
-                        break;
-                    case ground_facilitiy.typeId == 'tcmb:d-atc_line_transponder':
-                        {
-                            ground_facilitiy.runCommandAsync('function d-atc_line_minus');
-                        }
-                        break;
-                    case ground_facilitiy.typeId == 'tcmb:d-atc_block_transponder':
-                        {
-                            ground_facilitiy.runCommandAsync('function d-atc_block_minus');
-                        }
-                        break;
-                }
-            }
-            break;
-        case "tcmb:rotate_ground_facilities":
-            block_location = ev.source.getBlockFromViewDirection(raycast_query);
-            if (typeof block_location == 'undefined')
-                return;
-            block_dimension = block_location.block.dimension;
-            ground_facilitiy = block_dimension.getEntities({
-                families: ['num_adjust'],
-                closest: 1,
-                maxDistance: 5,
-                location: block_location.block.location
-            })[0];
-            if (typeof ground_facilitiy != 'undefined') {
-                if (ground_facilitiy.matches({ families: ['pdft'] })) {
-                    ground_facilitiy.runCommandAsync('function pdft_rotate');
-                }
-                else {
-                    ground_facilitiy.runCommandAsync('function transponder_rotate');
-                }
             }
             break;
     }
@@ -715,7 +523,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
                 }
                 if (typeof train == "undefined")
                     return;
-                let evdata = new Event('notchBefore', { operation: 'power' }, train, player, isworking);
+                let evdata = new Event('notchSignal', { operation: 'power' }, train, player, isworking);
                 evdata.send();
             }
             break;
@@ -731,7 +539,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
                 }
                 if (typeof train == "undefined")
                     return;
-                let evdata = new Event('notchBefore', { operation: 'neutral' }, train, player, isworking);
+                let evdata = new Event('notchSignal', { operation: 'neutral' }, train, player, isworking);
                 evdata.send();
             }
             break;
@@ -747,7 +555,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
                 }
                 if (typeof train == "undefined")
                     return;
-                let evdata = new Event('notchBefore', { operation: 'break' }, train, player, isworking);
+                let evdata = new Event('notchSignal', { operation: 'break' }, train, player, isworking);
                 evdata.send();
             }
             break;
@@ -763,7 +571,7 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
                 }
                 if (typeof train == "undefined")
                     return;
-                let evdata = new Event('notchBefore', { operation: 'eb' }, train, player, isworking);
+                let evdata = new Event('notchSignal', { operation: 'eb' }, train, player, isworking);
                 evdata.send();
             }
             break;
