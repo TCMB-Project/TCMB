@@ -37,8 +37,6 @@ let perf:object = {
 let perf_monitor: boolean = false;
 let monitor_runid = 0;
 
-let writing_train_db:boolean = false;
-
 let crew_panel_buttons: PanelButton[] = [];
 crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.door_control'}, 'textures/items/door_control', undefined));
 crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.electricity_control'}, 'textures/items/electricity_control', 'tcmb:engine_electricity_control'));
@@ -58,16 +56,11 @@ async function initializeTrain(entity: Entity){
                 closest: 2,
                 location: entity.location
             }
-            
-            while(writing_train_db);
-            writing_train_db = true;
             let bodies: Entity[] = entity.dimension.getEntities(query);
             let train = new TCMBTrain(entity, undefined, bodies);
-
             let type = bodies[0].typeId;
 
-            tcmb_trains.push(train);
-            writing_train_db = false;
+            tcmb_trains.set(train.entity.id, train);
 
             if(entity.hasTag('tcmanifest')){
                 entity.setProperty('tcmb:tcmanifest', bodies[0].getProperty(type.substring(0, type.length - 5)+':tcmanifest'));
@@ -77,19 +70,17 @@ async function initializeTrain(entity: Entity){
             if(perf_monitor) perf_obj.setScore('spawn', (new Date().getTime()) - start);
         }
     }catch(error){
-        writing_train_db = false;
         throw error;
     }
 }
 
 
-let tcmb_trains: TCMBTrain[] = [];
+let tcmb_trains: Map<string, TCMBTrain> = new Map();
 
 //main operation
 system.runInterval(() =>{
     if(perf_monitor) var start: number = (new Date()).getTime();
-    var tcmb_cars: TCMBTrain[] = tcmb_trains;
-    for(const train of tcmb_cars){
+    for(const [entityId, train] of tcmb_trains){
         const tcmb_car = train.entity;
         if(!tcmb_car.isValid()) continue;
         var bodies = train.body;
@@ -140,7 +131,7 @@ system.runInterval(() =>{
 
 //battery charge and self-discharge
 system.runInterval(()=>{
-    for(const train of tcmb_trains){
+    for(const [entityId, train] of tcmb_trains){
         if(!train.entity.isValid()) continue;
         let typeId = train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
         if(trains_manifest.has(typeId)){
@@ -196,7 +187,7 @@ system.runInterval(()=>{
 //auto speed down
 system.runInterval(()=>{
     if(optionObject instanceof ScoreboardObjective && optionObject.getScore('auto_speed_down') != 0){
-        for(const train of tcmb_trains){
+        for(const [entityId, train] of tcmb_trains){
             if(!train.entity.isValid()) continue;
             if(train.entity.hasTag('n') && !train.entity.hasTag('tasc_on') && !train.entity.hasTag('tc_child')){
                 train.entity.runCommandAsync('scriptevent tcmb:speed down');
@@ -207,7 +198,7 @@ system.runInterval(()=>{
 
 //rail assist
 system.runInterval(()=>{
-    for(const train of tcmb_trains){
+    for(const [entityId, train] of tcmb_trains){
         const tcmb_car = train.entity;
         if(!tcmb_car.isValid()) continue;
         let block = tcmb_car.dimension.getBlock(tcmb_car.location);
@@ -386,7 +377,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
 
             if(ev.message.includes('close')){
                 train = ev.sourceEntity;
-                var bodies = tcmb_trains.filter((car)=> car.entity.id == ev.sourceEntity.id)[0].body;
+                var bodies = tcmb_trains.get(train.id).body;
                 if(ev.message.includes('close')) train.removeTag(ev.message.replace('close', 'open'));
                 for(const body of bodies){
                     body.triggerEvent(ev.message);
@@ -423,7 +414,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
             event_report.reply();
         break;
         case "tcmb:engine_delete":{
-            let delete_train: TCMBTrain = tcmb_trains.filter((train)=> train.body[0].id == ev.sourceEntity.id || train.body[1].id == ev.sourceEntity.id)[0];
+            let delete_train: TCMBTrain = tcmb_trains.get(ev.sourceEntity.id);
             let tcmb_cars: Entity[] = overworld.getEntities({
                 type: 'tcmb:tcmb_car',
                 maxDistance: 2,
@@ -465,9 +456,9 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
             if(tags[rollVoltage] == 'voltage_b') currentVoltage = 0;
 
             const Electricityform = new ModalFormData()
-                .title("電気系統管理パネル")
-                .slider("行先・種別幕", 1, 20, 1, currentDest)
-                .toggle("ワンマン",currentOnemanStatus);
+                .title({translate: "tcmb.ui.electricity.title"})
+                .slider({translate: "tcmb.ui.electricity.dest"}, 1, 20, 1, currentDest)
+                .toggle({translate: "tcmb.ui.electricity.oneman"},currentOnemanStatus);
             if(train.hasTag('only_vol1')){
                 Electricityform.toggle('パンタグラフ', !!currentVoltage);
             }else if(train.hasTag('only_vol2')){
@@ -533,7 +524,8 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                 if(ev.sourceType != 'Entity') return;
                 if(ev.sourceEntity.typeId != 'tcmb:tcmb_car') return;
                 if(!ev.sourceEntity.isValid()) return;
-                let train: TCMBTrain = tcmb_trains.filter((train)=>train.entity.id == ev.sourceEntity.id)[0];
+
+                let train: TCMBTrain = tcmb_trains.get(ev.sourceEntity.id);
                 let typeId = train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
                 let tags = train.entity.getTags();
                 let speed: any = speedObject.getScore(train.entity);
@@ -616,7 +608,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
             case "tcmb_minecart_engine:regist_tcmanifest":{
                 let message: unknown = JSON.parse(ev.message);
                 if(ev.sourceType != ScriptEventSource.Server){
-                    console.warn('[tcmb:reply] Evnt source is not Server.');
+                    console.warn('[tcmb:reply] Event source is not Server.');
                 }
                 if(typeof message == "object" && typeof message['type'] == 'string'){
                     trains_manifest.set(message['type'], new TCManifest(ev.message));
@@ -625,7 +617,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
             break;
             case "tcmb_minecart_engine:voltage_battery":{
                 if(ev.sourceEntity.hasTag('has_battery')){
-                    let train: TCMBTrain = tcmb_trains.filter((train)=>train.entity.id == ev.sourceEntity.id)[0];
+                    let train: TCMBTrain = tcmb_trains.get(ev.sourceEntity.id);
                     train.entity.removeTag('voltage_0');
                     train.entity.removeTag('voltage_1');
                     train.entity.removeTag('voltage_2');
@@ -668,10 +660,10 @@ system.afterEvents.scriptEventReceive.subscribe( ev =>{
                 console.log(JSON.stringify(evdata))
 
                 const Seatform = new ModalFormData()
-                    .title("座席管理パネル")
-                    .slider("座席設定", 1, 8, 1, currentSeatStatus);
+                    .title({translate: 'tcmb.ui.seat.title'})
+                    .slider({translate: 'tcmb.ui.seat.setting'}, 1, 8, 1, currentSeatStatus);
                 if(!currentCustomSeatStatus && evdata.isWorking){
-                    Seatform.toggle("カスタム座席 ※一度オンにするとオフにできません。",currentCustomSeatStatus);
+                    Seatform.toggle({translate: 'tcmb.ui.seat.custom'} ,currentCustomSeatStatus);
                 }
                 Seatform.show(player).then( rawResponse => {
                     if(rawResponse.canceled) return;
@@ -744,16 +736,14 @@ let init_entities: Entity[] = overworld.getEntities({families: ["tcmb_car"], typ
 init_entities = init_entities.concat(nether.getEntities({families: ["tcmb_car"], type: "tcmb:tcmb_car"}));
 init_entities = init_entities.concat(the_end.getEntities({families: ["tcmb_car"], type: "tcmb:tcmb_car"}));
 for(const init_train of init_entities){
-    let initialized = tcmb_trains.filter((train)=> train.entity.id == init_train.id)[0];
-    if(typeof initialized == 'undefined') initializeTrain(init_train);
+    if(!tcmb_trains.has(init_train.id)) initializeTrain(init_train);
 }
 
 world.afterEvents.entityRemove.subscribe(async (event)=>{
     if(perf_monitor) var start: number = (new Date()).getTime();
-    while(writing_train_db);
-    writing_train_db = true;
-    tcmb_trains = tcmb_trains.filter((train)=> train.entity.id != event.removedEntityId);
-    writing_train_db = false;
+
+    tcmb_trains.delete(event.removedEntityId);
+    
     if(perf_monitor) perf_obj.setScore('remove', (new Date().getTime()) - start);
 }, {
     entityTypes: ['tcmb:tcmb_car']

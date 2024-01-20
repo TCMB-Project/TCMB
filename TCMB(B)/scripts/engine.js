@@ -487,9 +487,9 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                 if (tags[rollVoltage] == 'voltage_b')
                     currentVoltage = 0;
                 const Electricityform = new ModalFormData()
-                    .title("電気系統管理パネル")
-                    .slider("行先・種別幕", 1, 20, 1, currentDest)
-                    .toggle("ワンマン", currentOnemanStatus);
+                    .title({ translate: "tcmb.ui.electricity.title" })
+                    .slider({ translate: "tcmb.ui.electricity.dest" }, 1, 20, 1, currentDest)
+                    .toggle({ translate: "tcmb.ui.electricity.oneman" }, currentOnemanStatus);
                 if (train.hasTag('only_vol1')) {
                     Electricityform.toggle('パンタグラフ', !!currentVoltage);
                 }
@@ -706,10 +706,10 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                 var bodies = overworld.getEntities(query);
                 console.log(JSON.stringify(evdata));
                 const Seatform = new ModalFormData()
-                    .title("座席管理パネル")
-                    .slider("座席設定", 1, 8, 1, currentSeatStatus);
+                    .title({ translate: 'tcmb.ui.seat.title' })
+                    .slider({ translate: 'tcmb.ui.seat.setting' }, 1, 8, 1, currentSeatStatus);
                 if (!currentCustomSeatStatus && evdata.isWorking) {
-                    Seatform.toggle("カスタム座席 ※一度オンにするとオフにできません。", currentCustomSeatStatus);
+                    Seatform.toggle({ translate: 'tcmb.ui.seat.custom' }, currentCustomSeatStatus);
                 }
                 Seatform.show(player).then(rawResponse => {
                     if (rawResponse.canceled)

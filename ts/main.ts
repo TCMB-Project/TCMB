@@ -3,7 +3,7 @@
 * (c) TCMB Project
 * Apache License 2.0
 */
-import { world, system, Dimension, Entity, EntityQueryOptions, Player, BlockRaycastOptions, BlockRaycastHit } from "@minecraft/server";
+import { world, system, Dimension, Entity, EntityQueryOptions, Player, BlockRaycastOptions, BlockRaycastHit, RawMessage } from "@minecraft/server";
 import { Event } from "./classes";
 import { dummy } from "./engine";
 
@@ -71,7 +71,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev => {
                     working.set(work_player.id, work_train);
                     work_train.addTag('tcmb_riding');
                     work_train.addTag('tcmb_riding_'+work_player.id);
-                    work_player.sendMessage('乗務を開始しました。');
+                    work_player.sendMessage({translate: 'tcmb.message.work.start'});
 
                 }else if(msg.type == "end" && typeof msg.playerName == "string"){
                     let work_player: Player | undefined = world.getPlayers({name:msg.playerName})[0];
@@ -83,7 +83,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev => {
                     let end_result = working.delete(work_player.id);
                     if(!end_result) throw Error('[tcmb:work_control] failed to remove working data.');
 
-                    work_player.sendMessage('乗務を終了しました。');
+                    work_player.sendMessage({translate: 'tcmb.message.work.end'});
 
                 }else if(msg.type == 'toggle' && typeof msg.playerName == 'string' && typeof msg.entity == 'string'){
                     let work_player: Player | undefined = world.getPlayers({name:msg.playerName})[0];
@@ -103,7 +103,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev => {
                         let end_result = working.delete(work_player.id);
                         if(!end_result) throw Error('[tcmb:work_control] failed to remove working data.');
     
-                        work_player.sendMessage('乗務を終了しました。');
+                        work_player.sendMessage({translate: 'tcmb.message.work.end'});
                     }else{
                         let work_train: Entity | undefined = world.getEntity(msg.entity);
                         if(typeof work_train == "undefined") throw Error('[tcmb:work_control] operation entity not found');
@@ -113,7 +113,7 @@ system.afterEvents.scriptEventReceive.subscribe( ev => {
                         working.set(work_player.id, work_train);
                         work_train.addTag('tcmb_riding');
                         work_train.addTag('tcmb_riding_'+work_player.id);
-                        work_player.sendMessage('乗務を開始しました。');
+                        work_player.sendMessage({translate: 'tcmb.message.work.start'});
                     }
                 }else if(msg.type == "getStatus" && typeof msg.response == "string"){
                     if(typeof msg.playerName == 'string'){
@@ -193,7 +193,7 @@ world.afterEvents.itemUse.subscribe((ev)=>{
             train = dimension.getEntities(event_train_query)[0];
             if(typeof train == "undefined") return;
             if(working.has(ev.source.id) && working.get(ev.source.id).id == train.id){
-                ev.source.sendMessage('§c乗務中のため削除できません。');
+                ev.source.sendMessage({translate: 'tcmb.message.cannot_remove.working'});
                 return;
             }else if(train.hasTag('tcmb_riding')){
                 let working_player = [];
@@ -208,13 +208,20 @@ world.afterEvents.itemUse.subscribe((ev)=>{
                         }
                     }
                 }
-                let message: string;
+                let message_with: any = [];
                 if(working_player.length != 0){
-                    message = `§cまだ${working_player.join(', ')}${offline_player?'と'+offline_player+'人のオフラインのプレイヤー':''}が乗務しています。`;
+                    message_with[0] = `${working_player.join(', ')}`;
+                    if(offline_player >= 1){
+                        message_with[1] = {translate: 'tcmb.message.cannot_remove.and_offline_player', with: [offline_player.toString()]}
+                    }
+
+                    ev.source.sendMessage({translate: 'tcmb.message.cannot_remove.ridden', with: message_with});
                 }else{
-                    message = `§cまだ${offline_player+'人のオフラインのプレイヤー'}が乗務しています。`
+                    ev.source.sendMessage({
+                        translate: 'tcmb.message.cannot_remove.working_offline_player',
+                        with: [offline_player.toString()]
+                    });
                 }
-                ev.source.sendMessage(message);
                 return;
             }
             evdata = new Event('deleteSignal', undefined, train, ev.source, isworking);

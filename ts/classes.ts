@@ -5,39 +5,18 @@
 */
 import { world, Entity, Player, RawMessage } from "@minecraft/server";
 
-export class StringableEntity{
-    type: string;
-    location: any = {x:-0, y:-0, z:-0};
-    id: string;
-    constructor(entity: Entity){
-        this.type = entity.typeId;
-        this.location = { x: entity.location.x, y: entity.location.y, z: entity.location.z };
-        this.id = entity.id;
-    }
-}
-
-export class StringableCar extends StringableEntity{
-}
-
-export class StringablePlayer extends StringableEntity{
-    name: string;
-    constructor(player: Player){
-        super(player);
-        this.name = player.name;
-    }
-}
-
 export class Event{
     name: string;
-    entity: StringableCar | undefined;
-    player: StringablePlayer | undefined;
+    entity: {typeId: string, id: string} | undefined;
+    player: {name: string, id: string} | undefined;
     status: object;
     isWorking: boolean;
     constructor(name:string, status: object, car:Entity | undefined, player:Player | undefined, working: boolean = false){
         this.name = name;
         this.status = status;
-        this.entity = car?new StringableCar(car):undefined;
-        this.player = player?new StringablePlayer(player):undefined;
+        this.entity.typeId = car?car.typeId:undefined;
+        this.entity.id = car?car.id:undefined;
+        this.player = player?{name: player.name, id: player.id}:undefined;
         this.isWorking = working;
     }
 
@@ -70,31 +49,14 @@ export class PanelButton{
     }
 }
 
-export type StorageData = string | number | undefined | null | Entity; 
 export type TCManifestMap = Map<string, TCManifest>;
 
 export class TCMBTrain{
     entity: Entity;
-    working: Player | undefined;
     body: Entity[];
-    sessionStorage: object;
-    constructor(car:Entity, working:Player | undefined = undefined, body:Entity[] | undefined = undefined){
+    constructor(car:Entity, working:undefined = undefined, body:Entity[] | undefined = undefined){
         this.entity = car;
-        this.working = working;
         this.body = body;
-        this.sessionStorage = {}
-    }
-    setWorkingPlayer(working:Player | undefined){
-        this.working = working;
-    }
-    setStore(key: string, value: StorageData){
-        this.sessionStorage[key] = value;
-    }
-    getStore(key: string){
-        return this.sessionStorage[key];
-    }
-    removeStore(key){
-        delete this.sessionStorage[key];
     }
 }
 

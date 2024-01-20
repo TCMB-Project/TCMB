@@ -13,7 +13,7 @@ item.tcmb:delete_train.name=Delete the car
 item.tcmb:ride.name=Ride
 item.tcmb:direction.name=Reversal of direction
 item.tcmb:dest.name=Destination indication change(foward)
-item.tcmb:dest_reverse.name=Destination indication change(reverce)
+item.tcmb:dest_reverse.name=Destination indication change(reverse)
 item.tcmb:open_left.name=Open(left)
 item.tcmb:open_right.name=Open(right)
 item.tcmb:open_all.name=Open(all doors)
@@ -21,18 +21,34 @@ item.tcmb:oneman_open_left.name=Open(front side only/left)
 item.tcmb:oneman_open_right.name=Open(front side only/right)
 item.tcmb:close.name=Close
 item.tcmb:door_control.name=Door control
-item.tcmb:seat_control.name=Seat Control Panel
-item.tcmb:num_adjust_check.name=Confirmation of ground facility values
-item.tcmb:num_adjust_plus.name=Increment ground facility value
-item.tcmb:num_adjust_minus.name=Decrement ground facility value
-item.tcmb:delete_ground_facilities.name=Delete ground facility
+item.tcmb:seat_control.name=Seat control panel
+item.spawn_egg.entity.tcmb:num_adjust_check.name=Confirmation of ground facility values
+item.spawn_egg.entity.tcmb:num_adjust_plus.name=Increment ground facility value
+item.spawn_egg.entity.tcmb:num_adjust_minus.name=Decrement ground facility value
+item.spawn_egg.entity.tcmb:delete_ground_facilities.name=Delete ground facility
+item.spawn_egg.entity.tcmb:rotate_ground_facilities.name=Rotate ground facility
 
 tcmb.message.auto_speed_down.enabled=Deceleration when coasting is §aenabled§r.
 tcmb.message.auto_speed_down.disabled=Deceleration when coasting is §cdisabled§r.
 
+tcmb.message.work.start=Started working.
+tcmb.message.work.end=Ended working.
+tcmb.message.cannot_remove.working=§cYou cannot remove this car because you are working on it.
+tcmb.message.cannot_remove.ridden=§cThis train is still being driven by %s.
+tcmb.message.cannot_remove.and_offline_player=and %s offline player(s).
+tcmb.message.cannot_remove.working_offline_player=§cThis train is still being driven by %s offline player(s).
+
 tcmb.ui.crew_panel.electricity_control=Electrical system
 tcmb.ui.crew_panel.door_control=Door control
-tcmb.ui.crew_panel.seat_control=Seat Control Panel
+tcmb.ui.crew_panel.seat_control=Seat control panel
 tcmb.ui.crew_panel.eb=Emergency Break
 tcmb.ui.crew_panel.direction=Reversal of direction
 tcmb.ui.crew_panel.work=Start/End Working
+
+tcmb.ui.electricity.title=Electrical system control panel
+tcmb.ui.electricity.dest=Destination/Type indication
+tcmb.ui.electricity.oneman=One-person operation
+
+tcmb.ui.seat.title=Seat control panel
+tcmb.ui.seat.setting=Seat setting
+tcmb.ui.seat.custom=Custom seat (Notice: Once turned on, it cannot be turned off.)
