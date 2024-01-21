@@ -214,7 +214,7 @@ system.runInterval(()=>{
 }, 5);
 
 //events/functions
-system.afterEvents.scriptEventReceive.subscribe( ev =>{
+system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
     var train: Entity;
     switch(ev.id){
         case "tcmb:event":
@@ -743,7 +743,7 @@ world.afterEvents.entityRemove.subscribe(async (event)=>{
     if(perf_monitor) var start: number = (new Date()).getTime();
 
     tcmb_trains.delete(event.removedEntityId);
-    
+
     if(perf_monitor) perf_obj.setScore('remove', (new Date().getTime()) - start);
 }, {
     entityTypes: ['tcmb:tcmb_car']

@@ -4,28 +4,13 @@
 * Apache License 2.0
 */
 import { world } from "@minecraft/server";
-export class StringableEntity {
-    constructor(entity) {
-        this.location = { x: -0, y: -0, z: -0 };
-        this.type = entity.typeId;
-        this.location = { x: entity.location.x, y: entity.location.y, z: entity.location.z };
-        this.id = entity.id;
-    }
-}
-export class StringableCar extends StringableEntity {
-}
-export class StringablePlayer extends StringableEntity {
-    constructor(player) {
-        super(player);
-        this.name = player.name;
-    }
-}
 export class Event {
     constructor(name, status, car, player, working = false) {
         this.name = name;
         this.status = status;
-        this.entity = car ? new StringableCar(car) : undefined;
-        this.player = player ? new StringablePlayer(player) : undefined;
+        this.entity.typeId = car ? car.typeId : undefined;
+        this.entity.id = car ? car.id : undefined;
+        this.player = player ? { name: player.name, id: player.id } : undefined;
         this.isWorking = working;
     }
     send() {
@@ -53,21 +38,7 @@ export class PanelButton {
 export class TCMBTrain {
     constructor(car, working = undefined, body = undefined) {
         this.entity = car;
-        this.working = working;
         this.body = body;
-        this.sessionStorage = {};
-    }
-    setWorkingPlayer(working) {
-        this.working = working;
-    }
-    setStore(key, value) {
-        this.sessionStorage[key] = value;
-    }
-    getStore(key) {
-        return this.sessionStorage[key];
-    }
-    removeStore(key) {
-        delete this.sessionStorage[key];
     }
 }
 export class TrainSpeedSpec {

@@ -208,14 +208,14 @@ world.afterEvents.itemUse.subscribe((ev)=>{
                         }
                     }
                 }
-                let message_with: any = [];
+                let message_with: RawMessage[] = [];
                 if(working_player.length != 0){
-                    message_with[0] = `${working_player.join(', ')}`;
+                    message_with[0] = {text: `${working_player.join(', ')}`};
                     if(offline_player >= 1){
                         message_with[1] = {translate: 'tcmb.message.cannot_remove.and_offline_player', with: [offline_player.toString()]}
                     }
 
-                    ev.source.sendMessage({translate: 'tcmb.message.cannot_remove.ridden', with: message_with});
+                    ev.source.sendMessage({translate: 'tcmb.message.cannot_remove.ridden', with: {rawtext: message_with}});
                 }else{
                     ev.source.sendMessage({
                         translate: 'tcmb.message.cannot_remove.working_offline_player',
