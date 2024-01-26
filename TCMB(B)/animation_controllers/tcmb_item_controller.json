@@ -1,66 +1,6 @@
 {
     "format_version": "1.18.0",
     "animation_controllers":{
-        "controller.animation.notch_power":{
-            "states":{
-                "default":{
-                    "transitions":[
-                        {"run": "(1.0)"}
-                    ]
-                },
-                "run":{
-                    "on_entry":[
-                        "/execute as @p at @s run scriptevent tcmb_mobile_items:notch_power",
-                        "@s delete"
-                    ]
-                }
-            }
-        },
-        "controller.animation.notch_neutral":{
-            "states":{
-                "default":{
-                    "transitions":[
-                        {"run": "(1.0)"}
-                    ]
-                },
-                "run":{
-                    "on_entry":[
-                        "/execute as @p at @s run scriptevent tcmb_mobile_items:notch_neutral",
-                        "@s delete"
-                    ]
-                }
-            }
-        },
-        "controller.animation.notch_break":{
-            "states":{
-                "default":{
-                    "transitions":[
-                        {"run": "(1.0)"}
-                    ]
-                },
-                "run":{
-                    "on_entry":[
-                        "/execute as @p at @s run scriptevent tcmb_mobile_items:notch_break",
-                        "@s delete"
-                    ]
-                }
-            }
-        },
-        "controller.animation.notch_eb":{
-            "states":{
-                "default":{
-                    "transitions":[
-                        {"run": "(1.0)"}
-                    ]
-                },
-                "run":{
-                    "on_entry":[
-                        "/execute as @p at @s run scriptevent tcmb_mobile_items:notch_eb",
-                        "@s delete"
-                    ]
-                }
-            }
-        },
         "controller.animation.delete_ground_facilities":{
             "states":{
                 "default":{

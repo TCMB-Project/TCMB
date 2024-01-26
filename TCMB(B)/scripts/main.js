@@ -500,6 +500,9 @@ world.afterEvents.itemUse.subscribe((ev) => {
     }
 });
 //mobile enhance
+world.afterEvents.itemUseOn.subscribe((event) => {
+    console.log(event.itemStack.typeId);
+});
 system.afterEvents.scriptEventReceive.subscribe((event) => {
     let dimension = event.sourceEntity.dimension;
     let train;

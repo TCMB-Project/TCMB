@@ -415,25 +415,8 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
         break;
         case "tcmb:engine_delete":{
             let delete_train: TCMBTrain = tcmb_trains.get(ev.sourceEntity.id);
-            let tcmb_cars: Entity[] = overworld.getEntities({
-                type: 'tcmb:tcmb_car',
-                maxDistance: 2,
-                location: ev.sourceEntity.location
-            });
-            tcmb_cars = tcmb_cars.concat(nether.getEntities({
-                type: 'tcmb:tcmb_car',
-                maxDistance: 2,
-                location: ev.sourceEntity.location
-            }));
-            tcmb_cars = tcmb_cars.concat(the_end.getEntities({
-                type: 'tcmb:tcmb_car',
-                maxDistance: 2,
-                location: ev.sourceEntity.location
-            }));
+            delete_train.entity.triggerEvent('delete');
 
-            for(const tcmb_car of tcmb_cars){
-                tcmb_car.triggerEvent('delete');
-            }
             for(const body of delete_train.body){
                 body.teleport({ x: body.location.x, y: -128, z: body.location.z});
             }
@@ -635,7 +618,8 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
                 let evmsg = JSON.parse(ev.message);
                 let evdata = new Event(evmsg.name, evmsg.status, evmsg.entity, evmsg.player, evmsg.isWorking);
 
-                var tcmb_car = world.getEntity(evdata.entity.id);
+                let train = tcmb_trains.get(evdata.entity.id);
+                let tcmb_car = train.entity;
                 let player: Player;
                 let playerEntity: Entity = world.getEntity(evdata.player.id);
                 if(playerEntity instanceof Player){
@@ -643,21 +627,13 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
                 }else{
                     return;
                 }
+                let bodies = train.body;
 
                 //tcmb_car
                 let tags = tcmb_car.getTags();
                 var rollSeat: number = findFirstMatch(tags, "seat");
                 var currentSeatStatus: number = Number(tags[rollSeat].replace("seat",""));
                 var currentCustomSeatStatus = tags.includes('custom_seat');
-                //body
-                const tcmbCarLocation = tcmb_car.location;
-                var query = {
-                    families: ["tcmb_body"],
-                    closest: 2,
-                    location: { x: tcmbCarLocation.x, y: tcmbCarLocation.y, z: tcmbCarLocation.z }
-                }
-                var bodies = overworld.getEntities(query);
-                console.log(JSON.stringify(evdata))
 
                 const Seatform = new ModalFormData()
                     .title({translate: 'tcmb.ui.seat.title'})

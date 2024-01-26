@@ -9,6 +9,8 @@ import { dummy } from "./engine";
 
 new dummy;
 
+const max_distance = 40;
+
 const overworld: Dimension = world.getDimension("overworld");
 const nether: Dimension = world.getDimension("nether");
 const the_end: Dimension = world.getDimension("the_end");
@@ -178,7 +180,7 @@ world.afterEvents.itemUse.subscribe((ev)=>{
         families: ["tcmb_car"],
         location: ev.source.location,
         closest: 1,
-        maxDistance: 40
+        maxDistance: max_distance
     };
 
     let raycast_query: BlockRaycastOptions = {
@@ -442,26 +444,22 @@ world.afterEvents.itemUse.subscribe((ev)=>{
 });
 
 //mobile enhance
-system.afterEvents.scriptEventReceive.subscribe((event)=>{
-    let dimension: Dimension = event.sourceEntity.dimension;
+world.afterEvents.itemUseOn.subscribe((event)=>{
+    let dimension: Dimension = event.source.dimension;
     let train: Entity;
     let isworking: boolean;
-    if(event.sourceType != 'Entity') return;
-    let playerEntity: Entity = event.sourceEntity;
-    let player: Player;
-    if(playerEntity instanceof Player) player = playerEntity;
+    let player: Player = event.source;
 
     let event_train_query:EntityQueryOptions = {
         families: ["tcmb_car"],
         location: player.location,
         closest: 1,
-        maxDistance: 40
+        maxDistance: max_distance
     };
-
-    switch(event.id){
-        case "tcmb_mobile_items:notch_power":{
-            if(working.has(event.sourceEntity.id)){
-                train = working.get(event.sourceEntity.id);
+    switch(event.itemStack.typeId){
+        case "tcmb:notch_power_spawn_egg":{
+            if(working.has(event.source.id)){
+                train = working.get(event.source.id);
                 isworking = true;
             }else{
                 train = dimension.getEntities(event_train_query)[0];
@@ -472,9 +470,9 @@ system.afterEvents.scriptEventReceive.subscribe((event)=>{
             evdata.send();
         }
         break;
-        case "tcmb_mobile_items:notch_neutral":{
-            if(working.has(event.sourceEntity.id)){
-                train = working.get(event.sourceEntity.id);
+        case "tcmb:notch_neutral_spawn_egg":{
+            if(working.has(event.source.id)){
+                train = working.get(event.source.id);
                 isworking = true;
             }else{
                 train = dimension.getEntities(event_train_query)[0];
@@ -485,9 +483,9 @@ system.afterEvents.scriptEventReceive.subscribe((event)=>{
             evdata.send();
         }
         break;
-        case "tcmb_mobile_items:notch_break":{
-            if(working.has(event.sourceEntity.id)){
-                train = working.get(event.sourceEntity.id);
+        case "tcmb:notch_break_spawn_egg":{
+            if(working.has(event.source.id)){
+                train = working.get(event.source.id);
                 isworking = true;
             }else{
                 train = dimension.getEntities(event_train_query)[0];
@@ -498,9 +496,9 @@ system.afterEvents.scriptEventReceive.subscribe((event)=>{
             evdata.send();
         }
         break;
-        case "tcmb_mobile_items:notch_eb":{
-            if(working.has(event.sourceEntity.id)){
-                train = working.get(event.sourceEntity.id);
+        case "tcmb:notch_eb_spawn_egg":{
+            if(working.has(event.source.id)){
+                train = working.get(event.source.id);
                 isworking = true;
             }else{
                 train = dimension.getEntities(event_train_query)[0];
@@ -512,8 +510,6 @@ system.afterEvents.scriptEventReceive.subscribe((event)=>{
         }
         break;
     }
-}, {
-    namespaces: ['tcmb_mobile_items']
 });
 
 overworld.runCommandAsync('scriptevent tcmb:work_control {"type":"reload"}');

@@ -8,8 +8,10 @@ export class Event {
     constructor(name, status, car, player, working = false) {
         this.name = name;
         this.status = status;
-        this.entity.typeId = car ? car.typeId : undefined;
-        this.entity.id = car ? car.id : undefined;
+        this.entity = car ? {
+            typeId: car.typeId,
+            id: car.id
+        } : undefined;
         this.player = player ? { name: player.name, id: player.id } : undefined;
         this.isWorking = working;
     }
@@ -49,6 +51,7 @@ export class TrainSpeedSpec {
         else {
             throw TypeError(`{tcmanifest}.speed.limit is not a number. (${typeof origin['limit']})`);
         }
+        this.evalby = typeof origin['evalby'] == 'string' ? origin['evalby'] : 'default';
         if (typeof origin['deceleration'] == 'object') {
             this.deceleration = origin['deceleration'];
         }
