@@ -7,6 +7,7 @@ import { world, system, Player } from "@minecraft/server";
 import { Event } from "./classes";
 import { dummy } from "./engine";
 new dummy;
+const max_distance = 40;
 const overworld = world.getDimension("overworld");
 const nether = world.getDimension("nether");
 const the_end = world.getDimension("the_end");
@@ -201,7 +202,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
         families: ["tcmb_car"],
         location: ev.source.location,
         closest: 1,
-        maxDistance: 40
+        maxDistance: max_distance
     };
     let raycast_query = {
         maxDistance: 8
@@ -501,29 +502,21 @@ world.afterEvents.itemUse.subscribe((ev) => {
 });
 //mobile enhance
 world.afterEvents.itemUseOn.subscribe((event) => {
-    console.log(event.itemStack.typeId);
-});
-system.afterEvents.scriptEventReceive.subscribe((event) => {
-    let dimension = event.sourceEntity.dimension;
+    let dimension = event.source.dimension;
     let train;
     let isworking;
-    if (event.sourceType != 'Entity')
-        return;
-    let playerEntity = event.sourceEntity;
-    let player;
-    if (playerEntity instanceof Player)
-        player = playerEntity;
+    let player = event.source;
     let event_train_query = {
         families: ["tcmb_car"],
         location: player.location,
         closest: 1,
-        maxDistance: 40
+        maxDistance: max_distance
     };
-    switch (event.id) {
-        case "tcmb_mobile_items:notch_power":
+    switch (event.itemStack.typeId) {
+        case "tcmb:notch_power_spawn_egg":
             {
-                if (working.has(event.sourceEntity.id)) {
-                    train = working.get(event.sourceEntity.id);
+                if (working.has(event.source.id)) {
+                    train = working.get(event.source.id);
                     isworking = true;
                 }
                 else {
@@ -536,10 +529,10 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
                 evdata.send();
             }
             break;
-        case "tcmb_mobile_items:notch_neutral":
+        case "tcmb:notch_neutral_spawn_egg":
             {
-                if (working.has(event.sourceEntity.id)) {
-                    train = working.get(event.sourceEntity.id);
+                if (working.has(event.source.id)) {
+                    train = working.get(event.source.id);
                     isworking = true;
                 }
                 else {
@@ -552,10 +545,10 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
                 evdata.send();
             }
             break;
-        case "tcmb_mobile_items:notch_break":
+        case "tcmb:notch_break_spawn_egg":
             {
-                if (working.has(event.sourceEntity.id)) {
-                    train = working.get(event.sourceEntity.id);
+                if (working.has(event.source.id)) {
+                    train = working.get(event.source.id);
                     isworking = true;
                 }
                 else {
@@ -568,10 +561,10 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
                 evdata.send();
             }
             break;
-        case "tcmb_mobile_items:notch_eb":
+        case "tcmb:notch_eb_spawn_egg":
             {
-                if (working.has(event.sourceEntity.id)) {
-                    train = working.get(event.sourceEntity.id);
+                if (working.has(event.source.id)) {
+                    train = working.get(event.source.id);
                     isworking = true;
                 }
                 else {
@@ -584,9 +577,23 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
                 evdata.send();
             }
             break;
+        case "tcmb:crew_panel_spawn_egg":
+            {
+                if (working.has(event.source.id)) {
+                    train = working.get(event.source.id);
+                    isworking = true;
+                }
+                else {
+                    train = dimension.getEntities(event_train_query)[0];
+                    isworking = false;
+                }
+                if (typeof train == "undefined")
+                    return;
+                let evdata = new Event('open_crew_panelSignal', undefined, train, player, isworking);
+                evdata.send();
+            }
+            break;
     }
-}, {
-    namespaces: ['tcmb_mobile_items']
 });
 overworld.runCommandAsync('scriptevent tcmb:work_control {"type":"reload"}');
 overworld.runCommandAsync('scriptevent tcmb:initialized');

@@ -509,6 +509,19 @@ world.afterEvents.itemUseOn.subscribe((event)=>{
             evdata.send();
         }
         break;
+        case "tcmb:crew_panel_spawn_egg":{
+            if(working.has(event.source.id)){
+                train = working.get(event.source.id);
+                isworking = true;
+            }else{
+                train = dimension.getEntities(event_train_query)[0];
+                isworking = false;
+            }
+            if(typeof train == "undefined") return;
+            let evdata = new Event('open_crew_panelSignal', undefined, train, player, isworking);
+            evdata.send();
+        }
+        break;
     }
 });
 
