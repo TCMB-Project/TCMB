@@ -132,50 +132,9 @@ export class TCManifest{
     battery: TrainBattery | undefined;
     constructor(origin_json: string){
         let origin: unknown = JSON.parse(origin_json);
-        if(typeof origin == 'object'){
-
-            if(typeof origin['name'] == 'string' || typeof origin['name'] == 'undefined'){
-                this.name = origin['name'];
-            }else{
-                throw TypeError(`{tcmanifest}.name is not string. (${typeof origin['name']})`);
-            }
-            if(typeof origin['company'] == 'string' || typeof origin['company'] == 'undefined'){
-                this.company = origin['company'];
-            }else{
-                throw TypeError(`{tcmanifest}.company is not string. (${typeof origin['company']})`);
-            }
-            if(typeof origin['type'] == 'string'){
-                this.type = origin['type'];
-            }else{
-                throw TypeError(`{tcmanifest}.type is not string. (${typeof origin['type']})`);
-            }
-            if(typeof origin['summon_command'] == 'string' || typeof origin['summon_command'] == 'undefined'){
-                this.company = origin['summon_command'];
-            }else{
-                throw TypeError('{tcmanifest}.summon_command is not string.');
-            }
-            if(typeof origin['speed'] == 'object'){
-                this.speed = new TrainSpeedSpec(origin['speed']);
-            }else if(typeof origin['speed'] == 'undefined'){
-                this.speed = undefined;
-            }else{
-                throw TypeError(`{tcmanifest}.speed is not TrainSpeedSpec. (${typeof origin['speed']})`);
-            }
-            if(typeof origin['notch'] == 'object'){
-                this.notch = origin['notch'];
-            }else if(typeof origin['notch'] == 'undefined'){
-                this.notch = undefined;
-            }else{
-                throw TypeError(`{tcmanifest}.notch is not TrainNotch. (${typeof origin['notch']})`);
-            }
-            if(typeof origin['battery'] == 'object'){
-                this.battery = new TrainBattery(origin['battery']);
-            }else if(typeof origin['battery'] == 'undefined'){
-                this.battery = undefined;
-            }else{
-                throw TypeError(`{tcmanifest}.notch is not TrainBattery. (${typeof origin['battery']})`);
-            }
-
+        let keys = Object.keys(origin);
+        for(const key of keys){
+            this[key] = origin[key];
         }
     }
 }

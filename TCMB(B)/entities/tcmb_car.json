@@ -192,11 +192,6 @@
                     "range": [-100.0, 100.0],
                     "default": 0.0
                 },
-                "tcmb:tcmanifest":{
-                    "type": "int",
-                    "range": [0, 512],
-                    "default": 0
-                },
                 "tcmb:battery_capacity":{
                     "type": "int",
                     "range": [0, 2147483647],

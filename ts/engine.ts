@@ -58,13 +58,14 @@ async function initializeTrain(entity: Entity){
             }
             let bodies: Entity[] = entity.dimension.getEntities(query);
             let train = new TCMBTrain(entity, undefined, bodies);
-            let type = bodies[0].typeId;
+            let typeId = train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
 
             tcmb_trains.set(train.entity.id, train);
-
-            if(entity.hasTag('tcmanifest')){
-                entity.setProperty('tcmb:tcmanifest', bodies[0].getProperty(type.substring(0, type.length - 5)+':tcmanifest'));
+            if(trains_manifest.has(typeId)){
+                entity.setDynamicProperty('tcmanifest', JSON.stringify(trains_manifest.get(typeId)));
             }
+            entity.setDynamicProperty('body', JSON.stringify(bodies));
+
             let car_entity_id = entity.id;
             entity.addTag('tcmb_carid_'+car_entity_id);
             if(perf_monitor) perf_obj.setScore('spawn', (new Date().getTime()) - start);
@@ -692,6 +693,26 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
                     perf_monitor = false;
                     world.sendMessage("パフォーマンスモニターが無効になりました。");
                 }
+            break;
+            case "tcmb:get_train_manifest":{
+                let msg:unknown = JSON.parse(ev.message);
+                if(!(msg instanceof Object)) throw new TypeError('[tcmb:get_train_manifest] Message is not an object.');
+                let response_to: unknown = msg['response'];
+                if(typeof response_to != 'string') throw new TypeError('[tcmb:get_train_manifest] message.response is not an object.');
+                let type_id: unknown = msg['typeId'];
+                let trainid = msg['id'];
+
+                if(typeof type_id == 'string'){
+                    let response = trains_manifest.get(type_id);
+                    overworld.runCommandAsync(`scriptevent ${response_to} ${JSON.stringify(response)}`);
+                }else if(typeof trainid == 'string'){
+                    let train:unknown = world.getEntity(trainid);
+                    if(train instanceof Entity){
+                        let response = train.getDynamicProperty('tcmanifest');
+                        overworld.runCommandAsync(`scriptevent ${response_to} ${response}`);
+                    }
+                }
+            }
             break;
     }
 }, { namespaces: ['tcmb', 'tcmb_minecart_engine'] });
