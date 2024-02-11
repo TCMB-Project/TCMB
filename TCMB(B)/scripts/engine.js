@@ -3,7 +3,7 @@
 * (c) TCMB Project
 * Apache License 2.0
 */
-import { world, system, ScoreboardObjective, Player, ScriptEventSource } from "@minecraft/server";
+import { world, system, Entity, Player, ScriptEventSource } from "@minecraft/server";
 import { ModalFormData, ActionFormData, MessageFormData } from "@minecraft/server-ui";
 import { Event, PanelButton, TCMBTrain, TCManifest } from "./classes";
 import { findFirstMatch, getTCManifest, hasTCManifest } from "./util";
@@ -19,7 +19,10 @@ if (typeof speedObject == "undefined") {
 if (typeof world.scoreboard.getObjective('atc') == 'undefined') {
     world.scoreboard.addObjective('atc', '');
 }
-let optionObject = world.scoreboard.getObjective("option");
+let config;
+let config_string = world.getDynamicProperty('config');
+if (typeof config_string == 'string')
+    config = JSON.parse(config_string);
 const perf_obj = world.scoreboard.getObjective('tcmb_perfomance');
 const door_orders = ['open_a', 'open_b', 'open_all', 'oneman_open_a', 'oneman_open_b'];
 let perf = {
@@ -51,11 +54,12 @@ async function initializeTrain(entity) {
             };
             let bodies = entity.dimension.getEntities(query);
             let train = new TCMBTrain(entity, undefined, bodies);
-            let type = bodies[0].typeId;
+            let typeId = train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
             tcmb_trains.set(train.entity.id, train);
-            if (entity.hasTag('tcmanifest')) {
-                entity.setProperty('tcmb:tcmanifest', bodies[0].getProperty(type.substring(0, type.length - 5) + ':tcmanifest'));
+            if (trains_manifest.has(typeId)) {
+                entity.setDynamicProperty('tcmanifest', JSON.stringify(trains_manifest.get(typeId)));
             }
+            entity.setDynamicProperty('body', JSON.stringify(bodies));
             let car_entity_id = entity.id;
             entity.addTag('tcmb_carid_' + car_entity_id);
             if (perf_monitor)
@@ -79,17 +83,22 @@ system.runInterval(() => {
         if (typeof speedObject == "undefined")
             continue;
         let tags = tcmb_car.getTags();
-        let manifest = trains_manifest.get(bodies[0].typeId.substring(0, bodies[0].typeId.length - 5));
+        let manifest;
+        let manifest_string = train.entity.getDynamicProperty('tcmanifest');
+        if (typeof manifest_string == 'string')
+            manifest = new TCManifest(manifest_string);
         //tcmb_car(speed)
         var speed = speedObject.getScore(tcmb_car);
         if (typeof speed == "undefined")
             continue;
         //tcmb_car(fast_run)
         if (speed > 108) {
-            var distance = speed / 72;
-            if (!tags.includes("backward"))
-                distance = -distance;
-            tcmb_car.runCommandAsync(`tp @s ^${distance} ^^`);
+            if (config.speed_control_by_tp && manifest.speed_control_by_tp) {
+                var distance = speed / 72;
+                if (!tags.includes("backward"))
+                    distance = -distance;
+                tcmb_car.runCommandAsync(`tp @s ^${distance} ^^`);
+            }
             tcmb_car.triggerEvent('109km');
         }
         else {
@@ -182,7 +191,7 @@ system.runInterval(() => {
 }, 20);
 //auto speed down
 system.runInterval(() => {
-    if (optionObject instanceof ScoreboardObjective && optionObject.getScore('auto_speed_down') != 0) {
+    if (typeof config == 'object' && config.auto_speed_down) {
         for (const [entityId, train] of tcmb_trains) {
             if (!train.entity.isValid())
                 continue;
@@ -322,14 +331,8 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
                                         train.runCommandAsync('function eb');
                                         break;
                                     case 4:
-                                        if (!train.hasTag("voltage_0")) {
-                                            train.runCommand("function direction");
-                                            if (train.hasTag("tc_parent") || train.hasTag("tc_child"))
-                                                train.runCommand("function tc_direction");
-                                        }
-                                        let event_report;
-                                        event_report = new Event("direction", { backward: train.hasTag("backward") }, train, player);
-                                        event_report.reply();
+                                        let signal = new Event('directionSignal', undefined, train, player, evdata.isWorking);
+                                        signal.send();
                                         break;
                                 }
                             }
@@ -735,6 +738,29 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
                 system.clearRun(monitor_runid);
                 perf_monitor = false;
                 world.sendMessage("パフォーマンスモニターが無効になりました。");
+            }
+            break;
+        case "tcmb:get_train_manifest":
+            {
+                let msg = JSON.parse(ev.message);
+                if (!(msg instanceof Object))
+                    throw new TypeError('[tcmb:get_train_manifest] Message is not an object.');
+                let response_to = msg['response'];
+                if (typeof response_to != 'string')
+                    throw new TypeError('[tcmb:get_train_manifest] message.response is not an object.');
+                let type_id = msg['typeId'];
+                let trainid = msg['id'];
+                if (typeof type_id == 'string') {
+                    let response = trains_manifest.get(type_id);
+                    overworld.runCommandAsync(`scriptevent ${response_to} ${JSON.stringify(response)}`);
+                }
+                else if (typeof trainid == 'string') {
+                    let train = world.getEntity(trainid);
+                    if (train instanceof Entity) {
+                        let response = train.getDynamicProperty('tcmanifest');
+                        overworld.runCommandAsync(`scriptevent ${response_to} ${response}`);
+                    }
+                }
             }
             break;
     }

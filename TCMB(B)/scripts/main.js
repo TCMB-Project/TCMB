@@ -13,36 +13,25 @@ const nether = world.getDimension("nether");
 const the_end = world.getDimension("the_end");
 let events = ["door", "notch", "direction", "dest", "delete"];
 let working = new Map();
-let horned = new Map();
-let optionObject = world.scoreboard.getObjective("option");
-if (typeof optionObject == "undefined") {
-    optionObject = world.scoreboard.addObjective("option", "");
-    optionObject.setScore('auto_speed_down', 0);
-    optionObject.setScore('require_work', 0);
-    optionObject.setScore('item_distance', 40);
-    optionObject.setScore('antirolling_by_eb', 1);
-}
-system.runInterval(() => {
-    for (const [playerID, entity] of working) {
-        let player = world.getEntity(playerID);
-        if (!(player instanceof Player))
-            continue;
-        let rotation = player.getRotation();
-        if (rotation.x >= 35) {
-            if (rotation.x >= 45 && horned.get(player.id) != 'horn') {
-                console.log('horn', rotation.x);
-                horned.set(player.id, 'horn');
-            }
-            else if (horned.get(player.id) != 'mh' && horned.get(player.id) != 'horn' && rotation.x <= 45) {
-                console.log('mh', rotation.x);
-                horned.set(player.id, 'mh');
-            }
-        }
-        else {
-            horned.delete(playerID);
-        }
+let config;
+if (world.getDynamicPropertyIds().includes('config')) {
+    config = {
+        auto_speed_down: false,
+        speed_control_by_tp: true
+    };
+    let optionObject = world.scoreboard.getObjective("option");
+    if (typeof optionObject != "undefined") {
+        let auto_speed_down = optionObject.getScore('auto_speed_down');
+        config.auto_speed_down = !!auto_speed_down;
+        world.scoreboard.removeObjective('option');
     }
-}, 1);
+    world.setDynamicProperty('config', JSON.stringify(config));
+}
+else {
+    let config_string = world.getDynamicProperty('config');
+    if (typeof config_string == 'string')
+        config = JSON.parse(config_string);
+}
 // event operation
 system.afterEvents.scriptEventReceive.subscribe(ev => {
     switch (ev.id) {

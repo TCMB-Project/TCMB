@@ -1,10 +1,11 @@
-TCMBはMinecraft 統合版のための鉄道アドオンです。TCMBに対応した車両を操作することができ、プラグインによる拡張も可能です。<br>
+TCMBはMinecraft 統合版のための鉄道アドオンです。TCMBに対応した車両を操作することができ、プラグインによる拡張も可能です。
 # 特徴
 1. 軽量
 1. 豊富な標準機能
 1. プラグインによる拡張可能([ここ](https://tcmb.ie-t.net/download/plugin/)からダウンロード可能)
 1. 詳細な仕様書([ここ](https://tcmb.ie-t.net/pdfjs/web/viewer.html?file=/download/docs/files/tcmb.pdf)から閲覧可能)
-1. MCAからのコンバートに対応 (Windows版：[mca2tcmb4win](https://tcmb.ie-t.net/download/mca2tcmb4win/)、ブラウザ版：[mca2tcmb](https://tcmb.ie-t.net/tools/mca2tcmb/))<br>
+1. MCAからのコンバートに対応 (Windows版：[mca2tcmb4win](https://tcmb.ie-t.net/download/mca2tcmb4win/)、ブラウザ版：[mca2tcmb](https://tcmb.ie-t.net/tools/mca2tcmb/))  
+
 # 機能
 1. 方向幕20種類
 1. 任意の座席への着席
@@ -28,8 +29,8 @@ CPU: Qualcomm Snapdragon 710相当、またはそれ以上
 ストレージの空き容量: 2GB以上  
 GPU: Adreno 616相当、またはそれ以上  
 ## サーバー
-CPU: Intel Xeon W5590相当、またはそれ以上
-メモリ: 2GB以上
+CPU: Intel Xeon W5590相当、またはそれ以上  
+メモリ: 2GB以上  
 ストレージの空き容量: 2GB以上
 
 同時に複数の車両を走行させる場合や、240km/h以上の速度で走行する場合、これよりも高い性能が必要です。

@@ -4,7 +4,7 @@
 * Apache License 2.0
 */
 import { world, system, Dimension, Entity, EntityQueryOptions, Player, BlockRaycastOptions, BlockRaycastHit, RawMessage } from "@minecraft/server";
-import { Event } from "./classes";
+import { Event, ConfigObject } from "./classes";
 import { dummy } from "./engine";
 
 new dummy;
@@ -17,54 +17,85 @@ const the_end: Dimension = world.getDimension("the_end");
 
 let events = ["door", "notch", "direction", "dest", "delete"];
 let working: Map<string, Entity> = new Map();
-let horned: Map<string, string> = new Map();
 
-let optionObject = world.scoreboard.getObjective("option");
-if(typeof optionObject == "undefined"){
-    optionObject = world.scoreboard.addObjective("option", "");
-    optionObject.setScore('auto_speed_down', 0);
-    optionObject.setScore('require_work', 0);
-    optionObject.setScore('item_distance', 40);
-    optionObject.setScore('antirolling_by_eb', 1);
-}
-
-system.runInterval(()=>{
-    for(const [playerID, entity] of working){
-        let player: Entity = world.getEntity(playerID);
-        if(!(player instanceof Player)) continue;
-        let rotation = player.getRotation();
-        if(rotation.x >= 35){
-            if(rotation.x >= 45 && horned.get(player.id) != 'horn'){
-                console.log('horn', rotation.x);
-                horned.set(player.id, 'horn');
-            }else if(horned.get(player.id) != 'mh' && horned.get(player.id) != 'horn' && rotation.x <= 45){
-                console.log('mh', rotation.x);
-                horned.set(player.id, 'mh');
-            }
-        }else{
-            horned.delete(playerID);
-        }
+let config: ConfigObject;
+if(world.getDynamicPropertyIds().includes('config')){
+    config = {
+        auto_speed_down: false,
+        speed_control_by_tp: true
     }
-}, 1);
+    let optionObject = world.scoreboard.getObjective("option");
+    if(typeof optionObject != "undefined"){
+        let auto_speed_down = optionObject.getScore('auto_speed_down');
+        config.auto_speed_down = !!auto_speed_down;
+        world.scoreboard.removeObjective('option');
+    }
+    world.setDynamicProperty('config', JSON.stringify(config));
+}else{
+    let config_string: unknown = world.getDynamicProperty('config');
+    if(typeof config_string == 'string') config = JSON.parse(config_string);
+}
 
 // event operation
 system.afterEvents.scriptEventReceive.subscribe( ev => {
     switch(ev.id){
-            // event
-            case "tcmb:reply":
-                if(ev.sourceType != "Server"){
-                    console.warn('[tcmb:reply] Event source is not Server.');
-                    return;
-                }
-                let re_msg = JSON.parse(ev.message);
-                if(events.includes(re_msg.name)){
-                    let evdata = new Event(re_msg.name, re_msg.status, re_msg.entity, undefined);
-                    evdata.send();
-                }
-            break;
-            case "tcmb:work_control":
-                let msg = JSON.parse(ev.message);
-                if(msg.type == "start" && typeof msg.entity == "string" && typeof msg.playerName == "string"){
+        // event
+        case "tcmb:reply":
+            if(ev.sourceType != "Server"){
+                console.warn('[tcmb:reply] Event source is not Server.');
+                return;
+            }
+            let re_msg = JSON.parse(ev.message);
+            if(events.includes(re_msg.name)){
+                let evdata = new Event(re_msg.name, re_msg.status, re_msg.entity, undefined);
+                evdata.send();
+            }
+        break;
+        case "tcmb:work_control":
+            let msg = JSON.parse(ev.message);
+            if(msg.type == "start" && typeof msg.entity == "string" && typeof msg.playerName == "string"){
+                let work_train: Entity | undefined = world.getEntity(msg.entity);
+                if(typeof work_train == "undefined") throw Error('[tcmb:work_control] operation entity not found');
+                let work_player: Player | undefined = world.getPlayers({name:msg.playerName})[0];
+                if(typeof work_player == "undefined") throw Error('[tcmb:work_control] player not found');
+
+                working.set(work_player.id, work_train);
+                work_train.addTag('tcmb_riding');
+                work_train.addTag('tcmb_riding_'+work_player.id);
+                work_player.sendMessage({translate: 'tcmb.message.work.start'});
+
+            }else if(msg.type == "end" && typeof msg.playerName == "string"){
+                let work_player: Player | undefined = world.getPlayers({name:msg.playerName})[0];
+                if(typeof work_player == "undefined") throw Error('[tcmb:work_control] player not found');
+                if(!working.has(work_player.id)) throw Error(`[tcmb:work_control] ${msg.playerName} is not working`);
+                let worked_train = working.get(work_player.id);
+                try{ worked_train.removeTag('tcmb_riding'); } catch(err){ throw Error('[tcmb:work_control] failed to remove tcmb_riding tag') }
+                try{ worked_train.removeTag('tcmb_riding_'+work_player.id); } catch(err){ throw Error('[tcmb:work_control] failed to remove playerName tag') } 
+                let end_result = working.delete(work_player.id);
+                if(!end_result) throw Error('[tcmb:work_control] failed to remove working data.');
+
+                work_player.sendMessage({translate: 'tcmb.message.work.end'});
+
+            }else if(msg.type == 'toggle' && typeof msg.playerName == 'string' && typeof msg.entity == 'string'){
+                let work_player: Player | undefined = world.getPlayers({name:msg.playerName})[0];
+                if(typeof work_player == "undefined") throw Error('[tcmb:work_control] player not found');
+                if(working.has(work_player.id)){
+                    if(!working.has(work_player.id)) throw Error(`[tcmb:work_control] ${msg.playerName} is not working`);
+                    let worked_train = working.get(work_player.id);
+                    try{ worked_train.removeTag('tcmb_riding_'+work_player.id); } catch(err){ throw Error('[tcmb:work_control] failed to remove playerName tag') } 
+                    let working_player: string[] = worked_train.getTags().filter((tag)=> tag.startsWith('tcmb_riding_'));
+                    if(working_player.length == 0){
+                        try{
+                            worked_train.removeTag('tcmb_riding');
+                        }catch(err){
+                            throw Error('[tcmb:work_control] failed to remove tcmb_riding tag')
+                        }
+                    }
+                    let end_result = working.delete(work_player.id);
+                    if(!end_result) throw Error('[tcmb:work_control] failed to remove working data.');
+
+                    work_player.sendMessage({translate: 'tcmb.message.work.end'});
+                }else{
                     let work_train: Entity | undefined = world.getEntity(msg.entity);
                     if(typeof work_train == "undefined") throw Error('[tcmb:work_control] operation entity not found');
                     let work_player: Player | undefined = world.getPlayers({name:msg.playerName})[0];
@@ -74,97 +105,55 @@ system.afterEvents.scriptEventReceive.subscribe( ev => {
                     work_train.addTag('tcmb_riding');
                     work_train.addTag('tcmb_riding_'+work_player.id);
                     work_player.sendMessage({translate: 'tcmb.message.work.start'});
-
-                }else if(msg.type == "end" && typeof msg.playerName == "string"){
-                    let work_player: Player | undefined = world.getPlayers({name:msg.playerName})[0];
-                    if(typeof work_player == "undefined") throw Error('[tcmb:work_control] player not found');
-                    if(!working.has(work_player.id)) throw Error(`[tcmb:work_control] ${msg.playerName} is not working`);
-                    let worked_train = working.get(work_player.id);
-                    try{ worked_train.removeTag('tcmb_riding'); } catch(err){ throw Error('[tcmb:work_control] failed to remove tcmb_riding tag') }
-                    try{ worked_train.removeTag('tcmb_riding_'+work_player.id); } catch(err){ throw Error('[tcmb:work_control] failed to remove playerName tag') } 
-                    let end_result = working.delete(work_player.id);
-                    if(!end_result) throw Error('[tcmb:work_control] failed to remove working data.');
-
-                    work_player.sendMessage({translate: 'tcmb.message.work.end'});
-
-                }else if(msg.type == 'toggle' && typeof msg.playerName == 'string' && typeof msg.entity == 'string'){
-                    let work_player: Player | undefined = world.getPlayers({name:msg.playerName})[0];
-                    if(typeof work_player == "undefined") throw Error('[tcmb:work_control] player not found');
-                    if(working.has(work_player.id)){
-                        if(!working.has(work_player.id)) throw Error(`[tcmb:work_control] ${msg.playerName} is not working`);
-                        let worked_train = working.get(work_player.id);
-                        try{ worked_train.removeTag('tcmb_riding_'+work_player.id); } catch(err){ throw Error('[tcmb:work_control] failed to remove playerName tag') } 
-                        let working_player: string[] = worked_train.getTags().filter((tag)=> tag.startsWith('tcmb_riding_'));
-                        if(working_player.length == 0){
-                            try{
-                                worked_train.removeTag('tcmb_riding');
-                            }catch(err){
-                                throw Error('[tcmb:work_control] failed to remove tcmb_riding tag')
-                            }
-                        }
-                        let end_result = working.delete(work_player.id);
-                        if(!end_result) throw Error('[tcmb:work_control] failed to remove working data.');
-    
-                        work_player.sendMessage({translate: 'tcmb.message.work.end'});
-                    }else{
-                        let work_train: Entity | undefined = world.getEntity(msg.entity);
-                        if(typeof work_train == "undefined") throw Error('[tcmb:work_control] operation entity not found');
-                        let work_player: Player | undefined = world.getPlayers({name:msg.playerName})[0];
-                        if(typeof work_player == "undefined") throw Error('[tcmb:work_control] player not found');
-    
-                        working.set(work_player.id, work_train);
-                        work_train.addTag('tcmb_riding');
-                        work_train.addTag('tcmb_riding_'+work_player.id);
-                        work_player.sendMessage({translate: 'tcmb.message.work.start'});
-                    }
-                }else if(msg.type == "getStatus" && typeof msg.response == "string"){
-                    if(typeof msg.playerName == 'string'){
-                        let response_obj = {}
-                        let work_player: Player | undefined = world.getPlayers({name:msg.playerName})[0];
-                        if(typeof work_player == "undefined") throw Error('[tcmb:work_control] player not found');
-
-                        if(working.has(work_player.id)) response_obj = {
-                            entity: working.get(work_player.id)
-                        };
-                        overworld.runCommandAsync(`scriptevent ${msg.response} ${JSON.stringify(response_obj)}`);
-
-                    }else if(typeof msg.entity == 'string'){
-                        let response_obj = {playerName:[]}
-                        for(let [playerID, train] of working){
-                            if(train.id == msg.entity){
-                                response_obj['playerName'].push(playerID);
-                            }
-                        }
-                        overworld.runCommandAsync(`scriptevent ${msg.response} ${JSON.stringify(response_obj)}`);
-                    }
-                }else if(msg.type == "reload"){
-                    let ridden_train: Entity[] = overworld.getEntities({
-                        tags: ['tcmb_riding'],
-                        families: ['tcmb_car']
-                    });
-                    ridden_train = ridden_train.concat(nether.getEntities({
-                        tags: ['tcmb_riding'],
-                        families: ['tcmb_car']
-                    }));
-                    ridden_train = ridden_train.concat(the_end.getEntities({
-                        tags: ['tcmb_riding'],
-                        families: ['tcmb_car']
-                    }));
-                    for(const train of ridden_train){
-                        let tags = train.getTags();
-                        tags = tags.filter((tag)=> tag.startsWith('tcmb_riding_'));
-                        for(const playerID of tags){
-                            working.set(playerID.substring(12), train);
-                        }
-                    }
-                }else {
-                    throw Error('[tcmb:work_control] Invalid JSON Message.');
                 }
-            break;
-            case "tcmb:chat_echo":{
-                world.sendMessage('[tcmb:chat_echo] '+ev.message);
+            }else if(msg.type == "getStatus" && typeof msg.response == "string"){
+                if(typeof msg.playerName == 'string'){
+                    let response_obj = {}
+                    let work_player: Player | undefined = world.getPlayers({name:msg.playerName})[0];
+                    if(typeof work_player == "undefined") throw Error('[tcmb:work_control] player not found');
+
+                    if(working.has(work_player.id)) response_obj = {
+                        entity: working.get(work_player.id)
+                    };
+                    overworld.runCommandAsync(`scriptevent ${msg.response} ${JSON.stringify(response_obj)}`);
+
+                }else if(typeof msg.entity == 'string'){
+                    let response_obj = {playerName:[]}
+                    for(let [playerID, train] of working){
+                        if(train.id == msg.entity){
+                            response_obj['playerName'].push(playerID);
+                        }
+                    }
+                    overworld.runCommandAsync(`scriptevent ${msg.response} ${JSON.stringify(response_obj)}`);
+                }
+            }else if(msg.type == "reload"){
+                let ridden_train: Entity[] = overworld.getEntities({
+                    tags: ['tcmb_riding'],
+                    families: ['tcmb_car']
+                });
+                ridden_train = ridden_train.concat(nether.getEntities({
+                    tags: ['tcmb_riding'],
+                    families: ['tcmb_car']
+                }));
+                ridden_train = ridden_train.concat(the_end.getEntities({
+                    tags: ['tcmb_riding'],
+                    families: ['tcmb_car']
+                }));
+                for(const train of ridden_train){
+                    let tags = train.getTags();
+                    tags = tags.filter((tag)=> tag.startsWith('tcmb_riding_'));
+                    for(const playerID of tags){
+                        working.set(playerID.substring(12), train);
+                    }
+                }
+            }else {
+                throw Error('[tcmb:work_control] Invalid JSON Message.');
             }
-            break;
+        break;
+        case "tcmb:chat_echo":{
+            world.sendMessage('[tcmb:chat_echo] '+ev.message);
+        }
+        break;
     }
 }, { namespaces: ['tcmb'] });
 

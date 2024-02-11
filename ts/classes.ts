@@ -52,6 +52,10 @@ export class PanelButton{
 }
 
 export type TCManifestMap = Map<string, TCManifest>;
+export type ConfigObject = {
+    auto_speed_down: boolean,
+    speed_control_by_tp: boolean
+}
 
 export class TCMBTrain{
     entity: Entity;
@@ -126,6 +130,7 @@ export class TCManifest{
     name: string | undefined;
     company: string | undefined;
     type: string;
+    speed_control_by_tp: boolean;
     summon_command: string | undefined;
     speed: TrainSpeedSpec | undefined;
     notch: object[];

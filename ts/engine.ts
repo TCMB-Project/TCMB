@@ -5,7 +5,7 @@
 */
 import { world, system, Dimension, ScoreboardObjective, Entity, Player, EntityQueryOptions, ScriptEventSource, Vector2 } from "@minecraft/server";
 import { ModalFormData, ActionFormData, MessageFormData } from "@minecraft/server-ui";
-import { Event, PanelButton, TCMBTrain, TCManifest, TCManifestMap } from "./classes";
+import { ConfigObject, Event, PanelButton, TCMBTrain, TCManifest, TCManifestMap } from "./classes";
 import { findFirstMatch, getTCManifest, hasTCManifest } from "./util";
 
 export class dummy{}
@@ -21,7 +21,10 @@ if(typeof speedObject == "undefined"){
 if(typeof world.scoreboard.getObjective('atc') == 'undefined'){
     world.scoreboard.addObjective('atc', '');
 }
-let optionObject: ScoreboardObjective | undefined = world.scoreboard.getObjective("option");
+
+let config: ConfigObject
+let config_string: unknown = world.getDynamicProperty('config');
+if(typeof config_string == 'string') config = JSON.parse(config_string);
 
 const perf_obj: ScoreboardObjective = world.scoreboard.getObjective('tcmb_perfomance');
 const door_orders: String[] = ['open_a', 'open_b', 'open_all', 'oneman_open_a', 'oneman_open_b'];
@@ -87,16 +90,21 @@ system.runInterval(() =>{
         var bodies = train.body;
         if(typeof speedObject == "undefined") continue;
         let tags = tcmb_car.getTags();
-        let manifest = trains_manifest.get(bodies[0].typeId.substring(0, bodies[0].typeId.length - 5));
+
+        let manifest: TCManifest
+        let manifest_string: unknown = train.entity.getDynamicProperty('tcmanifest');
+        if(typeof manifest_string == 'string') manifest = new TCManifest(manifest_string); 
         
         //tcmb_car(speed)
         var speed: number | undefined = speedObject.getScore(tcmb_car);
         if(typeof speed == "undefined") continue;
         //tcmb_car(fast_run)
         if(speed > 108){
-            var distance = speed/72;
-            if(!tags.includes("backward")) distance = -distance;
-            tcmb_car.runCommandAsync(`tp @s ^${distance} ^^`);
+            if(config.speed_control_by_tp && manifest.speed_control_by_tp){
+                var distance = speed/72;
+                if(!tags.includes("backward")) distance = -distance;
+                tcmb_car.runCommandAsync(`tp @s ^${distance} ^^`);
+            }
             tcmb_car.triggerEvent('109km');
         }else{
             tcmb_car.triggerEvent(speed +"km");
@@ -187,7 +195,7 @@ system.runInterval(()=>{
 
 //auto speed down
 system.runInterval(()=>{
-    if(optionObject instanceof ScoreboardObjective && optionObject.getScore('auto_speed_down') != 0){
+    if(typeof config == 'object' && config.auto_speed_down){
         for(const [entityId, train] of tcmb_trains){
             if(!train.entity.isValid()) continue;
             if(train.entity.hasTag('n') && !train.entity.hasTag('tasc_on') && !train.entity.hasTag('tc_child')){
@@ -319,13 +327,8 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
                                         train.runCommandAsync('function eb');
                                     break;
                                     case 4:
-                                        if(!train.hasTag("voltage_0")){
-                                            train.runCommand("function direction");
-                                            if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommand("function tc_direction");
-                                        }
-                                        let event_report: Event;
-                                        event_report = new Event("direction", {backward: train.hasTag("backward")}, train, player);
-                                        event_report.reply();
+                                        let signal = new Event('directionSignal', undefined, train, player, evdata.isWorking);
+                                        signal.send();
                                     break;
                                 }
                             }else{

@@ -37,15 +37,20 @@ export function getTrainTypeId(train: TCMBTrain){
 }
 
 export function getTCManifest(train: TCMBTrain, trains_manifest: TCManifestMap): TCManifest | undefined {
-  if(trains_manifest.has(getTrainTypeId(train))){
-      return trains_manifest.get(getTrainTypeId(train));
+  if(train.entity.getDynamicPropertyIds().includes('tcmanifest')){
+    let manifest_property: unknown = train.entity.getDynamicProperty('tcmanifest');
+    if(typeof manifest_property == 'string'){
+        return new TCManifest(manifest_property);
+    }else{
+        throw new TypeError('TCManifest on DP is not a string.');
+    }
   }else{
-      return undefined;
+    return undefined;
   }
 }
 
 export function hasTCManifest(train: TCMBTrain, trains_manifest: TCManifestMap): boolean{
-    if(trains_manifest.has(getTrainTypeId(train))){
+    if(train.entity.getDynamicPropertyIds().includes('tcmanifest')){
         return true;
     }else{
         return false;
