@@ -13,25 +13,6 @@ const nether = world.getDimension("nether");
 const the_end = world.getDimension("the_end");
 let events = ["door", "notch", "direction", "dest", "delete"];
 let working = new Map();
-let config;
-if (world.getDynamicPropertyIds().includes('config')) {
-    config = {
-        auto_speed_down: false,
-        speed_control_by_tp: true
-    };
-    let optionObject = world.scoreboard.getObjective("option");
-    if (typeof optionObject != "undefined") {
-        let auto_speed_down = optionObject.getScore('auto_speed_down');
-        config.auto_speed_down = !!auto_speed_down;
-        world.scoreboard.removeObjective('option');
-    }
-    world.setDynamicProperty('config', JSON.stringify(config));
-}
-else {
-    let config_string = world.getDynamicProperty('config');
-    if (typeof config_string == 'string')
-        config = JSON.parse(config_string);
-}
 // event operation
 system.afterEvents.scriptEventReceive.subscribe(ev => {
     switch (ev.id) {

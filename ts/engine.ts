@@ -22,9 +22,23 @@ if(typeof world.scoreboard.getObjective('atc') == 'undefined'){
     world.scoreboard.addObjective('atc', '');
 }
 
-let config: ConfigObject
-let config_string: unknown = world.getDynamicProperty('config');
-if(typeof config_string == 'string') config = JSON.parse(config_string);
+let config: ConfigObject;
+if(!world.getDynamicPropertyIds().includes('config')){
+    config = {
+        auto_speed_down: false,
+        speed_control_by_tp: true
+    }
+    let optionObject = world.scoreboard.getObjective("option");
+    if(typeof optionObject != "undefined"){
+        let auto_speed_down = optionObject.getScore('auto_speed_down');
+        config.auto_speed_down = !!auto_speed_down;
+        world.scoreboard.removeObjective('option');
+    }
+    world.setDynamicProperty('config', JSON.stringify(config));
+}else{
+    let config_string: unknown = world.getDynamicProperty('config');
+    if(typeof config_string == 'string') config = JSON.parse(config_string);
+}
 
 const perf_obj: ScoreboardObjective = world.scoreboard.getObjective('tcmb_perfomance');
 const door_orders: String[] = ['open_a', 'open_b', 'open_all', 'oneman_open_a', 'oneman_open_b'];
@@ -98,9 +112,11 @@ system.runInterval(() =>{
         //tcmb_car(speed)
         var speed: number | undefined = speedObject.getScore(tcmb_car);
         if(typeof speed == "undefined") continue;
+        let speed_control_by_tp: boolean = config.speed_control_by_tp;
+        if(typeof manifest_string == 'string' && manifest.speed_control_by_tp) speed_control_by_tp = speed_control_by_tp && manifest.speed_control_by_tp
         //tcmb_car(fast_run)
         if(speed > 108){
-            if(config.speed_control_by_tp && manifest.speed_control_by_tp){
+            if(speed_control_by_tp){
                 var distance = speed/72;
                 if(!tags.includes("backward")) distance = -distance;
                 tcmb_car.runCommandAsync(`tp @s ^${distance} ^^`);
@@ -210,15 +226,7 @@ system.runInterval(()=>{
     for(const [entityId, train] of tcmb_trains){
         const tcmb_car = train.entity;
         if(!tcmb_car.isValid()) continue;
-        let block = tcmb_car.dimension.getBlock(tcmb_car.location);
-
-        if(!block.permutation.matches('minecraft:golden_rail')){
-            if(!tcmb_car.hasTag('backward')){
-                train.entity.runCommandAsync('summon tcmb:tcmb_starter ^0.5^^');
-            }else{
-                train.entity.runCommandAsync('summon tcmb:tcmb_starter ^-0.5^^');
-            }
-        }
+        tcmb_car.applyImpulse({x: 0, y: 0, z: tcmb_car.hasTag('backward')?-1.5:1.5});
     }
 }, 5);
 

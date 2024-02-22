@@ -9,7 +9,7 @@ import { dummy } from "./engine";
 
 new dummy;
 
-const max_distance = 40;
+const max_distance: number = 40;
 
 const overworld: Dimension = world.getDimension("overworld");
 const nether: Dimension = world.getDimension("nether");
@@ -17,24 +17,6 @@ const the_end: Dimension = world.getDimension("the_end");
 
 let events = ["door", "notch", "direction", "dest", "delete"];
 let working: Map<string, Entity> = new Map();
-
-let config: ConfigObject;
-if(world.getDynamicPropertyIds().includes('config')){
-    config = {
-        auto_speed_down: false,
-        speed_control_by_tp: true
-    }
-    let optionObject = world.scoreboard.getObjective("option");
-    if(typeof optionObject != "undefined"){
-        let auto_speed_down = optionObject.getScore('auto_speed_down');
-        config.auto_speed_down = !!auto_speed_down;
-        world.scoreboard.removeObjective('option');
-    }
-    world.setDynamicProperty('config', JSON.stringify(config));
-}else{
-    let config_string: unknown = world.getDynamicProperty('config');
-    if(typeof config_string == 'string') config = JSON.parse(config_string);
-}
 
 // event operation
 system.afterEvents.scriptEventReceive.subscribe( ev => {
