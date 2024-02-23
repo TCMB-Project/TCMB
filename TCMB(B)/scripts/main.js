@@ -567,3 +567,4 @@ world.afterEvents.itemUseOn.subscribe((event) => {
 });
 overworld.runCommandAsync('scriptevent tcmb:work_control {"type":"reload"}');
 overworld.runCommandAsync('scriptevent tcmb:initialized');
+//# sourceMappingURL=main.js.map

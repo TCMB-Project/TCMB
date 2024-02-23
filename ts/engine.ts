@@ -71,6 +71,7 @@ async function initializeTrain(entity: Entity){
             var query: EntityQueryOptions = {
                 families: ["tcmb_body"],
                 closest: 2,
+                maxDistance: 1,
                 location: entity.location
             }
             let bodies: Entity[] = entity.dimension.getEntities(query);
@@ -91,7 +92,6 @@ async function initializeTrain(entity: Entity){
         throw error;
     }
 }
-
 
 let tcmb_trains: Map<string, TCMBTrain> = new Map();
 

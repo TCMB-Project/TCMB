@@ -65,6 +65,7 @@ async function initializeTrain(entity) {
             var query = {
                 families: ["tcmb_body"],
                 closest: 2,
+                maxDistance: 1,
                 location: entity.location
             };
             let bodies = entity.dimension.getEntities(query);
@@ -881,3 +882,4 @@ function ride(player, train) {
     }
 }
 overworld.runCommandAsync('scriptevent tcmb_minecart_engine:initalized');
+//# sourceMappingURL=engine.js.map
