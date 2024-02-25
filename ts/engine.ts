@@ -105,15 +105,13 @@ system.runInterval(() =>{
         if(typeof speedObject == "undefined") continue;
         let tags = tcmb_car.getTags();
 
-        let manifest: TCManifest
-        let manifest_string: unknown = train.entity.getDynamicProperty('tcmanifest');
-        if(typeof manifest_string == 'string') manifest = new TCManifest(manifest_string); 
+        let manifest = getTCManifest(train, trains_manifest);
         
         //tcmb_car(speed)
         var speed: number | undefined = speedObject.getScore(tcmb_car);
         if(typeof speed == "undefined") continue;
         let speed_control_by_tp: boolean = config.speed_control_by_tp;
-        if(typeof manifest_string == 'string' && manifest.speed_control_by_tp) speed_control_by_tp = speed_control_by_tp && manifest.speed_control_by_tp
+        if(typeof manifest == "object" && manifest.speed_control_by_tp) speed_control_by_tp = speed_control_by_tp && manifest.speed_control_by_tp
         //tcmb_car(fast_run)
         if(speed > 108){
             if(speed_control_by_tp){
