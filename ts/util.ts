@@ -3,7 +3,7 @@
 * (c) TCMB Project
 * Apache License 2.0
 */
-import { Vector3, system } from "@minecraft/server";
+import { Vector2, Vector3, system } from "@minecraft/server";
 import { TCMBTrain, TCManifest, TCManifestMap } from "./classes";
 
 export function findFirstMatch(array: string[], searchString: string):number {
@@ -24,12 +24,30 @@ export function distance(p1: Vector3, p2: Vector3): number {
   return Math.sqrt(dx * dx + dy * dy + dz * dz);
 }
 
-export function sleep(tick: number){
-  return new Promise((resolve)=>{
-    system.runInterval(()=>{
-      resolve(true);
-    }, tick);
-  })
+// ローカル座標をワールド座標に変換する関数
+export function localToWorld(position: Vector3, local: Vector3, rotation: Vector2): Vector3 {  
+    // 向きに応じて変換行列を作成
+    let yaw = rotation.y * Math.PI / 180; // ヨー角をラジアンに変換
+    let pitch = rotation.x * Math.PI / 180; // ピッチ角をラジアンに変換
+    let cosYaw = Math.cos(yaw);
+    let sinYaw = Math.sin(yaw);
+    let cosPitch = Math.cos(pitch);
+    let sinPitch = Math.sin(pitch);
+    let matrix = [
+        [cosYaw, 0, -sinYaw],
+        [sinYaw * sinPitch, cosPitch, cosYaw * sinPitch],
+        [sinYaw * cosPitch, -sinPitch, cosYaw * cosPitch]
+    ]; // 変換行列
+
+    // ローカル座標をワールド座標に変換
+    let world = {
+        x: position.x + matrix[0][0] * local.x + matrix[0][1] * local.y + matrix[0][2] * local.z,
+        y: position.y + matrix[1][0] * local.x + matrix[1][1] * local.y + matrix[1][2] * local.z,
+        z: position.z + matrix[2][0] * local.x + matrix[2][1] * local.y + matrix[2][2] * local.z
+    }; // ワールド座標
+
+    // ワールド座標を返す
+    return world;
 }
 
 export function getTrainTypeId(train: TCMBTrain){

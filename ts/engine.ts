@@ -3,7 +3,7 @@
 * (c) TCMB Project
 * Apache License 2.0
 */
-import { world, system, Dimension, ScoreboardObjective, Entity, Player, EntityQueryOptions, ScriptEventSource, Vector2 } from "@minecraft/server";
+import { world, system, Dimension, ScoreboardObjective, Block, Entity, Player, EntityQueryOptions, ScriptEventSource, Vector2, Vector3 } from "@minecraft/server";
 import { ModalFormData, ActionFormData, MessageFormData } from "@minecraft/server-ui";
 import { ConfigObject, Event, PanelButton, TCMBTrain, TCManifest, TCManifestMap } from "./classes";
 import { findFirstMatch, getTCManifest, hasTCManifest } from "./util";

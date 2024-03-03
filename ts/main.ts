@@ -4,7 +4,7 @@
 * Apache License 2.0
 */
 import { world, system, Dimension, Entity, EntityQueryOptions, Player, BlockRaycastOptions, BlockRaycastHit, RawMessage } from "@minecraft/server";
-import { Event, ConfigObject } from "./classes";
+import { Event } from "./classes";
 import { dummy } from "./engine";
 
 new dummy;

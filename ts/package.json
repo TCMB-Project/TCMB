@@ -3,9 +3,9 @@
     "@minecraft/server": "^1.7.0",
     "@minecraft/server-ui": "^1.1.0"
   },
-  "name": "tcmb",
+  "name": "tcmb-module",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "main.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
