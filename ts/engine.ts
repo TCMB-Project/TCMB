@@ -598,6 +598,7 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
                 speedObject.setScore(train.entity, speed);
             }
             break;
+            case "tcmb_minecart_engine:regist_manifest":
             case "tcmb_minecart_engine:regist_tcmanifest":{
                 let message: unknown = JSON.parse(ev.message);
                 if(ev.sourceType != ScriptEventSource.Server){
