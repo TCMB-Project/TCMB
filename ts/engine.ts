@@ -71,7 +71,7 @@ async function initializeTrain(entity: Entity){
             var query: EntityQueryOptions = {
                 families: ["tcmb_body"],
                 closest: 2,
-                maxDistance: 1,
+                maxDistance: 2,
                 location: entity.location
             }
             let bodies: Entity[] = entity.dimension.getEntities(query);
@@ -147,6 +147,12 @@ system.runInterval(() =>{
         if(carid_tag_exists == -1){
             let car_entity_id = tcmb_car.id;
             tcmb_car.addTag('tcmb_carid_'+car_entity_id);
+        }
+
+        //auto curve
+        if(findFirstMatch(tags, 'pt') != -1){
+            let curve_mode = tags[findFirstMatch(tags, 'pt')];
+            tcmb_car.runCommandAsync('function curve/'+curve_mode);
         }
     }
     if(perf_monitor) perf['main'] = (new Date().getTime()) - start;
