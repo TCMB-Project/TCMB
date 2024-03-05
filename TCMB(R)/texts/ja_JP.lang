@@ -31,6 +31,8 @@ item.spawn_egg.entity.tcmb:rotate_ground_facilities.name=地上設備回転
 
 tcmb.message.auto_speed_down.enabled=ノッチ切時の自動減速を§a有効§rに設定しました。
 tcmb.message.auto_speed_down.disabled=ノッチ切時の自動減速を§c無効§rに設定しました。
+tcmb.message.speed_control_by_tp.enabled=テレポートによる速度制御を§a有効§rに設定しました。
+tcmb.message.speed_control_by_tp.disabled=テレポートによる速度制御を§c無効§rに設定しました。
 
 tcmb.message.work.start=乗務を開始しました。
 tcmb.message.work.end=乗務を終了しました。

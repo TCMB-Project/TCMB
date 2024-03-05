@@ -31,6 +31,8 @@ item.spawn_egg.entity.tcmb:rotate_ground_facilities.name=旋转地面设施
 
 tcmb.message.auto_speed_down.enabled=滑行时减速已 §a开启§r.
 tcmb.message.auto_speed_down.disabled=滑行时减速已 §c关闭§r.
+tcmb.message.speed_control_by_tp.enabled=Speed control by teleportation is §aenabled§r.
+tcmb.message.speed_control_by_tp.disabled=Speed control by teleportation is §cdisabled§r.
 
 tcmb.message.work.start=开始工作
 tcmb.message.work.end=停止工作

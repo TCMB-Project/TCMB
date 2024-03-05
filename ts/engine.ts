@@ -106,12 +106,21 @@ system.runInterval(() =>{
         let tags = tcmb_car.getTags();
 
         let manifest = getTCManifest(train, trains_manifest);
+        let has_manifest = hasTCManifest(train, trains_manifest);
         
         //tcmb_car(speed)
         var speed: number | undefined = speedObject.getScore(tcmb_car);
         if(typeof speed == "undefined") continue;
-        let speed_control_by_tp: boolean = config.speed_control_by_tp;
-        if(typeof manifest == "object" && manifest.speed_control_by_tp) speed_control_by_tp = speed_control_by_tp && manifest.speed_control_by_tp
+        let speed_control_by_tp: boolean;
+        if(has_manifest){
+            if(typeof manifest.speed_control_by_tp == "boolean"){
+                speed_control_by_tp = config.speed_control_by_tp && manifest.speed_control_by_tp;
+            }else{
+                speed_control_by_tp = config.speed_control_by_tp;
+            }
+        }else{
+            speed_control_by_tp = config.speed_control_by_tp;
+        }
         //tcmb_car(fast_run)
         if(speed > 108){
             if(speed_control_by_tp){
@@ -215,7 +224,7 @@ system.runInterval(()=>{
 
 //auto speed down
 system.runInterval(()=>{
-    if(typeof config == 'object' && config.auto_speed_down){
+    if(config.auto_speed_down){
         for(const [entityId, train] of tcmb_trains){
             if(!train.entity.isValid()) continue;
             if(train.entity.hasTag('n') && !train.entity.hasTag('tasc_on') && !train.entity.hasTag('tc_child')){
@@ -230,7 +239,25 @@ system.runInterval(()=>{
     for(const [entityId, train] of tcmb_trains){
         const tcmb_car = train.entity;
         if(!tcmb_car.isValid()) continue;
-        tcmb_car.applyImpulse({x: 0, y: 0, z: tcmb_car.hasTag('backward')?-1.5:1.5});
+        let manifest = getTCManifest(train, trains_manifest);
+        let has_manifest = hasTCManifest(train, trains_manifest);
+
+        let speed_control_by_tp: boolean;
+        if(has_manifest){
+            if(typeof manifest.speed_control_by_tp == "boolean"){
+                speed_control_by_tp = config.speed_control_by_tp && manifest.speed_control_by_tp;
+            }else{
+                //低速域でもテレポート制御するようになった時と同じ挙動
+                speed_control_by_tp = true;
+            }
+        }else{
+            //低速域でもテレポート制御するようになった時と同じ挙動
+            speed_control_by_tp = true;
+        }
+
+        if(speed_control_by_tp){
+            tcmb_car.applyImpulse({x: 0, y: 0, z: tcmb_car.hasTag('backward')?-1.5:1.5});
+        }
     }
 }, 5);
 
@@ -686,6 +713,14 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
             break;
             case "tcmb_minecart_engine:deprecated":{
                 console.warn(ev.message);
+            }
+            break;
+            case "tcmb_minecart_engine:auto_speed_down":{
+                config.auto_speed_down = ev.message == "true";
+            }
+            break;
+            case "tcmb_minecart_engine:speed_control_by_tp":{
+                config.speed_control_by_tp = ev.message == "true";
             }
             break;
             case "tcmb_minecart_engine:rotate":{

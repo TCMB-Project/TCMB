@@ -31,6 +31,8 @@ item.spawn_egg.entity.tcmb:rotate_ground_facilities.name=Rotate ground facility
 
 tcmb.message.auto_speed_down.enabled=Deceleration when coasting is §aenabled§r.
 tcmb.message.auto_speed_down.disabled=Deceleration when coasting is §cdisabled§r.
+tcmb.message.speed_control_by_tp.enabled=Speed control by teleportation is §aenabled§r.
+tcmb.message.speed_control_by_tp.disabled=Speed control by teleportation is §cdisabled§r.
 
 tcmb.message.work.start=Started working.
 tcmb.message.work.end=Ended working.
