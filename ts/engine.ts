@@ -224,11 +224,11 @@ system.runInterval(()=>{
 
 //auto speed down
 system.runInterval(()=>{
-    if(config.auto_speed_down){
+    if(config.auto_speed_down == true){
         for(const [entityId, train] of tcmb_trains){
             if(!train.entity.isValid()) continue;
             if(train.entity.hasTag('n') && !train.entity.hasTag('tasc_on') && !train.entity.hasTag('tc_child')){
-                train.entity.runCommandAsync('scriptevent tcmb:speed down');
+                train.entity.runCommandAsync('scriptevent tcmb_minecart_engine:speed down');
             }
         }
     }
@@ -717,10 +717,12 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
             break;
             case "tcmb_minecart_engine:auto_speed_down":{
                 config.auto_speed_down = ev.message == "true";
+                world.setDynamicProperty('config', JSON.stringify(config));
             }
             break;
             case "tcmb_minecart_engine:speed_control_by_tp":{
                 config.speed_control_by_tp = ev.message == "true";
+                world.setDynamicProperty('config', JSON.stringify(config));
             }
             break;
             case "tcmb_minecart_engine:rotate":{
