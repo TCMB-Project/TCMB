@@ -5,7 +5,7 @@
 */
 import { world, system, Player } from "@minecraft/server";
 import { Event } from "./classes";
-import { dummy } from "./minecart_engine/main";
+import { dummy } from "./engine";
 new dummy;
 const max_distance = 40;
 const overworld = world.getDimension("overworld");
