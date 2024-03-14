@@ -3,7 +3,7 @@
 * (c) TCMB Project
 * Apache License 2.0
 */
-import { world, system, Player } from "@minecraft/server";
+import { world, system, Entity, Player } from "@minecraft/server";
 import { Event } from "./classes";
 import { dummy } from "./engine";
 new dummy;
@@ -49,6 +49,8 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                 if (!working.has(work_player.id))
                     throw Error(`[tcmb:work_control] ${msg.playerName} is not working`);
                 let worked_train = working.get(work_player.id);
+                if (typeof worked_train == "undefined")
+                    return;
                 try {
                     worked_train.removeTag('tcmb_riding');
                 }
@@ -74,6 +76,8 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                     if (!working.has(work_player.id))
                         throw Error(`[tcmb:work_control] ${msg.playerName} is not working`);
                     let worked_train = working.get(work_player.id);
+                    if (typeof worked_train == "undefined")
+                        return;
                     try {
                         worked_train.removeTag('tcmb_riding_' + work_player.id);
                     }
@@ -120,10 +124,10 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                     overworld.runCommandAsync(`scriptevent ${msg.response} ${JSON.stringify(response_obj)}`);
                 }
                 else if (typeof msg.entity == 'string') {
-                    let response_obj = { playerName: [] };
+                    let response_obj = { playerId: [] };
                     for (let [playerID, train] of working) {
                         if (train.id == msg.entity) {
-                            response_obj['playerName'].push(playerID);
+                            response_obj.playerId.push(playerID);
                         }
                     }
                     overworld.runCommandAsync(`scriptevent ${msg.response} ${JSON.stringify(response_obj)}`);
@@ -185,7 +189,8 @@ world.afterEvents.itemUse.subscribe((ev) => {
             train = dimension.getEntities(event_train_query)[0];
             if (typeof train == "undefined")
                 return;
-            if (working.has(ev.source.id) && working.get(ev.source.id).id == train.id) {
+            let working_train = working.get(ev.source.id);
+            if (working_train instanceof Entity && working_train.id == train.id) {
                 ev.source.sendMessage({ translate: 'tcmb.message.cannot_remove.working' });
                 return;
             }
@@ -219,7 +224,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
                 }
                 return;
             }
-            evdata = new Event('deleteSignal', undefined, train, ev.source, isworking);
+            evdata = new Event('deleteSignal', {}, train, ev.source, false);
             evdata.send();
             break;
         case "tcmb:notch_power":
@@ -379,7 +384,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('door_control', undefined, train, ev.source, isworking);
+            evdata = new Event('door_control', {}, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:ride":
@@ -393,7 +398,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('rideSignal', undefined, train, ev.source, isworking);
+            evdata = new Event('rideSignal', {}, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:direction":
@@ -407,7 +412,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('directionSignal', undefined, train, ev.source, isworking);
+            evdata = new Event('directionSignal', {}, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:dest":
@@ -449,7 +454,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
             }
             if (typeof train == "undefined")
                 return;
-            evdata = new Event('open_crew_panelSignal', undefined, train, ev.source, isworking);
+            evdata = new Event('open_crew_panelSignal', {}, train, ev.source, isworking);
             evdata.send();
             break;
         case "tcmb:seat_control":
@@ -464,7 +469,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
                 }
                 if (typeof train == "undefined")
                     return;
-                evdata = new Event('open_seat_controlSignal', undefined, train, ev.source, isworking);
+                evdata = new Event('open_seat_controlSignal', {}, train, ev.source, isworking);
                 evdata.send();
             }
             break;
@@ -559,7 +564,7 @@ world.afterEvents.itemUseOn.subscribe((event) => {
                 }
                 if (typeof train == "undefined")
                     return;
-                let evdata = new Event('open_crew_panelSignal', undefined, train, player, isworking);
+                let evdata = new Event('open_crew_panelSignal', {}, train, player, isworking);
                 evdata.send();
             }
             break;

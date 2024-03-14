@@ -50,12 +50,24 @@ let perf = {
 let perf_monitor = false;
 let monitor_runid = 0;
 let crew_panel_buttons = [];
-crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.door_control' }, 'textures/items/door_control', undefined));
-crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.electricity_control' }, 'textures/items/electricity_control', 'tcmb:engine_electricity_control'));
-crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.eb' }, 'textures/items/notch_eb', undefined));
-crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.seat_control' }, 'textures/items/seat', 'tcmb_minecart_engine:seat_control'));
-crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.direction' }, 'textures/items/direction', undefined));
-crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.work' }, 'textures/items/crew_panel', 'tcmb:engine_work'));
+crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.door_control' }, 'textures/items/door_control', {
+    type: 'event', action: 'door_control'
+}));
+crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.electricity_control' }, 'textures/items/electricity_control', {
+    type: 'scriptevent', action: 'tcmb:engine_electricity_control'
+}));
+crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.seat_control' }, 'textures/items/seat', {
+    type: 'scriptevent', action: 'tcmb_minecart_engine:seat_control'
+}));
+crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.direction' }, 'textures/items/direction', {
+    type: 'event', action: 'directionSignal'
+}));
+crew_panel_buttons.push(new PanelButton(true, { translate: 'item.tcmb:ride.name' }, 'textures/items/ride', {
+    type: 'event', action: 'rideSignal'
+}));
+crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.work' }, 'textures/items/crew_panel', {
+    type: 'scriptevent', action: 'tcmb_minecart_engine:work'
+}));
 let trains_manifest = new Map();
 async function initializeTrain(entity) {
     try {
@@ -100,13 +112,12 @@ system.runInterval(() => {
             continue;
         let tags = tcmb_car.getTags();
         let manifest = getTCManifest(train, trains_manifest);
-        let has_manifest = hasTCManifest(train, trains_manifest);
         //tcmb_car(speed)
         var speed = speedObject.getScore(tcmb_car);
         if (typeof speed == "undefined")
             continue;
         let speed_control_by_tp;
-        if (has_manifest) {
+        if (hasTCManifest(train, trains_manifest)) {
             if (typeof manifest.speed_control_by_tp == "boolean") {
                 speed_control_by_tp = config.speed_control_by_tp && manifest.speed_control_by_tp;
             }
@@ -364,22 +375,9 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
                             if (response.canceled)
                                 return;
                             if (typeof crew_panel_buttons[response.selection].response == 'undefined') {
-                                switch (response.selection) {
-                                    case 0:
-                                        door_ctrl(player, train);
-                                        break;
-                                    case 2:
-                                        train.runCommandAsync('function eb');
-                                        break;
-                                    case 4:
-                                        let signal = new Event('directionSignal', undefined, train, player, evdata.isWorking);
-                                        signal.send();
-                                        break;
-                                }
                             }
                             else {
-                                let send_event = new Event('click', undefined, train, player, evdata.isWorking);
-                                player.runCommandAsync(`scriptevent ${crew_panel_buttons[response.selection].response} ${JSON.stringify(send_event)}`);
+                                crew_panel_buttons[response.selection].runAction(player, train, evdata);
                             }
                         });
                     }
@@ -565,7 +563,7 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
                 });
             }
             break;
-        case 'tcmb:engine_work':
+        case 'tcmb_minecart_engine:work':
             {
                 var player = ev.sourceEntity;
                 var train = world.getEntity(JSON.parse(ev.message)['entity']['id']);

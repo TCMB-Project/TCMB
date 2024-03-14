@@ -36,6 +36,38 @@ export class PanelButton {
     setUUID(uuid) {
         this.uuid = uuid;
     }
+    runAction(player, train, evdata) {
+        switch (this.response.type) {
+            case "scriptevent":
+                {
+                    let send_event = new Event('click', {}, train, player, evdata.isWorking);
+                    player.runCommandAsync(`scriptevent ${this.response.action} ${JSON.stringify(send_event)}`);
+                }
+                break;
+            case "event":
+                {
+                    const overworld = world.getDimension("overworld");
+                    let send_event = new Event(this.response.action, {}, train, player, evdata.isWorking);
+                    overworld.runCommandAsync(`scriptevent tcmb:event ${JSON.stringify(send_event)}`);
+                }
+                break;
+            case "entityevent":
+                {
+                    train.triggerEvent(this.response.action);
+                }
+                break;
+            case "command":
+                {
+                    player.runCommandAsync(this.response.action);
+                }
+                break;
+            case "command_by_entity":
+                {
+                    train.runCommandAsync(this.response.action);
+                }
+                break;
+        }
+    }
 }
 export class TCMBTrain {
     constructor(car, working = undefined, body = undefined) {
