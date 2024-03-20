@@ -98,29 +98,19 @@ export class TCMBTrain{
     }
 }
 
-export class TrainSpeedSpec{
-    limit: number;
-    evalby: string;
-    acceleration: object;
-    deceleration: object;
-    constructor(origin: object){
-        if(typeof origin['limit'] == 'number'){
-            this.limit = origin['limit'];
-        }else{
-            throw TypeError(`{tcmanifest}.speed.limit is not a number. (${typeof origin['limit']})`);
-        }
-        this.evalby = typeof origin['evalby'] == 'string'?origin['evalby']:'default';
-        if(typeof origin['deceleration'] == 'object'){
-            this.deceleration = origin['deceleration'];
-        }else if(typeof origin['deceleration'] != 'undefined'){
-            throw TypeError(`{tcmanifest}.speed.deceleration is not an object. (${typeof origin['deceleration']})`);
-        }
-        if(typeof origin['acceleration'] == 'object'){
-            this.acceleration = origin['acceleration'];
-        }else if(typeof origin['deceleration'] != 'undefined'){
-            throw TypeError(`{tcmanifest}.speed.acceleration is not number. (${typeof origin['acceleration']})`);
-        }
-    }
+export type TrainSpeedSpec = {
+    limit?: number,
+    evaluation?: boolean,
+    acceleration?: number[][],
+    deceleration?: number,
+    emergency?: number,
+    break_latency?: number
+}
+
+export type MNotch = {
+    power: number,
+    break: number,
+    constant_speed?: boolean
 }
 
 class TrainBattery{
@@ -158,20 +148,13 @@ class Notch{
     }
 }
 
-export class TCManifest{
-    name: string | undefined;
-    company: string | undefined;
-    type: string;
-    speed_control_by_tp: boolean;
-    summon_command: string | undefined;
-    speed: TrainSpeedSpec | undefined;
-    notch: object[];
-    battery: TrainBattery | undefined;
-    constructor(origin_json: string){
-        let origin: unknown = JSON.parse(origin_json);
-        let keys = Object.keys(origin);
-        for(const key of keys){
-            this[key] = origin[key];
-        }
-    }
+export type TCManifest = {
+    name: string | undefined,
+    company: string | undefined,
+    type: string,
+    speed_control_by_tp: boolean,
+    summon_command: string | undefined,
+    speed: TrainSpeedSpec | undefined,
+    battery: TrainBattery | undefined,
+    mnotch: MNotch
 }

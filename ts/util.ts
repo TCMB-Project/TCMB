@@ -4,7 +4,7 @@
 * Apache License 2.0
 */
 import { Vector2, Vector3, system } from "@minecraft/server";
-import { TCMBTrain, TCManifest, TCManifestMap } from "./classes";
+import { TCMBTrain, TCManifest, TrainSpeedSpec } from "./classes";
 
 export function findFirstMatch(array: string[], searchString: string):number {
     let match = array.find(element => element.startsWith(searchString));
@@ -16,12 +16,10 @@ export function findFirstMatch(array: string[], searchString: string):number {
     }
 }
 
-export function distance(p1: Vector3, p2: Vector3): number {
-  const dx = p1.x - p2.x;
-  const dy = p1.y - p2.y;
-  const dz = p1.z - p2.z;
-
-  return Math.sqrt(dx * dx + dy * dy + dz * dz);
+export function decimalPart(number: number){
+    let string_number = number.toString();
+    let string_array = string_number.split('.');
+    return Number(string_array[1]);
 }
 
 // ローカル座標をワールド座標に変換する関数
@@ -54,11 +52,11 @@ export function getTrainTypeId(train: TCMBTrain){
   return train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
 }
 
-export function getTCManifest(train: TCMBTrain, trains_manifest: TCManifestMap): TCManifest | undefined {
+export function getTCManifest(train: TCMBTrain): TCManifest | undefined {
   if(train.entity.getDynamicPropertyIds().includes('tcmanifest')){
     let manifest_property: unknown = train.entity.getDynamicProperty('tcmanifest');
     if(typeof manifest_property == 'string'){
-        return new TCManifest(manifest_property);
+        return JSON.parse(manifest_property);
     }else{
         throw new TypeError('TCManifest on DP is not a string.');
     }
@@ -67,11 +65,21 @@ export function getTCManifest(train: TCMBTrain, trains_manifest: TCManifestMap):
   }
 }
 
-export function hasTCManifest(train: TCMBTrain, trains_manifest: TCManifestMap): boolean{
+export function hasTCManifest(train: TCMBTrain): boolean{
     if(train.entity.getDynamicPropertyIds().includes('tcmanifest')){
         return true;
     }else{
         return false;
+    }
+}
+
+export function getSpeedSpec(train: TCMBTrain): TrainSpeedSpec | undefined{
+    if(!hasTCManifest(train)) return undefined;
+    let manifest = getTCManifest(train);
+    if(typeof manifest.speed == 'object'){
+        return manifest.speed;
+    }else{
+        return undefined;
     }
 }
 

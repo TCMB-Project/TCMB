@@ -5,8 +5,9 @@
 */
 import { world, system, Dimension, ScoreboardObjective, Block, Entity, Player, EntityQueryOptions, ScriptEventSource, Vector2, Vector3 } from "@minecraft/server";
 import { ModalFormData, ActionFormData, MessageFormData } from "@minecraft/server-ui";
-import { ConfigObject, Event, PanelButton, TCMBTrain, TCManifest, TCManifestMap } from "./classes";
-import { findFirstMatch, getTCManifest, hasTCManifest } from "./util";
+import { ConfigObject, Event, PanelButton, TCMBTrain, TCManifest, TCManifestMap, TrainSpeedSpec } from "./classes";
+import { findFirstMatch, decimalPart,  getTCManifest, hasTCManifest } from "./util";
+import { speed_eval } from "./speed_eval";
 
 export class dummy{}
 
@@ -116,8 +117,10 @@ system.runInterval(() =>{
         var bodies = train.body;
         if(typeof speedObject == "undefined") continue;
         let tags = tcmb_car.getTags();
+        let notch_regexp: RegExp = /(eb|p\d|b\d|n)/;
+        let notch: string = tags.find((element)=> notch_regexp.test(element));
 
-        let manifest = getTCManifest(train, trains_manifest);
+        let manifest = getTCManifest(train);
         
         //tcmb_car(speed)
         let speed_int: number | undefined = speedObject.getScore(tcmb_car);
@@ -127,15 +130,32 @@ system.runInterval(() =>{
 
         //controlable by tp?
         let speed_control_by_tp: boolean;
-        if(hasTCManifest(train, trains_manifest)){
+        let speed_spec: TrainSpeedSpec;
+        if(hasTCManifest(train)){
             if(typeof manifest.speed_control_by_tp == "boolean"){
                 speed_control_by_tp = config.speed_control_by_tp && manifest.speed_control_by_tp;
             }else{
                 speed_control_by_tp = config.speed_control_by_tp;
             }
+
+            //defined spec?
+            if(typeof manifest.speed == 'object'){
+                speed_spec = manifest.speed;
+            }else{
+                speed_spec = undefined;
+            }
         }else{
             speed_control_by_tp = config.speed_control_by_tp;
         }
+
+        //speed evaluation
+        let accelerated = speed_eval(speed_spec, speed, manifest.mnotch, notch);
+
+        /*
+        tcmb_car.setProperty('tcmb:speed_decimal', decimalPart(speed));
+        speedObject.setScore(tcmb_car, Math.floor(speed));
+        tcmb_car.setProperty('tcmb:speed', speed);
+        */
 
         //tcmb_car(fast_run)
         if(speed > 108){
@@ -146,7 +166,7 @@ system.runInterval(() =>{
             }
             tcmb_car.triggerEvent('109km');
         }else{
-            tcmb_car.triggerEvent(speed +"km");
+            tcmb_car.triggerEvent(Math.floor(speed) +"km");
         }
 
         //body
@@ -161,6 +181,8 @@ system.runInterval(() =>{
                 continue;
             }
             if(open_order) body.triggerEvent(open_order);
+            
+            body.runCommandAsync(`playanimation @s ${notch} ${notch} 32767`);
 
             let carid_onbody_tag_exists = findFirstMatch(body.getTags(), 'tcmb_body_');
             if(carid_onbody_tag_exists == -1){
@@ -256,8 +278,8 @@ system.runInterval(()=>{
     for(const [entityId, train] of tcmb_trains){
         const tcmb_car = train.entity;
         if(!tcmb_car.isValid()) continue;
-        let manifest = getTCManifest(train, trains_manifest);
-        let has_manifest = hasTCManifest(train, trains_manifest);
+        let manifest = getTCManifest(train);
+        let has_manifest = hasTCManifest(train);
 
         let speed_control_by_tp: boolean;
         if(has_manifest){
@@ -558,7 +580,8 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
                 let train: TCMBTrain = tcmb_trains.get(ev.sourceEntity.id);
                 let typeId = train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
                 let tags = train.entity.getTags();
-                let speed: any = speedObject.getScore(train.entity);
+                let speed: unknown = speedObject.getScore(train.entity);
+                if(typeof speed != 'number') return;
                 let level = train.entity.getProperty('tcmb:battery_level');
                 if(!(trains_manifest.has(typeId) && trains_manifest.get(typeId)['battery'])) level = undefined;
 
@@ -578,8 +601,8 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
 
                     if(typeof max_speed_property == 'number' && max_speed_property != 0){
                         max_speed = max_speed_property;
-                    }else if(hasTCManifest(train, trains_manifest)){
-                        max_speed = getTCManifest(train, trains_manifest).speed.limit;
+                    }else if(hasTCManifest(train)){
+                        max_speed = getTCManifest(train).speed.limit;
                     }else{
                         let maxspeed_tag: string = train.entity.getTags().filter((tag) => tag.startsWith('max_'))[0];
                         max_speed = Number(maxspeed_tag.substring(4, maxspeed_tag.length-2));
@@ -642,7 +665,7 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
                     console.warn('[tcmb:reply] Event source is not Server.');
                 }
                 if(typeof message == "object" && typeof message['type'] == 'string'){
-                    trains_manifest.set(message['type'], new TCManifest(ev.message));
+                    trains_manifest.set(message['type'], JSON.parse(ev.message));
                 }
             }
             break;
