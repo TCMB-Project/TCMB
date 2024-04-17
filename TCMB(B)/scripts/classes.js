@@ -75,45 +75,6 @@ export class TCMBTrain {
         this.body = body;
     }
 }
-export class TrainSpeedSpec {
-    constructor(origin) {
-        if (typeof origin['limit'] == 'number') {
-            this.limit = origin['limit'];
-        }
-        else {
-            throw TypeError(`{tcmanifest}.speed.limit is not a number. (${typeof origin['limit']})`);
-        }
-        this.evalby = typeof origin['evalby'] == 'string' ? origin['evalby'] : 'default';
-        if (typeof origin['deceleration'] == 'object') {
-            this.deceleration = origin['deceleration'];
-        }
-        else if (typeof origin['deceleration'] != 'undefined') {
-            throw TypeError(`{tcmanifest}.speed.deceleration is not an object. (${typeof origin['deceleration']})`);
-        }
-        if (typeof origin['acceleration'] == 'object') {
-            this.acceleration = origin['acceleration'];
-        }
-        else if (typeof origin['deceleration'] != 'undefined') {
-            throw TypeError(`{tcmanifest}.speed.acceleration is not number. (${typeof origin['acceleration']})`);
-        }
-    }
-}
-class TrainBattery {
-    constructor(origin) {
-        if (typeof origin['capacity'] == 'number') {
-            this.capacity = origin['capacity'];
-        }
-        else {
-            throw TypeError(`{tcmanifest}.battery.capacity is not number. (${typeof origin['capacity']})`);
-        }
-        if (typeof origin['performance'] == 'object') {
-            this.performance = origin['performance'];
-        }
-        else {
-            throw TypeError(`{tcmanifest}.battery.performance is not object. (${typeof origin['performance']})`);
-        }
-    }
-}
 class Notch {
     constructor(origin) {
         if (typeof origin['id'] == 'string') {
@@ -127,15 +88,6 @@ class Notch {
         }
         if (typeof origin['config'] == 'object') {
             this.config = origin['config'];
-        }
-    }
-}
-export class TCManifest {
-    constructor(origin_json) {
-        let origin = JSON.parse(origin_json);
-        let keys = Object.keys(origin);
-        for (const key of keys) {
-            this[key] = origin[key];
         }
     }
 }

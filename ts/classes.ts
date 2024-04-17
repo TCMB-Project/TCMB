@@ -113,20 +113,13 @@ export type MNotch = {
     constant_speed?: boolean
 }
 
-class TrainBattery{
-    capacity: number;
-    performance: object;
-    constructor(origin: object){
-        if(typeof origin['capacity'] == 'number'){
-            this.capacity = origin['capacity'];
-        }else{
-            throw TypeError(`{tcmanifest}.battery.capacity is not number. (${typeof origin['capacity']})`);
-        }
-        if(typeof origin['performance'] == 'object'){
-            this.performance = origin['performance'];
-        }else{
-            throw TypeError(`{tcmanifest}.battery.performance is not object. (${typeof origin['performance']})`);
-        }
+export type TrainBattery = {
+    capacity: number,
+    performance: {
+        speed_up: { use: number},
+        speed_dowm: { charge: number },
+        voltage_1: { charge: number },
+        no_operation: { TimeInterval: number, use: number }
     }
 }
 

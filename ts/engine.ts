@@ -5,7 +5,7 @@
 */
 import { world, system, Dimension, ScoreboardObjective, Block, Entity, Player, EntityQueryOptions, ScriptEventSource, Vector2, Vector3 } from "@minecraft/server";
 import { ModalFormData, ActionFormData, MessageFormData } from "@minecraft/server-ui";
-import { ConfigObject, Event, PanelButton, TCMBTrain, TCManifest, TCManifestMap, TrainSpeedSpec } from "./classes";
+import { ConfigObject, Event, MNotch, PanelButton, TCMBTrain, TCManifest, TCManifestMap, TrainBattery, TrainSpeedSpec } from "./classes";
 import { findFirstMatch, decimalPart,  getTCManifest, hasTCManifest } from "./util";
 import { speed_eval } from "./speed_eval";
 
@@ -71,13 +71,16 @@ crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.di
 crew_panel_buttons.push(new PanelButton(true, {translate: 'item.tcmb:ride.name'}, 'textures/items/ride',{
     type: 'event', action: 'rideSignal'
 }));
+crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.custom_command'}, undefined, {
+    type: 'scriptevent', action:'tcmb_minecart_engine:custom_command'
+}))
 crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.work'}, 'textures/items/crew_panel',{
     type: 'scriptevent', action: 'tcmb_minecart_engine:work'
 }));
 
 let trains_manifest : TCManifestMap = new Map();
 
-async function initializeTrain(entity: Entity){
+function initializeTrain(entity: Entity){
     try{
         if(entity.typeId == 'tcmb:tcmb_car'){
             if(perf_monitor) var start: number = (new Date()).getTime();
@@ -131,6 +134,10 @@ system.runInterval(() =>{
         //controlable by tp?
         let speed_control_by_tp: boolean;
         let speed_spec: TrainSpeedSpec;
+        let mnotch: MNotch = {
+            power: 4,
+            break: 7
+        };
         if(hasTCManifest(train)){
             if(typeof manifest.speed_control_by_tp == "boolean"){
                 speed_control_by_tp = config.speed_control_by_tp && manifest.speed_control_by_tp;
@@ -144,12 +151,17 @@ system.runInterval(() =>{
             }else{
                 speed_spec = undefined;
             }
+            mnotch = (typeof manifest.mnotch)?manifest.mnotch:{
+                power: 4,
+                break: 7
+            }
         }else{
             speed_control_by_tp = config.speed_control_by_tp;
         }
 
         //speed evaluation
-        let accelerated = speed_eval(speed_spec, speed, manifest.mnotch, notch);
+        let accelerated = speed_eval(speed_spec, speed, mnotch, notch);
+        console.log(accelerated);
 
         /*
         tcmb_car.setProperty('tcmb:speed_decimal', decimalPart(speed));
@@ -174,7 +186,6 @@ system.runInterval(() =>{
         for(const body of bodies){
             try{
                 body.triggerEvent(speed +"km");
-                body.teleport(tcmb_car.location);
             }catch(err){
                 tcmb_car.kill();
                 console.error(err, ' | Deleted the associated tcmb_car.');
@@ -212,13 +223,15 @@ system.runInterval(()=>{
         if(!train.entity.isValid()) continue;
         let typeId = train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
         if(trains_manifest.has(typeId)){
-            let battery = trains_manifest.get(typeId)['battery'];
+            let battery: TrainBattery = trains_manifest.get(typeId)['battery'];
             if(typeof battery != 'object') continue;
             train.entity.addTag('has_battery');
+
             let now_level = train.entity.getProperty('tcmb:battery_level');
+            if(typeof now_level != 'number') return;
 
             if(train.entity.hasTag('voltage_1')){
-                let charge_perf = trains_manifest.get(typeId)['battery']['performance']['voltage_1']['charge'];
+                let charge_perf = battery.performance.voltage_1.charge;
                 if((now_level + charge_perf) >= battery['capacity']){
                     train.entity.setProperty('tcmb:battery_level', battery['capacity']);
                 }else if(typeof charge_perf != 'undefined'){

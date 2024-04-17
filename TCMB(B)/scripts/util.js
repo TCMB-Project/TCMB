@@ -1,4 +1,3 @@
-import { TCManifest } from "./classes";
 export function findFirstMatch(array, searchString) {
     let match = array.find(element => element.startsWith(searchString));
     if (match) {
@@ -8,11 +7,10 @@ export function findFirstMatch(array, searchString) {
         return -1;
     }
 }
-export function distance(p1, p2) {
-    const dx = p1.x - p2.x;
-    const dy = p1.y - p2.y;
-    const dz = p1.z - p2.z;
-    return Math.sqrt(dx * dx + dy * dy + dz * dz);
+export function decimalPart(number) {
+    let string_number = number.toString();
+    let string_array = string_number.split('.');
+    return Number(string_array[1]);
 }
 // ローカル座標をワールド座標に変換する関数
 export function localToWorld(position, local, rotation) {
@@ -40,11 +38,11 @@ export function localToWorld(position, local, rotation) {
 export function getTrainTypeId(train) {
     return train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
 }
-export function getTCManifest(train, trains_manifest) {
+export function getTCManifest(train) {
     if (train.entity.getDynamicPropertyIds().includes('tcmanifest')) {
         let manifest_property = train.entity.getDynamicProperty('tcmanifest');
         if (typeof manifest_property == 'string') {
-            return new TCManifest(manifest_property);
+            return JSON.parse(manifest_property);
         }
         else {
             throw new TypeError('TCManifest on DP is not a string.');
@@ -54,12 +52,23 @@ export function getTCManifest(train, trains_manifest) {
         return undefined;
     }
 }
-export function hasTCManifest(train, trains_manifest) {
+export function hasTCManifest(train) {
     if (train.entity.getDynamicPropertyIds().includes('tcmanifest')) {
         return true;
     }
     else {
         return false;
+    }
+}
+export function getSpeedSpec(train) {
+    if (!hasTCManifest(train))
+        return undefined;
+    let manifest = getTCManifest(train);
+    if (typeof manifest.speed == 'object') {
+        return manifest.speed;
+    }
+    else {
+        return undefined;
     }
 }
 export const reverse_direction = {

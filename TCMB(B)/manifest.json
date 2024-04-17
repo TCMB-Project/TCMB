@@ -3,7 +3,7 @@
   "header": {
     "name": "TCMB",
     "description": "Train Controller for Minecraft BE",
-    "version": [1, 2, 3],
+    "version": "1.3.0-beta20240322",
     "uuid": "cfbba0b1-51fe-4f44-bd2b-d07a106617e7",
     "min_engine_version": [1, 20, 50]
   },
@@ -26,7 +26,7 @@
   "dependencies": [
     {
       "uuid": "4bc491c8-d249-4cb9-9432-3bf4da163da3",
-      "version": [1, 2, 3]
+      "version": "1.3.0-beta20240322"
     },
     {
       "module_name": "@minecraft/server",
