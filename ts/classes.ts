@@ -100,8 +100,7 @@ export class TCMBTrain{
 
 export type TrainSpeedSpec = {
     limit?: number,
-    evaluation?: boolean,
-    acceleration?: number[][],
+    simple_evaluation?: boolean,
     deceleration?: number,
     emergency?: number,
     break_latency?: number

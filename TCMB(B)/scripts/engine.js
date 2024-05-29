@@ -132,6 +132,7 @@ system.runInterval(() => {
             power: 4,
             break: 7
         };
+        let simple_evaluation = true;
         if (hasTCManifest(train)) {
             if (typeof manifest.speed_control_by_tp == "boolean") {
                 speed_control_by_tp = config.speed_control_by_tp && manifest.speed_control_by_tp;
@@ -150,13 +151,21 @@ system.runInterval(() => {
                 power: 4,
                 break: 7
             };
+            if (typeof speed_spec.simple_evaluation == 'boolean') {
+                simple_evaluation = speed_spec.simple_evaluation;
+            }
+            else {
+                simple_evaluation = true;
+            }
         }
         else {
             speed_control_by_tp = config.speed_control_by_tp;
         }
         //speed evaluation
-        let accelerated = speed_eval(speed_spec, speed, mnotch, notch);
-        console.log(accelerated);
+        if (simple_evaluation) {
+            let accelerated = speed_eval(speed, mnotch, notch);
+            console.log(accelerated);
+        }
         /*
         tcmb_car.setProperty('tcmb:speed_decimal', decimalPart(speed));
         speedObject.setScore(tcmb_car, Math.floor(speed));
