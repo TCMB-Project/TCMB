@@ -1,63 +1,7 @@
 {
     "format_version": "1.18.0",
     "animation_controllers":{
-        "controller.animation.notch_power":{
-            "states":{
-                "default":{
-                    "transitions":[
-                        {"run": "(1.0)"}
-                    ]
-                },
-                "run":{
-                    "on_entry":[
-                        "@s delete"
-                    ]
-                }
-            }
-        },
-        "controller.animation.notch_neutral":{
-            "states":{
-                "default":{
-                    "transitions":[
-                        {"run": "(1.0)"}
-                    ]
-                },
-                "run":{
-                    "on_entry":[
-                        "@s delete"
-                    ]
-                }
-            }
-        },
-        "controller.animation.notch_break":{
-            "states":{
-                "default":{
-                    "transitions":[
-                        {"run": "(1.0)"}
-                    ]
-                },
-                "run":{
-                    "on_entry":[
-                        "@s delete"
-                    ]
-                }
-            }
-        },
-        "controller.animation.notch_eb":{
-            "states":{
-                "default":{
-                    "transitions":[
-                        {"run": "(1.0)"}
-                    ]
-                },
-                "run":{
-                    "on_entry":[
-                        "@s delete"
-                    ]
-                }
-            }
-        },
-        "controller.animation.crew_panel":{
+        "controller.animation.tcmb_item":{
             "states":{
                 "default":{
                     "transitions":[
