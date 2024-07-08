@@ -1,0 +1,46 @@
+{
+  "format_version": "1.18.0",
+  "minecraft:entity":{
+    "description":{
+      "identifier": "tcmb:srs_car",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false
+    },
+    "properties":{
+      "tcmb:speed":{
+        "type": "float",
+        "range": [-65535.0, 65535.0],
+        "default": 0.0
+      },
+      "tcmb:unsigned_integer_speed":{
+        "type": "int",
+        "range": [0, 65535],
+        "default": 0
+      },
+      "tcmb:mileage":{
+        "type": "int",
+        "range": [0, 2147483647],
+        "default": 0
+      },
+      "tcmb:mileage_decimal":{
+        "type": "float",
+        "range": [0.0, 1.0],
+        "default": 0.0
+      }
+    },
+    "components":{
+      "minecraft:type_family": {
+        "family": [
+          "tcmb_car",
+          "inanimate"
+        ]
+      },
+      "minecraft:collision_box": {
+        "width": 1,
+        "height": 1
+      },
+      "minecraft:tick_world":{}
+    }
+  }
+}

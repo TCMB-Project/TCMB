@@ -5,9 +5,9 @@
 */
 import { world, system, Dimension, ScoreboardObjective, Block, Entity, Player, EntityQueryOptions, ScriptEventSource, Vector2, Vector3 } from "@minecraft/server";
 import { ModalFormData, ActionFormData, MessageFormData } from "@minecraft/server-ui";
-import { ConfigObject, Event, MNotch, PanelButton, TCMBTrain, TCManifest, TCManifestMap, TrainBattery, TrainSpeedSpec } from "./classes";
-import { findFirstMatch, decimalPart,  getTCManifest, hasTCManifest } from "./util";
-import { speed_eval } from "./speed_eval";
+import { ConfigObject, Event, MNotch, PanelButton, TCMBTrain, TCManifest, TCManifestMap, TrainBattery, TrainSpeedSpec } from "../classes";
+import { findFirstMatch, decimalPart,  getTCManifest, hasTCManifest } from "../util";
+import { speed_eval } from "../speed_eval";
 
 export class dummy{}
 
@@ -201,7 +201,10 @@ system.runInterval(() =>{
             }
             if(open_order) body.triggerEvent(open_order);
             
-            body.runCommandAsync(`playanimation @s ${notch} ${notch} 32767`);
+            body.playAnimation(`${notch}`, {
+                nextState: notch,
+                blendOutTime: 32767
+            });
 
             let carid_onbody_tag_exists = findFirstMatch(body.getTags(), 'tcmb_body_');
             if(carid_onbody_tag_exists == -1){

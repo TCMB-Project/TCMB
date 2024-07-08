@@ -5,7 +5,7 @@
 */
 import { world, system, Dimension, Entity, EntityQueryOptions, Player, BlockRaycastOptions, BlockRaycastHit, RawMessage } from "@minecraft/server";
 import { Event } from "./classes";
-import { dummy } from "./engine";
+import { dummy } from "./minecart_engine/main";
 
 new dummy;
 
