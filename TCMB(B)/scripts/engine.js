@@ -7,7 +7,6 @@ import { world, system, Entity, Player, ScriptEventSource } from "@minecraft/ser
 import { ModalFormData, ActionFormData, MessageFormData } from "@minecraft/server-ui";
 import { Event, PanelButton, TCMBTrain } from "./classes";
 import { findFirstMatch, getTCManifest, hasTCManifest } from "./util";
-import { speed_eval } from "./speed_eval";
 export class dummy {
 }
 const overworld = world.getDimension("overworld");
@@ -51,27 +50,12 @@ let perf = {
 let perf_monitor = false;
 let monitor_runid = 0;
 let crew_panel_buttons = [];
-crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.door_control' }, 'textures/items/door_control', {
-    type: 'event', action: 'door_control'
-}));
-crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.electricity_control' }, 'textures/items/electricity_control', {
-    type: 'scriptevent', action: 'tcmb:engine_electricity_control'
-}));
-crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.seat_control' }, 'textures/items/seat', {
-    type: 'scriptevent', action: 'tcmb_minecart_engine:seat_control'
-}));
-crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.direction' }, 'textures/items/direction', {
-    type: 'event', action: 'directionSignal'
-}));
-crew_panel_buttons.push(new PanelButton(true, { translate: 'item.tcmb:ride.name' }, 'textures/items/ride', {
-    type: 'event', action: 'rideSignal'
-}));
-crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.custom_command' }, undefined, {
-    type: 'scriptevent', action: 'tcmb_minecart_engine:custom_command'
-}));
-crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.work' }, 'textures/items/crew_panel', {
-    type: 'scriptevent', action: 'tcmb_minecart_engine:work'
-}));
+crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.door_control' }, 'textures/items/door_control', undefined));
+crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.electricity_control' }, 'textures/items/electricity_control', 'tcmb:engine_electricity_control'));
+crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.eb' }, 'textures/items/notch_eb', undefined));
+crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.seat_control' }, 'textures/items/seat', 'tcmb_minecart_engine:seat_control'));
+crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.direction' }, 'textures/items/direction', undefined));
+crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.work' }, 'textures/items/crew_panel', 'tcmb:engine_work'));
 let trains_manifest = new Map();
 function initializeTrain(entity) {
     try {
@@ -119,13 +103,9 @@ system.runInterval(() => {
         let notch = tags.find((element) => notch_regexp.test(element));
         let manifest = getTCManifest(train);
         //tcmb_car(speed)
-        let speed_int = speedObject.getScore(tcmb_car);
-        if (typeof speed_int != "number")
+        var speed = speedObject.getScore(tcmb_car);
+        if (typeof speed == "undefined")
             continue;
-        let speed_decimal = tcmb_car.getProperty('tcmb:speed_decimal');
-        let speed = (() => { if (typeof speed_decimal == "number")
-            return speed_int + speed_decimal; })();
-        //controlable by tp?
         let speed_control_by_tp;
         let speed_spec;
         let mnotch = {
@@ -161,16 +141,6 @@ system.runInterval(() => {
         else {
             speed_control_by_tp = config.speed_control_by_tp;
         }
-        //speed evaluation
-        if (simple_evaluation) {
-            let accelerated = speed_eval(speed, mnotch, notch);
-            console.log(accelerated);
-        }
-        /*
-        tcmb_car.setProperty('tcmb:speed_decimal', decimalPart(speed));
-        speedObject.setScore(tcmb_car, Math.floor(speed));
-        tcmb_car.setProperty('tcmb:speed', speed);
-        */
         //tcmb_car(fast_run)
         if (speed > 108) {
             if (speed_control_by_tp) {
@@ -421,9 +391,22 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
                             if (response.canceled)
                                 return;
                             if (typeof crew_panel_buttons[response.selection].response == 'undefined') {
+                                switch (response.selection) {
+                                    case 0:
+                                        door_ctrl(player, train);
+                                        break;
+                                    case 2:
+                                        train.runCommandAsync('function eb');
+                                        break;
+                                    case 4:
+                                        let signal = new Event('directionSignal', undefined, train, player, evdata.isWorking);
+                                        signal.send();
+                                        break;
+                                }
                             }
                             else {
-                                crew_panel_buttons[response.selection].runAction(player, train, evdata);
+                                let send_event = new Event('click', undefined, train, player, evdata.isWorking);
+                                player.runCommandAsync(`scriptevent ${crew_panel_buttons[response.selection].response} ${JSON.stringify(send_event)}`);
                             }
                         });
                     }
@@ -609,7 +592,7 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
                 });
             }
             break;
-        case 'tcmb_minecart_engine:work':
+        case 'tcmb:engine_work':
             {
                 var player = ev.sourceEntity;
                 var train = world.getEntity(JSON.parse(ev.message)['entity']['id']);

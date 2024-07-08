@@ -189,22 +189,7 @@
                 },
                 "tcmb:speed_decimal":{
                     "type": "float",
-                    "range": [0.0, 1.0],
-                    "default": 0.0
-                },
-                "tcmb:speed":{
-                    "type": "float",
-                    "range": [0.0, 65535.0],
-                    "default": 0.0
-                },
-                "tcmb:mileage":{
-                    "type": "int",
-                    "range": [0, 2147483647],
-                    "default": 0
-                },
-                "tcmb:mileage_decimal":{
-                    "type": "float",
-                    "range": [0.0, 1.0],
+                    "range": [-100.0, 100.0],
                     "default": 0.0
                 },
                 "tcmb:battery_capacity":{

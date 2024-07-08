@@ -38,9 +38,9 @@ export class PanelButton{
     official: boolean;
     text: string | RawMessage;
     texture: string | undefined;
-    response: PanelButtonAction;
+    response: string | undefined;
     uuid: string | undefined;
-    constructor(official:boolean, text:string | RawMessage, texture:string | undefined, response: PanelButtonAction){
+    constructor(official:boolean, text:string | RawMessage, texture:string | undefined, response: string | undefined){
         this.official = official;
         this.text = text;
         this.texture = texture;
@@ -49,38 +49,6 @@ export class PanelButton{
     setUUID(uuid:string){
         this.uuid = uuid;
     }
-    runAction(player: Player, train: Entity, evdata: Event){
-        switch(this.response.type){
-            case "scriptevent":{
-                let send_event = new Event('click', {}, train, player, evdata.isWorking);
-                player.runCommandAsync(`scriptevent ${this.response.action} ${JSON.stringify(send_event)}`);
-            }
-            break;
-            case "event":{
-                const overworld = world.getDimension("overworld");
-                let send_event = new Event(this.response.action, {}, train, player, evdata.isWorking);
-                overworld.runCommandAsync(`scriptevent tcmb:event ${JSON.stringify(send_event)}`);
-            }
-            break;
-            case "entityevent":{
-                train.triggerEvent(this.response.action);
-            }
-            break;
-            case "command":{
-                player.runCommandAsync(this.response.action);
-            }
-            break;
-            case "command_by_entity":{
-                train.runCommandAsync(this.response.action)
-            }
-            break;
-        }
-    }
-}
-
-export type PanelButtonAction = {
-    type: 'scriptevent' | 'event' | 'entityevent' | 'command' | 'command_by_entity',
-    action: string | undefined
 }
 
 export type TCManifestMap = Map<string, TCManifest>;
