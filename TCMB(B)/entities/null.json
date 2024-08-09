@@ -15,12 +15,26 @@
         ]
       }
     },
+    "component_groups": {
+      "delete_self": {
+        "minecraft:instant_despawn": {}
+      }
+    },
     "components":{
       "minecraft:type_family": {
         "family": [
           "tcmb",
           "tcmb_item"
       ]
+      }
+    },
+    "events": {
+      "delete": {
+        "add": {
+          "component_groups": [
+              "delete_self"
+          ]
+        }
       }
     }
   }
