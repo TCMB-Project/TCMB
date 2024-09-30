@@ -7,7 +7,7 @@ import { world, system, Dimension, ScoreboardObjective, Block, Entity, Player, E
 import { ModalFormData, ActionFormData, MessageFormData } from "@minecraft/server-ui";
 import { ConfigObject, Event, MNotch, PanelButton, TCMBTrain, TCManifest, TCManifestMap, TrainBattery, TrainSpeedSpec } from "./classes";
 import { findFirstMatch, decimalPart,  getTCManifest, hasTCManifest } from "./util";
-import { speed_eval } from "./speed_eval";
+import { RailMoPlusEntity } from "./rail_mo_plus/src/rail_mo_plus";
 
 export class dummy{}
 
@@ -29,11 +29,18 @@ if(!world.getDynamicPropertyIds().includes('config')){
         auto_speed_down: false,
         speed_control_by_tp: true
     }
-    let optionObject = world.scoreboard.getObjective("option");
+
+    //Ensure compatibility with v1.2.2 and earlier versions
+    let optionObject: ScoreboardObjective | undefined = world.scoreboard.getObjective("option");
     if(typeof optionObject != "undefined"){
-        let auto_speed_down = optionObject.getScore('auto_speed_down');
+        let auto_speed_down;
+        try{
+            auto_speed_down = optionObject.getScore('auto_speed_down');
+        }catch(e){
+            auto_speed_down = false;
+        }
         config.auto_speed_down = !!auto_speed_down;
-        world.scoreboard.removeObjective('option');
+        world.scoreboard.removeObjective(optionObject);
     }
     world.setDynamicProperty('config', JSON.stringify(config));
 }else{
@@ -88,6 +95,8 @@ function initializeTrain(entity: Entity){
             let car_entity_id = entity.id;
             entity.addTag('tcmb_carid_'+car_entity_id);
             if(perf_monitor) perf_obj.setScore('spawn', (new Date().getTime()) - start);
+
+            train.rail_mo_plus = new RailMoPlusEntity(entity);
         }
     }catch(error){
         throw error;
@@ -115,11 +124,6 @@ system.runInterval(() =>{
         if(typeof speed == "undefined") continue;
         let speed_control_by_tp: boolean;
         let speed_spec: TrainSpeedSpec;
-        let mnotch: MNotch = {
-            power: 4,
-            break: 7
-        };
-        let simple_evaluation: boolean = true;
         if(hasTCManifest(train)){
             if(typeof manifest.speed_control_by_tp == "boolean"){
                 speed_control_by_tp = config.speed_control_by_tp && manifest.speed_control_by_tp;
@@ -132,15 +136,6 @@ system.runInterval(() =>{
                 speed_spec = manifest.speed;
             }else{
                 speed_spec = undefined;
-            }
-            mnotch = (typeof manifest.mnotch)?manifest.mnotch:{
-                power: 4,
-                break: 7
-            }
-            if(typeof speed_spec.simple_evaluation == 'boolean'){
-                simple_evaluation = speed_spec.simple_evaluation;
-            }else{
-                simple_evaluation = true;
             }
         }else{
             speed_control_by_tp = config.speed_control_by_tp;

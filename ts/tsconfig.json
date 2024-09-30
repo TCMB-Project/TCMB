@@ -1,11 +1,10 @@
 {
-    "files": ["main.ts", "engine.ts", "classes.ts", "util.ts", "speed_eval.ts"],
-    "compilerOptions": {
-        "module": "ES2020",
-        "target": "ES2021",
-        "moduleResolution": "Node",
-        "sourceMap": true,
-        "allowSyntheticDefaultImports": true,
-        "outDir": "../TCMB(B)/scripts"
-    }
+  "compilerOptions": {
+  "module": "ES2020",
+  "target": "ES2021",
+  "moduleResolution": "Node",
+  "sourceMap": true,
+  "allowSyntheticDefaultImports": true,
+  "outDir": "../TCMB(B)/scripts"
+  }
 }

@@ -4,6 +4,7 @@
 * Apache License 2.0
 */
 import { world, Entity, Player, RawMessage } from "@minecraft/server";
+import { RailMoPlusEntity } from "./rail_mo_plus/rail_mo_plus";
 
 export class Event{
     name: string;
@@ -60,6 +61,7 @@ export type ConfigObject = {
 export class TCMBTrain{
     entity: Entity;
     body: Entity[];
+    rail_mo_plus: RailMoPlusEntity
     constructor(car:Entity, working:undefined = undefined, body:Entity[] | undefined = undefined){
         this.entity = car;
         this.body = body;
