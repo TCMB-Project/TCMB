@@ -7,7 +7,7 @@ import { world, system, Entity, Player, ScriptEventSource } from "@minecraft/ser
 import { ModalFormData, ActionFormData, MessageFormData } from "@minecraft/server-ui";
 import { Event, PanelButton, TCMBTrain } from "./classes";
 import { findFirstMatch, getTCManifest, hasTCManifest } from "./util";
-import { RailMoPlusEntity } from "./rail_mo_plus/rail_mo_plus";
+import { RailMoPlusEntity } from "./rail_mo_plus/src/rail_mo_plus";
 export class dummy {
 }
 const overworld = world.getDimension("overworld");
@@ -146,7 +146,8 @@ system.runInterval(() => {
             tcmb_car.triggerEvent('109km');
         }
         else {
-            tcmb_car.triggerEvent(Math.floor(speed) + "km");
+            tcmb_car.triggerEvent("0km");
+            train.rail_mo_plus.setSpeed(speed);
         }
         //body
         let open_order = tags.filter((name) => door_orders.includes(name))[0];
@@ -161,7 +162,10 @@ system.runInterval(() => {
             }
             if (open_order)
                 body.triggerEvent(open_order);
-            body.runCommandAsync(`playanimation @s ${notch} ${notch} 32767`);
+            body.playAnimation(notch, {
+                nextState: notch,
+                blendOutTime: 32767
+            });
             let carid_onbody_tag_exists = findFirstMatch(body.getTags(), 'tcmb_body_');
             if (carid_onbody_tag_exists == -1) {
                 let car_entity_id = tcmb_car.id;

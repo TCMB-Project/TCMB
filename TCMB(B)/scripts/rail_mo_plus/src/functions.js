@@ -1,3 +1,21 @@
+export const direction = {
+    "-180": "North",
+    "0": "South",
+    "90": "West",
+    "-90": "East"
+};
+export const edge = {
+    "North": { x: 0.5, y: 0, z: 0 },
+    "South": { x: 0.5, y: 0, z: 1 },
+    "West": { x: 0, y: 0, z: 0.5 },
+    "East": { x: 1, y: 0, z: 0.5 }
+};
+export const direction_reverse = {
+    "North": "South",
+    "South": "North",
+    "West": "East",
+    "East": "West"
+};
 /**
  * Function to return a normalized value
  * @param {Vector3} start - Starting coordinates
@@ -24,6 +42,23 @@ export function getNormalizedVector(start, end, location) {
     // Calculate the normalized value
     const normalizedValue = locationLength / vectorLength;
     return normalizedValue;
+}
+/**
+ * Function to return interpolated coordinates based on a normalized value
+ * @param {Vector3} start - Starting coordinates
+ * @param {Vector3} end - Ending coordinates
+ * @param {number} t - Normalized value (0 to 1)
+ * @returns {Vector3} - Interpolated coordinates
+ */
+export function getLerpVector(start, end, t) {
+    // Ensure t is within the range [0, 1]
+    t = Math.max(0, Math.min(1, t));
+    // Calculate interpolated coordinates
+    return {
+        x: start.x + (end.x - start.x) * t,
+        y: start.y + (end.y - start.y) * t,
+        z: start.z + (end.z - start.z) * t
+    };
 }
 /**
  * Function to correct the position to the nearest point on the line segment (start, end)
@@ -65,5 +100,50 @@ export function correctToRail(start, end, location) {
 }
 export function toBlockLocation(location) {
     return { x: Math.floor(location.x), y: Math.floor(location.y), z: Math.floor(location.z) };
+}
+export function VectorAdd(vector1, vector2) {
+    return { x: vector1.x + vector2.x, y: vector1.y + vector2.y, z: vector1.z + vector2.z };
+}
+export function toVector3(vector) {
+    return { x: vector.x, y: vector.y, z: 0 };
+}
+export function toVector2(vector) {
+    return { x: vector.x, y: vector.y };
+}
+export function nextBlock(block, direction, ascending) {
+    let after_block;
+    switch (direction) {
+        case "North":
+            {
+                after_block = block.offset({ x: 0, y: 0, z: -1 });
+            }
+            break;
+        case "South":
+            {
+                after_block = block.offset({ x: 0, y: 0, z: 1 });
+            }
+            break;
+        case "East":
+            {
+                after_block = block.offset({ x: 1, y: 0, z: 0 });
+            }
+            break;
+        case "West":
+            {
+                after_block = block.offset({ x: -1, y: 0, z: 0 });
+            }
+            break;
+    }
+    if (typeof after_block == undefined)
+        throw new Error('Unable to resolve next block');
+    if (after_block.typeId == 'minecraft:air') {
+        after_block = after_block.offset({ x: 0, y: -1, z: 0 });
+        if (after_block.typeId == 'minecraft:air')
+            return;
+    }
+    if (ascending == "Up") {
+        after_block = after_block.offset({ x: 0, y: 1, z: 0 });
+    }
+    return after_block;
 }
 //# sourceMappingURL=functions.js.map

@@ -5,6 +5,11 @@
 */
 import { world } from "@minecraft/server";
 export class Event {
+    name;
+    entity;
+    player;
+    status;
+    isWorking;
     constructor(name, status, car, player, working = false) {
         this.name = name;
         this.status = status;
@@ -27,6 +32,11 @@ export class Event {
     }
 }
 export class PanelButton {
+    official;
+    text;
+    texture;
+    response;
+    uuid;
     constructor(official, text, texture, response) {
         this.official = official;
         this.text = text;
@@ -38,12 +48,18 @@ export class PanelButton {
     }
 }
 export class TCMBTrain {
+    entity;
+    body;
+    rail_mo_plus;
     constructor(car, working = undefined, body = undefined) {
         this.entity = car;
         this.body = body;
     }
 }
 class Notch {
+    id;
+    uuid;
+    config;
     constructor(origin) {
         if (typeof origin['id'] == 'string') {
             this.id = origin['id'];
