@@ -1,0 +1,41 @@
+{
+  "format_version": "1.18.0",
+  "minecraft:entity":{
+    "description":{
+      "identifier": "tcmb:null",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false,
+      "animations":{
+        "null_controller": "controller.animation.tcmb_item"
+      },
+      "scripts":{
+        "animate":[
+          "null_controller"
+        ]
+      }
+    },
+    "component_groups": {
+      "delete_self": {
+        "minecraft:instant_despawn": {}
+      }
+    },
+    "components":{
+      "minecraft:type_family": {
+        "family": [
+          "tcmb",
+          "tcmb_item"
+      ]
+      }
+    },
+    "events": {
+      "delete": {
+        "add": {
+          "component_groups": [
+              "delete_self"
+          ]
+        }
+      }
+    }
+  }
+}

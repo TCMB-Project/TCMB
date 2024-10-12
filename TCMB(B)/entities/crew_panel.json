@@ -7,7 +7,7 @@
             "is_summonable": true,
             "is_experimental": false,
             "animations":{
-                "crew_panel_controller": "controller.animation.crew_panel"
+                "crew_panel_controller": "controller.animation.tcmb_item"
             },
             "scripts":{
                 "animate":[

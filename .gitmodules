@@ -1,0 +1,3 @@
+[submodule "ts/rail_mo_plus"]
+	path = ts/rail_mo_plus
+	url = https://github.com/TCMB-Project/rail_mo_plus.git

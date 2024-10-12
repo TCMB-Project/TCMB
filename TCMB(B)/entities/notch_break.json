@@ -7,7 +7,7 @@
             "is_summonable": true,
             "is_experimental": false,
             "animations":{
-                "notch_break_controller": "controller.animation.notch_break"
+                "notch_break_controller": "controller.animation.item"
             },
             "scripts":{
                 "animate":[

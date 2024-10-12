@@ -5,6 +5,11 @@
 */
 import { world } from "@minecraft/server";
 export class Event {
+    name;
+    entity;
+    player;
+    status;
+    isWorking;
     constructor(name, status, car, player, working = false) {
         this.name = name;
         this.status = status;
@@ -27,6 +32,11 @@ export class Event {
     }
 }
 export class PanelButton {
+    official;
+    text;
+    texture;
+    response;
+    uuid;
     constructor(official, text, texture, response) {
         this.official = official;
         this.text = text;
@@ -38,51 +48,18 @@ export class PanelButton {
     }
 }
 export class TCMBTrain {
+    entity;
+    body;
+    rail_mo_plus;
     constructor(car, working = undefined, body = undefined) {
         this.entity = car;
         this.body = body;
     }
 }
-export class TrainSpeedSpec {
-    constructor(origin) {
-        if (typeof origin['limit'] == 'number') {
-            this.limit = origin['limit'];
-        }
-        else {
-            throw TypeError(`{tcmanifest}.speed.limit is not a number. (${typeof origin['limit']})`);
-        }
-        this.evalby = typeof origin['evalby'] == 'string' ? origin['evalby'] : 'default';
-        if (typeof origin['deceleration'] == 'object') {
-            this.deceleration = origin['deceleration'];
-        }
-        else if (typeof origin['deceleration'] != 'undefined') {
-            throw TypeError(`{tcmanifest}.speed.deceleration is not an object. (${typeof origin['deceleration']})`);
-        }
-        if (typeof origin['acceleration'] == 'object') {
-            this.acceleration = origin['acceleration'];
-        }
-        else if (typeof origin['deceleration'] != 'undefined') {
-            throw TypeError(`{tcmanifest}.speed.acceleration is not number. (${typeof origin['acceleration']})`);
-        }
-    }
-}
-class TrainBattery {
-    constructor(origin) {
-        if (typeof origin['capacity'] == 'number') {
-            this.capacity = origin['capacity'];
-        }
-        else {
-            throw TypeError(`{tcmanifest}.battery.capacity is not number. (${typeof origin['capacity']})`);
-        }
-        if (typeof origin['performance'] == 'object') {
-            this.performance = origin['performance'];
-        }
-        else {
-            throw TypeError(`{tcmanifest}.battery.performance is not object. (${typeof origin['performance']})`);
-        }
-    }
-}
 class Notch {
+    id;
+    uuid;
+    config;
     constructor(origin) {
         if (typeof origin['id'] == 'string') {
             this.id = origin['id'];
@@ -95,15 +72,6 @@ class Notch {
         }
         if (typeof origin['config'] == 'object') {
             this.config = origin['config'];
-        }
-    }
-}
-export class TCManifest {
-    constructor(origin_json) {
-        let origin = JSON.parse(origin_json);
-        let keys = Object.keys(origin);
-        for (const key of keys) {
-            this[key] = origin[key];
         }
     }
 }

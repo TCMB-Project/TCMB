@@ -4,142 +4,126 @@
 * Apache License 2.0
 */
 import { world, Entity, Player, RawMessage } from "@minecraft/server";
+import { RailMoPlusEntity } from "./rail_mo_plus/src/rail_mo_plus";
 
 export class Event{
-    name: string;
-    entity: {typeId: string, id: string} | undefined;
-    player: {name: string, id: string} | undefined;
-    status: object;
-    isWorking: boolean;
-    constructor(name:string, status: object, car:Entity | undefined, player:Player | undefined, working: boolean = false){
-        this.name = name;
-        this.status = status;
-        this.entity = car?{
-            typeId: car.typeId,
-            id: car.id
-        }:undefined;
-        this.player = player?{name: player.name, id: player.id}:undefined;
-        this.isWorking = working;
-    }
+  name: string;
+  entity: {typeId: string, id: string} | undefined;
+  player: {name: string, id: string} | undefined;
+  status: object;
+  isWorking: boolean;
+  constructor(name:string, status: object, car:Entity | undefined, player:Player | undefined, working: boolean = false){
+    this.name = name;
+    this.status = status;
+    this.entity = car?{
+      typeId: car.typeId,
+      id: car.id
+    }:undefined;
+    this.player = player?{name: player.name, id: player.id}:undefined;
+    this.isWorking = working;
+  }
 
-    send(){
-        let overworld = world.getDimension("overworld");
-        let stringify_data = JSON.stringify(this); 
-        overworld.runCommandAsync(`/scriptevent tcmb:event ${stringify_data}`);
-    }
-    reply(){
-        let overworld = world.getDimension("overworld");
-        let stringify_data = JSON.stringify(this);
-        overworld.runCommandAsync(`/scriptevent tcmb:reply ${stringify_data}`)
-    }
+  send(){
+    let overworld = world.getDimension("overworld");
+    let stringify_data = JSON.stringify(this); 
+    overworld.runCommandAsync(`/scriptevent tcmb:event ${stringify_data}`);
+  }
+  reply(){
+    let overworld = world.getDimension("overworld");
+    let stringify_data = JSON.stringify(this);
+    overworld.runCommandAsync(`/scriptevent tcmb:reply ${stringify_data}`)
+  }
 }
 
 export class PanelButton{
-    official: boolean;
-    text: string | RawMessage;
-    texture: string | undefined;
-    response: string | undefined;
-    uuid: string | undefined;
-    constructor(official:boolean, text:string | RawMessage, texture:string | undefined, response: string | undefined){
-        this.official = official;
-        this.text = text;
-        this.texture = texture;
-        this.response = response;
-    }
-    setUUID(uuid:string){
-        this.uuid = uuid;
-    }
+  official: boolean;
+  text: string | RawMessage;
+  texture: string | undefined;
+  response: string | undefined;
+  uuid: string | undefined;
+  constructor(official:boolean, text:string | RawMessage, texture:string | undefined, response: string | undefined){
+    this.official = official;
+    this.text = text;
+    this.texture = texture;
+    this.response = response;
+  }
+  setUUID(uuid:string){
+    this.uuid = uuid;
+  }
 }
 
 export type TCManifestMap = Map<string, TCManifest>;
 export type ConfigObject = {
-    auto_speed_down: boolean,
-    speed_control_by_tp: boolean
+  auto_speed_down: boolean,
+  speed_control_by_tp: boolean
 }
 
 export class TCMBTrain{
-    entity: Entity;
-    body: Entity[];
-    constructor(car:Entity, working:undefined = undefined, body:Entity[] | undefined = undefined){
-        this.entity = car;
-        this.body = body;
-    }
+  entity: Entity;
+  body: Entity[];
+  rail_mo_plus: RailMoPlusEntity
+  constructor(car:Entity, working:undefined = undefined, body:Entity[] | undefined = undefined){
+    this.entity = car;
+    this.body = body;
+  }
 }
 
-export class TrainSpeedSpec{
-    limit: number;
-    evalby: string;
-    acceleration: object;
-    deceleration: object;
-    constructor(origin: object){
-        if(typeof origin['limit'] == 'number'){
-            this.limit = origin['limit'];
-        }else{
-            throw TypeError(`{tcmanifest}.speed.limit is not a number. (${typeof origin['limit']})`);
-        }
-        this.evalby = typeof origin['evalby'] == 'string'?origin['evalby']:'default';
-        if(typeof origin['deceleration'] == 'object'){
-            this.deceleration = origin['deceleration'];
-        }else if(typeof origin['deceleration'] != 'undefined'){
-            throw TypeError(`{tcmanifest}.speed.deceleration is not an object. (${typeof origin['deceleration']})`);
-        }
-        if(typeof origin['acceleration'] == 'object'){
-            this.acceleration = origin['acceleration'];
-        }else if(typeof origin['deceleration'] != 'undefined'){
-            throw TypeError(`{tcmanifest}.speed.acceleration is not number. (${typeof origin['acceleration']})`);
-        }
-    }
+export type TrainSpeedSpec = {
+  limit?: number,
+  simple_evaluation?: boolean,
+  deceleration?: number,
+  emergency?: number,
+  break_latency?: number
 }
 
-class TrainBattery{
-    capacity: number;
-    performance: object;
-    constructor(origin: object){
-        if(typeof origin['capacity'] == 'number'){
-            this.capacity = origin['capacity'];
-        }else{
-            throw TypeError(`{tcmanifest}.battery.capacity is not number. (${typeof origin['capacity']})`);
-        }
-        if(typeof origin['performance'] == 'object'){
-            this.performance = origin['performance'];
-        }else{
-            throw TypeError(`{tcmanifest}.battery.performance is not object. (${typeof origin['performance']})`);
-        }
-    }
+export type MNotch = {
+  power: number,
+  break: number,
+  constant_speed?: boolean
+}
+
+export type TrainBattery = {
+  capacity: number,
+  performance: {
+    speed_up: { use: number},
+    speed_dowm: { charge: number },
+    voltage_1: { charge: number },
+    no_operation: { TimeInterval: number, use: number }
+  }
 }
 
 class Notch{
-    id: string | undefined;
-    uuid: string | undefined;
-    config: object | undefined;
-    constructor(origin: object){
-        if(typeof origin['id'] == 'string'){
-            this.id = origin['id'];
-        }else if(typeof origin['uuid'] == 'string'){
-            this.id = origin['uuid'];
-        }else{
-            throw ReferenceError(`Notch ID is not defined.`);
-        }
-        if(typeof origin['config'] == 'object'){
-            this.config = origin['config'];
-        }
+  id: string | undefined;
+  uuid: string | undefined;
+  config: object | undefined;
+  constructor(origin: object){
+    if(typeof origin['id'] == 'string'){
+      this.id = origin['id'];
+    }else if(typeof origin['uuid'] == 'string'){
+      this.id = origin['uuid'];
+    }else{
+      throw ReferenceError(`Notch ID is not defined.`);
     }
+    if(typeof origin['config'] == 'object'){
+      this.config = origin['config'];
+    }
+  }
 }
 
-export class TCManifest{
-    name: string | undefined;
-    company: string | undefined;
-    type: string;
-    speed_control_by_tp: boolean;
-    summon_command: string | undefined;
-    speed: TrainSpeedSpec | undefined;
-    notch: object[];
-    battery: TrainBattery | undefined;
-    constructor(origin_json: string){
-        let origin: unknown = JSON.parse(origin_json);
-        let keys = Object.keys(origin);
-        for(const key of keys){
-            this[key] = origin[key];
-        }
-    }
+export type TCManifest = {
+  name: string | undefined,
+  company: string | undefined,
+  type: string,
+  speed_control_by_tp: boolean,
+  summon_command: string | undefined,
+  speed: TrainSpeedSpec | undefined,
+  battery: TrainBattery | undefined,
+  mnotch: MNotch
+}
+
+export type WorkRequest = {
+  type: "start" | "end" | "toggle" | "getStatus" | "reload",
+  entity?: string,
+  playerName?: string
+  response?: string
 }
