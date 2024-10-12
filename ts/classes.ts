@@ -120,3 +120,10 @@ export type TCManifest = {
   battery: TrainBattery | undefined,
   mnotch: MNotch
 }
+
+export type WorkRequest = {
+  type: "start" | "end" | "toggle" | "getStatus" | "reload",
+  entity?: string,
+  playerName?: string
+  response?: string
+}
