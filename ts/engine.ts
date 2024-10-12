@@ -141,16 +141,10 @@ system.runInterval(() =>{
         speed_control_by_tp = config.speed_control_by_tp;
       }
       //tcmb_car(fast_run)
-      if(speed > 108){
-        if(speed_control_by_tp){
-          var distance = speed/72;
-          if(!tags.includes("backward")) distance = -distance;
-          tcmb_car.runCommandAsync(`tp @s ^${distance} ^^`);
-        }
-        tcmb_car.triggerEvent('109km');
-      }else{
-        tcmb_car.triggerEvent("0km");
+      if(speed_control_by_tp){
         train.rail_mo_plus.setSpeed(speed);
+      }else{
+        train.rail_mo_plus.destroy();
       }
 
       //body
@@ -227,17 +221,17 @@ system.runInterval(()=>{
           let perf: object = trains_manifest.get(typeId)['battery']['performance']['no_operation'];
           let interval = train.entity.getProperty('tcmb:battery_no_op_interval');
           if(typeof interval == 'number'){
-              interval++;
-              train.entity.setProperty('tcmb:battery_no_op_interval', interval);
+            interval++;
+            train.entity.setProperty('tcmb:battery_no_op_interval', interval);
 
-              if(typeof now_level == 'number' && (now_level - perf['use']) <= 0){
-                train.entity.setProperty('tcmb:battery_level', 0);
-                train.entity.setProperty('tcmb:battery_no_op_interval', 0);
-                train.entity.addTag('voltage_0');
-              }else if(typeof perf != 'undefined' && typeof now_level == 'number' && now_level >= 0 && interval >= perf['TimeInterval']){
-                train.entity.setProperty('tcmb:battery_level', now_level - perf['use']);
-                train.entity.setProperty('tcmb:battery_no_op_interval', 0);
-              }
+            if(typeof now_level == 'number' && (now_level - perf['use']) <= 0){
+              train.entity.setProperty('tcmb:battery_level', 0);
+              train.entity.setProperty('tcmb:battery_no_op_interval', 0);
+              train.entity.addTag('voltage_0');
+            }else if(typeof perf != 'undefined' && typeof now_level == 'number' && now_level >= 0 && interval >= perf['TimeInterval']){
+              train.entity.setProperty('tcmb:battery_level', now_level - perf['use']);
+              train.entity.setProperty('tcmb:battery_no_op_interval', 0);
+            }
           }
         }
 
@@ -261,33 +255,6 @@ system.runInterval(()=>{
   }
 }, 120);
 
-//rail assist
-system.runInterval(()=>{
-  for(const [entityId, train] of tcmb_trains){
-      const tcmb_car = train.entity;
-      if(!tcmb_car.isValid()) continue;
-      let manifest = getTCManifest(train);
-      let has_manifest = hasTCManifest(train);
-
-      let speed_control_by_tp: boolean;
-      if(has_manifest){
-        if(typeof manifest.speed_control_by_tp == "boolean"){
-          speed_control_by_tp = config.speed_control_by_tp && manifest.speed_control_by_tp;
-        }else{
-          //低速域でもテレポート制御するようになった時と同じ挙動
-          speed_control_by_tp = true;
-        }
-      }else{
-        //低速域でもテレポート制御するようになった時と同じ挙動
-        speed_control_by_tp = true;
-      }
-
-      if(speed_control_by_tp){
-        tcmb_car.applyImpulse({x: 0, y: 0, z: tcmb_car.hasTag('backward')?-1.5:1.5});
-      }
-  }
-}, 5);
-
 //events/functions
 system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
   var train: Entity;
@@ -299,14 +266,14 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
           case "rideSignal":
               train = world.getEntity(evdata.entity.id);
               if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
-                var player:any = world.getPlayers({name:evdata.player.name})[0];
+                var player: Player = world.getPlayers({name:evdata.player.name})[0];
                 ride(player, train);
               }
           break;
           case "door_control":
               train = world.getEntity(evdata.entity.id);
               if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
-                var player:any = world.getPlayers({name:evdata.player.name})[0];
+                var player:Player = world.getPlayers({name:evdata.player.name})[0];
                 door_ctrl(player, train);
               }
           break;
@@ -342,7 +309,7 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
               }
           break;
           case "deleteSignal":
-              var player:any = world.getPlayers({name:evdata.player.name})[0];
+              var player:Player = world.getPlayers({name:evdata.player.name})[0];
               player.runCommandAsync("playsound random.click @s");
               let delete_train_query = {
                 tags: ["body"],
@@ -359,7 +326,7 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
           break;
           case "destSignal":{
               let train:Entity = world.getEntity(evdata.entity.id);
-              var player:any = world.getPlayers({name:evdata.player.name})[0];
+              var player: Player = world.getPlayers({name:evdata.player.name})[0];
               if(!train.hasTag("voltage_0") && speedObject.getScore(train) == 0){
                 if(evdata.status["operation"] == 'foward'){
                   player.runCommandAsync("playsound random.click @p");
@@ -376,7 +343,7 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
           case "open_crew_panelSignal":
               train = world.getEntity(evdata.entity.id);
               if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
-                var player:any = world.getPlayers({name:evdata.player.name})[0];
+                var player: Player = world.getPlayers({name:evdata.player.name})[0];
                 let crewpanel = new ActionFormData()
                   .title({translate: 'item.tcmb:crew_panel.name'})
                 for(const button of crew_panel_buttons){
@@ -385,21 +352,21 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
                 crewpanel.show(player).then((response)=>{
                   if(response.canceled) return;
                   if(typeof crew_panel_buttons[response.selection].response == 'undefined'){
-                      switch(response.selection){
-                        case 0:
-                          door_ctrl(player, train);
-                        break;
-                        case 2:
-                          train.runCommandAsync('function eb');
-                        break;
-                        case 4:
-                          let signal = new Event('directionSignal', undefined, train, player, evdata.isWorking);
-                          signal.send();
-                        break;
-                      }
+                    switch(response.selection){
+                      case 0:
+                        door_ctrl(player, train);
+                      break;
+                      case 2:
+                        train.runCommandAsync('function eb');
+                      break;
+                      case 4:
+                        let signal = new Event('directionSignal', undefined, train, player, evdata.isWorking);
+                        signal.send();
+                      break;
+                    }
                   }else{
-                      let send_event = new Event('click', undefined, train, player, evdata.isWorking);
-                      player.runCommandAsync(`scriptevent ${crew_panel_buttons[response.selection].response} ${JSON.stringify(send_event)}`);
+                    let send_event = new Event('click', undefined, train, player, evdata.isWorking);
+                    player.runCommandAsync(`scriptevent ${crew_panel_buttons[response.selection].response} ${JSON.stringify(send_event)}`);
                   }
                 })
               }
@@ -455,29 +422,29 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
 
           //door event
           if(train.hasTag("backward")){
-              if(ev.message == "close_b"){
-                door_direction = "left";
-              }else if(ev.message == "close_a"){
-                door_direction = "right";
-              }else if(ev.message == "oneman_close_a"){
-                door_direction = "oneman_left";
-              }else if(ev.message == "oneman_close_b"){
-                door_direction = "oneman_right";
-              }else if(ev.message == "close_all"){
-                door_direction = "all";
-              }
+            if(ev.message == "close_b"){
+              door_direction = "left";
+            }else if(ev.message == "close_a"){
+              door_direction = "right";
+            }else if(ev.message == "oneman_close_a"){
+              door_direction = "oneman_left";
+            }else if(ev.message == "oneman_close_b"){
+              door_direction = "oneman_right";
+            }else if(ev.message == "close_all"){
+              door_direction = "all";
+            }
           }else{
-              if(ev.message == "close_b"){
-                door_direction = "right";
-              }else if(ev.message == "close_a"){
-                door_direction = "left";
-              }else if(ev.message == "oneman_close_a"){
-                door_direction = "oneman_right";
-              }else if(ev.message == "oneman_close_b"){
-                door_direction = "oneman_left";
-              }else if(ev.message == "close_all"){
-                door_direction = "all";
-              }
+            if(ev.message == "close_b"){
+              door_direction = "right";
+            }else if(ev.message == "close_a"){
+              door_direction = "left";
+            }else if(ev.message == "oneman_close_a"){
+              door_direction = "oneman_right";
+            }else if(ev.message == "oneman_close_b"){
+              door_direction = "oneman_left";
+            }else if(ev.message == "close_all"){
+              door_direction = "all";
+            }
           }
         }
         let event_report = new Event('door', {door_direction}, train, undefined);
@@ -495,7 +462,7 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
       case "tcmb:engine_electricity_control":{
         let evdata = JSON.parse(ev.message);
 
-        var player:any = ev.sourceEntity;
+        var player: Player = (ev.sourceEntity instanceof Player)?ev.sourceEntity:undefined;
         var train:Entity = world.getEntity(evdata.entity.id);
         var currentDest: number;
         var currentOnemanStatus: boolean;
@@ -522,10 +489,12 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
         
         Electricityform.show(player).then( rawResponse => {
           if(rawResponse.canceled) return;
-          var dest:any;
-          var oneman:any;
-          var voltage:any;
+          var dest: unknown;
+          var oneman: unknown;
+          var voltage: unknown;
           [ dest , oneman, voltage ] = rawResponse.formValues;
+          if(typeof dest != "number") return;
+          if(typeof oneman != "boolean") return;
           //行先・種別幕
           ev.sourceEntity.runCommandAsync("function dest_reset");
           if(dest <= 10){
@@ -547,9 +516,9 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
           }
           //入力電源
           if(train.hasTag('only_vol1')){
-              voltage = voltage?1:0;
+            voltage = voltage?1:0;
           }else if(train.hasTag('only_vol2')){
-              voltage = voltage?2:0;
+            voltage = voltage?2:0;
           }
           if(train.hasTag('has_battery') && voltage == 0){
              voltage = 'b'; 
@@ -562,7 +531,7 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
       }
         break;
         case 'tcmb:engine_work':{
-          var player:any = ev.sourceEntity;
+          var player: Player = (ev.sourceEntity instanceof Player)?ev.sourceEntity:undefined;
           var train:Entity = world.getEntity(JSON.parse(ev.message)['entity']['id']);
           let work_req = {
               type: 'toggle',
@@ -611,7 +580,6 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
               }
 
               if(!tags.includes('tc_child') && !tags.includes('stopping') && typeof max_speed == 'number' && speed < max_speed){
-                
                 if(max_speed <= 108){
                   speed += 1;
                   if(typeof level == 'number' && tags.includes('voltage_b')) level -= perf['use'];

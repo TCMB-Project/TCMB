@@ -8,6 +8,9 @@
 			"minecraft:icon": {
 				"texture": "items/close"
 			},
+			"minecraft:display_name":{
+				"value": "item.tcmb:close.name"
+			},
 			"minecraft:entity_placer":{
 				"entity": "tcmb:null"
 			},

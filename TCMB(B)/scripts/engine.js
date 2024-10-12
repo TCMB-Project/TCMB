@@ -136,18 +136,11 @@ system.runInterval(() => {
             speed_control_by_tp = config.speed_control_by_tp;
         }
         //tcmb_car(fast_run)
-        if (speed > 108) {
-            if (speed_control_by_tp) {
-                var distance = speed / 72;
-                if (!tags.includes("backward"))
-                    distance = -distance;
-                tcmb_car.runCommandAsync(`tp @s ^${distance} ^^`);
-            }
-            tcmb_car.triggerEvent('109km');
+        if (speed_control_by_tp) {
+            train.rail_mo_plus.setSpeed(speed);
         }
         else {
-            tcmb_car.triggerEvent("0km");
-            train.rail_mo_plus.setSpeed(speed);
+            train.rail_mo_plus.destroy();
         }
         //body
         let open_order = tags.filter((name) => door_orders.includes(name))[0];
@@ -257,33 +250,6 @@ system.runInterval(() => {
         }
     }
 }, 120);
-//rail assist
-system.runInterval(() => {
-    for (const [entityId, train] of tcmb_trains) {
-        const tcmb_car = train.entity;
-        if (!tcmb_car.isValid())
-            continue;
-        let manifest = getTCManifest(train);
-        let has_manifest = hasTCManifest(train);
-        let speed_control_by_tp;
-        if (has_manifest) {
-            if (typeof manifest.speed_control_by_tp == "boolean") {
-                speed_control_by_tp = config.speed_control_by_tp && manifest.speed_control_by_tp;
-            }
-            else {
-                //低速域でもテレポート制御するようになった時と同じ挙動
-                speed_control_by_tp = true;
-            }
-        }
-        else {
-            //低速域でもテレポート制御するようになった時と同じ挙動
-            speed_control_by_tp = true;
-        }
-        if (speed_control_by_tp) {
-            tcmb_car.applyImpulse({ x: 0, y: 0, z: tcmb_car.hasTag('backward') ? -1.5 : 1.5 });
-        }
-    }
-}, 5);
 //events/functions
 system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
     var train;
@@ -518,7 +484,7 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
         case "tcmb:engine_electricity_control":
             {
                 let evdata = JSON.parse(ev.message);
-                var player = ev.sourceEntity;
+                var player = (ev.sourceEntity instanceof Player) ? ev.sourceEntity : undefined;
                 var train = world.getEntity(evdata.entity.id);
                 var currentDest;
                 var currentOnemanStatus;
@@ -551,6 +517,10 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
                     var oneman;
                     var voltage;
                     [dest, oneman, voltage] = rawResponse.formValues;
+                    if (typeof dest != "number")
+                        return;
+                    if (typeof oneman != "boolean")
+                        return;
                     //行先・種別幕
                     ev.sourceEntity.runCommandAsync("function dest_reset");
                     if (dest <= 10) {
@@ -592,7 +562,7 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
             break;
         case 'tcmb:engine_work':
             {
-                var player = ev.sourceEntity;
+                var player = (ev.sourceEntity instanceof Player) ? ev.sourceEntity : undefined;
                 var train = world.getEntity(JSON.parse(ev.message)['entity']['id']);
                 let work_req = {
                     type: 'toggle',

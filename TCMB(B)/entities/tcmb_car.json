@@ -314,7 +314,7 @@
                 "width": 1,
                 "height": 1
             },
-            "minecraft:rail_movement": {},
+            "minecraft:rail_movement": { "max_speed": 0 },
             "minecraft:rideable": {
                 "seat_count": 2,
                 "family_types": ["tcmb_body"],
