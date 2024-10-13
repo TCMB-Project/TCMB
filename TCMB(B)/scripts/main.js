@@ -17,17 +17,6 @@ let working = new Map();
 system.afterEvents.scriptEventReceive.subscribe(ev => {
     switch (ev.id) {
         // event
-        case "tcmb:reply":
-            if (ev.sourceType != "Server") {
-                console.warn('[tcmb:reply] Event source is not Server.');
-                return;
-            }
-            let re_msg = JSON.parse(ev.message);
-            if (events.includes(re_msg.name)) {
-                let evdata = new Event(re_msg.name, re_msg.status, re_msg.entity, undefined);
-                evdata.send();
-            }
-            break;
         case "tcmb:work_control":
             let msg = JSON.parse(ev.message);
             if (msg.type == "start" && typeof msg.entity == "string" && typeof msg.playerName == "string") {
@@ -72,44 +61,21 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                 let work_player = world.getPlayers({ name: msg.playerName })[0];
                 if (typeof work_player == "undefined")
                     throw Error('[tcmb:work_control] player not found');
+                let work_req;
                 if (working.has(work_player.id)) {
-                    if (!working.has(work_player.id))
-                        throw Error(`[tcmb:work_control] ${msg.playerName} is not working`);
-                    let worked_train = working.get(work_player.id);
-                    if (typeof worked_train == "undefined")
-                        return;
-                    try {
-                        worked_train.removeTag('tcmb_riding_' + work_player.id);
-                    }
-                    catch (err) {
-                        throw Error('[tcmb:work_control] failed to remove playerName tag');
-                    }
-                    let working_player = worked_train.getTags().filter((tag) => tag.startsWith('tcmb_riding_'));
-                    if (working_player.length == 0) {
-                        try {
-                            worked_train.removeTag('tcmb_riding');
-                        }
-                        catch (err) {
-                            throw Error('[tcmb:work_control] failed to remove tcmb_riding tag');
-                        }
-                    }
-                    let end_result = working.delete(work_player.id);
-                    if (!end_result)
-                        throw Error('[tcmb:work_control] failed to remove working data.');
-                    work_player.sendMessage({ translate: 'tcmb.message.work.end' });
+                    work_req = {
+                        type: 'end',
+                        playerName: msg.playerName
+                    };
                 }
                 else {
-                    let work_train = world.getEntity(msg.entity);
-                    if (typeof work_train == "undefined")
-                        throw Error('[tcmb:work_control] operation entity not found');
-                    let work_player = world.getPlayers({ name: msg.playerName })[0];
-                    if (typeof work_player == "undefined")
-                        throw Error('[tcmb:work_control] player not found');
-                    working.set(work_player.id, work_train);
-                    work_train.addTag('tcmb_riding');
-                    work_train.addTag('tcmb_riding_' + work_player.id);
-                    work_player.sendMessage({ translate: 'tcmb.message.work.start' });
+                    work_req = {
+                        type: 'start',
+                        playerName: msg.playerName,
+                        entity: msg.entity
+                    };
                 }
+                overworld.runCommandAsync('scriptevent tcmb:work_control ' + JSON.stringify(work_req));
             }
             else if (msg.type == "getStatus" && typeof msg.response == "string") {
                 if (typeof msg.playerName == 'string') {
@@ -117,10 +83,11 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                     let work_player = world.getPlayers({ name: msg.playerName })[0];
                     if (typeof work_player == "undefined")
                         throw Error('[tcmb:work_control] player not found');
-                    if (working.has(work_player.id))
+                    if (working.has(work_player.id)) {
                         response_obj = {
                             entity: working.get(work_player.id)
                         };
+                    }
                     overworld.runCommandAsync(`scriptevent ${msg.response} ${JSON.stringify(response_obj)}`);
                 }
                 else if (typeof msg.entity == 'string') {
@@ -166,11 +133,39 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
     }
 }, { namespaces: ['tcmb'] });
 //item use operation
-world.afterEvents.itemUse.subscribe((ev) => {
+function selectTrain(ev) {
+    let event_train_query = {
+        families: ["tcmb_car"],
+        location: ev.source.location,
+        closest: 1,
+        maxDistance: max_distance
+    };
+    let train;
+    let isWorking;
+    if (working.has(ev.source.id)) {
+        return {
+            train: working.get(ev.source.id),
+            isWorking: true
+        };
+    }
+    else {
+        return {
+            train: ev.source.dimension.getEntities(event_train_query)[0],
+            isWorking: false
+        };
+    }
+}
+let itemUseTime = new Map();
+let itemEvent = (ev) => {
+    let lastUseTime = itemUseTime.get(ev.source.id);
+    if (lastUseTime == system.currentTick) {
+        return;
+    }
+    else {
+        itemUseTime.set(ev.source.id, system.currentTick);
+    }
     let item_type_id = ev.itemStack.typeId;
     let train;
-    let ground_facilitiy;
-    let block_location;
     let isworking;
     let event_train_query = {
         families: ["tcmb_car"],
@@ -178,11 +173,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
         closest: 1,
         maxDistance: max_distance
     };
-    let raycast_query = {
-        maxDistance: 8
-    };
     let dimension = ev.source.dimension;
-    let block_dimension;
     let evdata;
     switch (item_type_id) {
         case "tcmb:delete_train":
@@ -228,164 +219,127 @@ world.afterEvents.itemUse.subscribe((ev) => {
             evdata.send();
             break;
         case "tcmb:notch_power":
-            if (working.has(ev.source.id)) {
-                train = working.get(ev.source.id);
-                isworking = true;
+            {
+                let { train, isWorking } = selectTrain(ev);
+                if (typeof train == "undefined")
+                    return;
+                evdata = new Event('notchSignal', { operation: 'power' }, train, ev.source, isWorking);
+                evdata.send();
             }
-            else {
-                train = dimension.getEntities(event_train_query)[0];
-                isworking = false;
-            }
-            if (typeof train == "undefined")
-                return;
-            evdata = new Event('notchSignal', { operation: 'power' }, train, ev.source, isworking);
-            evdata.send();
             break;
         case "tcmb:notch_neutral":
-            if (working.has(ev.source.id)) {
-                train = working.get(ev.source.id);
-                isworking = true;
+            {
+                let { train, isWorking } = selectTrain(ev);
+                if (typeof train == "undefined")
+                    return;
+                evdata = new Event('notchSignal', { operation: 'neutral' }, train, ev.source, isWorking);
+                evdata.send();
             }
-            else {
-                train = dimension.getEntities(event_train_query)[0];
-                isworking = false;
-            }
-            if (typeof train == "undefined")
-                return;
-            evdata = new Event('notchSignal', { operation: 'neutral' }, train, ev.source, isworking);
-            evdata.send();
             break;
         case "tcmb:notch_break":
-            if (working.has(ev.source.id)) {
-                train = working.get(ev.source.id);
-                isworking = true;
+            {
+                let { train, isWorking } = selectTrain(ev);
+                if (typeof train == "undefined")
+                    return;
+                evdata = new Event('notchSignal', { operation: 'break' }, train, ev.source, isWorking);
+                evdata.send();
             }
-            else {
-                train = dimension.getEntities(event_train_query)[0];
-                isworking = false;
-            }
-            if (typeof train == "undefined")
-                return;
-            evdata = new Event('notchSignal', { operation: 'break' }, train, ev.source, isworking);
-            evdata.send();
             break;
         case "tcmb:notch_eb":
-            if (working.has(ev.source.id)) {
-                train = working.get(ev.source.id);
-                isworking = true;
+            {
+                let { train, isWorking } = selectTrain(ev);
+                if (typeof train == "undefined")
+                    return;
+                evdata = new Event('notchSignal', { operation: 'eb' }, train, ev.source, isWorking);
+                evdata.send();
             }
-            else {
-                train = dimension.getEntities(event_train_query)[0];
-                isworking = false;
-            }
-            if (typeof train == "undefined")
-                return;
-            evdata = new Event('notchSignal', { operation: 'eb' }, train, ev.source, isworking);
-            evdata.send();
             break;
         case "tcmb:open_left":
-            if (working.has(ev.source.id)) {
-                train = working.get(ev.source.id);
-                isworking = true;
+            {
+                let { train, isWorking } = selectTrain(ev);
+                if (typeof train == "undefined")
+                    return;
+                if (!train.hasTag("voltage_0")) {
+                    train.runCommandAsync("function open_left");
+                    if (train.hasTag("tc_parent") || train.hasTag("tc_child")) {
+                        train.runCommandAsync("function tc_open_left");
+                    }
+                }
             }
-            else {
-                train = dimension.getEntities(event_train_query)[0];
-                isworking = false;
-            }
-            if (typeof train == "undefined")
-                return;
-            train.runCommandAsync("execute as @s[tag=!voltage_0] at @s run function open_left");
-            train.runCommandAsync("execute as @s[tag=!voltage_0,tag=tc_parent] at @s run function tc_open_left");
-            train.runCommandAsync("execute as @s[tag=!voltage_0,tag=tc_child] at @s run function tc_open_left");
             break;
         case "tcmb:open_right":
-            if (working.has(ev.source.id)) {
-                train = working.get(ev.source.id);
-                isworking = true;
+            {
+                let { train, isWorking } = selectTrain(ev);
+                if (typeof train == "undefined")
+                    return;
+                if (!train.hasTag("voltage_0")) {
+                    train.runCommandAsync("function open_right");
+                    if (train.hasTag("tc_parent") || train.hasTag("tc_child")) {
+                        train.runCommandAsync("function tc_open_right");
+                    }
+                }
             }
-            else {
-                train = dimension.getEntities(event_train_query)[0];
-                isworking = false;
-            }
-            if (typeof train == "undefined")
-                return;
-            train.runCommandAsync("execute as @s[tag=!voltage_0] at @s run function open_right");
-            train.runCommandAsync("execute as @s[tag=!voltage_0,tag=tc_parent] at @s run function tc_open_right");
-            train.runCommandAsync("execute as @s[tag=!voltage_0,tag=tc_child] at @s run function tc_open_right");
             break;
         case "tcmb:open_all":
-            if (working.has(ev.source.id)) {
-                train = working.get(ev.source.id);
-                isworking = true;
+            {
+                let { train, isWorking } = selectTrain(ev);
+                if (typeof train == "undefined")
+                    return;
+                if (!train.hasTag("voltage_0")) {
+                    train.runCommandAsync("function open_all");
+                    if (train.hasTag("tc_parent") || train.hasTag("tc_child")) {
+                        train.runCommandAsync("function tc_open_all");
+                    }
+                }
             }
-            else {
-                train = dimension.getEntities(event_train_query)[0];
-                isworking = false;
-            }
-            if (typeof train == "undefined")
-                return;
-            train.runCommandAsync("execute as @s[tag=!voltage_0] at @s run function open_all");
-            train.runCommandAsync("execute as @s[tag=!voltage_0,tag=tc_parent] at @s run function tc_open_all");
-            train.runCommandAsync("execute as @s[tag=!voltage_0,tag=tc_child] at @s run function tc_open_all");
             break;
         case "tcmb:oneman_open_left":
-            if (working.has(ev.source.id)) {
-                train = working.get(ev.source.id);
-                isworking = true;
+            {
+                let { train, isWorking } = selectTrain(ev);
+                if (typeof train == "undefined")
+                    return;
+                if (!train.hasTag("voltage_0")) {
+                    train.runCommandAsync("function oneman_open_left");
+                    if (train.hasTag("tc_parent") || train.hasTag("tc_child")) {
+                        train.runCommandAsync("function oneman_open_left");
+                    }
+                }
             }
-            else {
-                train = dimension.getEntities(event_train_query)[0];
-                isworking = false;
-            }
-            if (typeof train == "undefined")
-                return;
-            train.runCommandAsync("execute as @s[tag=!voltage_0] at @s run function oneman_open_left");
-            train.runCommandAsync("execute as @s[tag=!voltage_0,tag=tc_parent] at @s run function tc_oneman_open_left");
-            train.runCommandAsync("execute as @s[tag=!voltage_0,tag=tc_child] at @s run function tc_oneman_open_left");
             break;
         case "tcmb:oneman_open_right":
-            if (working.has(ev.source.id)) {
-                train = working.get(ev.source.id);
-                isworking = true;
+            {
+                let { train, isWorking } = selectTrain(ev);
+                if (typeof train == "undefined")
+                    return;
+                if (!train.hasTag("voltage_0")) {
+                    train.runCommandAsync("function oneman_open_right");
+                    if (train.hasTag("tc_parent") || train.hasTag("tc_child")) {
+                        train.runCommandAsync("function oneman_open_right");
+                    }
+                }
             }
-            else {
-                train = dimension.getEntities(event_train_query)[0];
-                isworking = false;
-            }
-            if (typeof train == "undefined")
-                return;
-            train.runCommandAsync("execute as @s[tag=!voltage_0] at @s run function oneman_open_right");
-            train.runCommandAsync("execute as @s[tag=!voltage_0,tag=tc_parent] at @s run function tc_oneman_open_right");
-            train.runCommandAsync("execute as @s[tag=!voltage_0,tag=tc_child] at @s run function tc_oneman_open_right");
             break;
         case "tcmb:close":
-            if (working.has(ev.source.id)) {
-                train = working.get(ev.source.id);
-                isworking = true;
+            {
+                let { train, isWorking } = selectTrain(ev);
+                if (typeof train == "undefined")
+                    return;
+                if (!train.hasTag("voltage_0")) {
+                    train.runCommandAsync("function close");
+                    if (train.hasTag("tc_parent") || train.hasTag("tc_child")) {
+                        train.runCommandAsync("function tc_close");
+                    }
+                }
             }
-            else {
-                train = dimension.getEntities(event_train_query)[0];
-                isworking = false;
-            }
-            if (typeof train == "undefined")
-                return;
-            train.runCommandAsync("execute as @s[tag=!voltage_0] at @s run function close");
-            train.runCommandAsync("execute as @s[tag=!voltage_0,tag=tc_parent] at @s run function tc_close");
-            train.runCommandAsync("execute as @s[tag=!voltage_0,tag=tc_child] at @s run function tc_close");
             break;
         case "tcmb:door_control":
-            if (working.has(ev.source.id)) {
-                train = working.get(ev.source.id);
-                isworking = true;
+            {
+                let { train, isWorking } = selectTrain(ev);
+                if (typeof train == "undefined")
+                    return;
+                evdata = new Event('door_control', {}, train, ev.source, isWorking);
+                evdata.send();
             }
-            else {
-                train = dimension.getEntities(event_train_query)[0];
-                isworking = false;
-            }
-            if (typeof train == "undefined")
-                return;
-            evdata = new Event('door_control', {}, train, ev.source, isworking);
-            evdata.send();
             break;
         case "tcmb:ride":
             if (working.has(ev.source.id)) {
@@ -459,22 +413,17 @@ world.afterEvents.itemUse.subscribe((ev) => {
             break;
         case "tcmb:seat_control":
             {
-                if (working.has(ev.source.id)) {
-                    train = working.get(ev.source.id);
-                    isworking = true;
-                }
-                else {
-                    train = dimension.getEntities(event_train_query)[0];
-                    isworking = false;
-                }
+                let { train, isWorking } = selectTrain(ev);
                 if (typeof train == "undefined")
                     return;
-                evdata = new Event('open_seat_controlSignal', {}, train, ev.source, isworking);
+                evdata = new Event('open_seat_controlSignal', {}, train, ev.source, isWorking);
                 evdata.send();
             }
             break;
     }
-});
+};
+world.afterEvents.itemUse.subscribe(itemEvent);
+world.afterEvents.itemUseOn.subscribe(itemEvent);
 //mobile enhance
 world.afterEvents.itemUseOn.subscribe((event) => {
     let dimension = event.source.dimension;
@@ -488,70 +437,6 @@ world.afterEvents.itemUseOn.subscribe((event) => {
         maxDistance: max_distance
     };
     switch (event.itemStack.typeId) {
-        case "tcmb:notch_power_spawn_egg":
-            {
-                if (working.has(event.source.id)) {
-                    train = working.get(event.source.id);
-                    isworking = true;
-                }
-                else {
-                    train = dimension.getEntities(event_train_query)[0];
-                    isworking = false;
-                }
-                if (typeof train == "undefined")
-                    return;
-                let evdata = new Event('notchSignal', { operation: 'power' }, train, player, isworking);
-                evdata.send();
-            }
-            break;
-        case "tcmb:notch_neutral_spawn_egg":
-            {
-                if (working.has(event.source.id)) {
-                    train = working.get(event.source.id);
-                    isworking = true;
-                }
-                else {
-                    train = dimension.getEntities(event_train_query)[0];
-                    isworking = false;
-                }
-                if (typeof train == "undefined")
-                    return;
-                let evdata = new Event('notchSignal', { operation: 'neutral' }, train, player, isworking);
-                evdata.send();
-            }
-            break;
-        case "tcmb:notch_break_spawn_egg":
-            {
-                if (working.has(event.source.id)) {
-                    train = working.get(event.source.id);
-                    isworking = true;
-                }
-                else {
-                    train = dimension.getEntities(event_train_query)[0];
-                    isworking = false;
-                }
-                if (typeof train == "undefined")
-                    return;
-                let evdata = new Event('notchSignal', { operation: 'break' }, train, player, isworking);
-                evdata.send();
-            }
-            break;
-        case "tcmb:notch_eb_spawn_egg":
-            {
-                if (working.has(event.source.id)) {
-                    train = working.get(event.source.id);
-                    isworking = true;
-                }
-                else {
-                    train = dimension.getEntities(event_train_query)[0];
-                    isworking = false;
-                }
-                if (typeof train == "undefined")
-                    return;
-                let evdata = new Event('notchSignal', { operation: 'eb' }, train, player, isworking);
-                evdata.send();
-            }
-            break;
         case "tcmb:crew_panel_spawn_egg":
             {
                 if (working.has(event.source.id)) {

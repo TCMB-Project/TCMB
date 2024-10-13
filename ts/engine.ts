@@ -345,7 +345,7 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
               if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
                 var player: Player = world.getPlayers({name:evdata.player.name})[0];
                 let crewpanel = new ActionFormData()
-                  .title({translate: 'item.tcmb:crew_panel.name'})
+                  .title({translate: 'tcmb.ui.crew_panel.title'})
                 for(const button of crew_panel_buttons){
                   crewpanel.button(button.text, button.texture);
                 }

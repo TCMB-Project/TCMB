@@ -1,0 +1,28 @@
+{
+  "format_version": "1.20.20",
+  "minecraft:attachable": {
+    "description": {
+      "identifier": "tcmb:door_control",
+      "materials": {
+        "default": "entity_alphatest",
+        "enchanted": "entity_alphatest_glint"
+      },
+      "textures": {
+        "default": "textures/items/door_control",
+        "enchanted": "textures/misc/enchanted_item_glint"
+      },
+      "geometry": {
+        "default": "geometry.large_item"
+      },
+      "animations": {
+        "hold": "animation.large_item.hold"
+      },
+      "scripts": {
+        "animate": ["hold"]
+      },
+      "render_controllers": [
+        "controller.render.large_item"
+      ]
+    }
+  }
+}

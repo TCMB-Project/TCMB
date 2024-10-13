@@ -6,16 +6,11 @@
 		},
 		"components": {
 			"minecraft:icon": {
-				"texture": "items/close"
-			},
-			"minecraft:display_name":{
-				"value": "item.tcmb:close.name"
+				"texture": "tcmb_close"
 			},
 			"minecraft:entity_placer":{
 				"entity": "tcmb:null"
-			},
-			"minecraft:hand_equipped": false,
-			"minecraft:stacked_by_data": true
+			}
 		}
 	}
 }
