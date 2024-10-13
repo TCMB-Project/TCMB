@@ -68,7 +68,7 @@ crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.el
 crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.eb'}, 'textures/items/notch_eb', undefined));
 crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.seat_control'}, 'textures/items/seat', 'tcmb_minecart_engine:seat_control'));
 crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.direction'}, 'textures/items/direction', undefined));
-crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.work'}, 'textures/items/crew_panel', 'tcmb:engine_work'));
+crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.work'}, 'textures/items/crew_panel', 'tcmb_minecart_engine:work'));
 
 let trains_manifest : TCManifestMap = new Map();
 
@@ -262,18 +262,19 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
       case "tcmb:event":
         let evmsg = JSON.parse(ev.message);
         let evdata = new Event(evmsg.name, evmsg.status, evmsg.entity, evmsg.player, evmsg.isWorking);
+
+        let player: unknown = world.getEntity(evdata.player.id);
+        if(!(player instanceof Player)) return;
         switch(evdata.name){
           case "rideSignal":
               train = world.getEntity(evdata.entity.id);
               if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
-                var player: Player = world.getPlayers({name:evdata.player.name})[0];
                 ride(player, train);
               }
           break;
           case "door_control":
               train = world.getEntity(evdata.entity.id);
               if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
-                var player:Player = world.getPlayers({name:evdata.player.name})[0];
                 door_ctrl(player, train);
               }
           break;
@@ -309,7 +310,6 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
               }
           break;
           case "deleteSignal":
-              var player:Player = world.getPlayers({name:evdata.player.name})[0];
               player.runCommandAsync("playsound random.click @s");
               let delete_train_query = {
                 tags: ["body"],
@@ -326,7 +326,6 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
           break;
           case "destSignal":{
               let train:Entity = world.getEntity(evdata.entity.id);
-              var player: Player = world.getPlayers({name:evdata.player.name})[0];
               if(!train.hasTag("voltage_0") && speedObject.getScore(train) == 0){
                 if(evdata.status["operation"] == 'foward'){
                   player.runCommandAsync("playsound random.click @p");
@@ -343,7 +342,6 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
           case "open_crew_panelSignal":
               train = world.getEntity(evdata.entity.id);
               if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
-                var player: Player = world.getPlayers({name:evdata.player.name})[0];
                 let crewpanel = new ActionFormData()
                   .title({translate: 'tcmb.ui.crew_panel.title'})
                 for(const button of crew_panel_buttons){
@@ -351,6 +349,7 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
                 }
                 crewpanel.show(player).then((response)=>{
                   if(response.canceled) return;
+                  if(!(player instanceof Player)) return;
                   if(typeof crew_panel_buttons[response.selection].response == 'undefined'){
                     switch(response.selection){
                       case 0:
@@ -462,7 +461,9 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
       case "tcmb:engine_electricity_control":{
         let evdata = JSON.parse(ev.message);
 
-        var player: Player = (ev.sourceEntity instanceof Player)?ev.sourceEntity:undefined;
+        player = ev.sourceEntity;
+        if(!(player instanceof Player)) return;
+
         var train:Entity = world.getEntity(evdata.entity.id);
         var currentDest: number;
         var currentOnemanStatus: boolean;
@@ -530,13 +531,15 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
         });
       }
         break;
-        case 'tcmb:engine_work':{
-          var player: Player = (ev.sourceEntity instanceof Player)?ev.sourceEntity:undefined;
+        case 'tcmb_minecart_engine:work':{
+          player = ev.sourceEntity;
+          if(!(player instanceof Player)) return;
+
           var train:Entity = world.getEntity(JSON.parse(ev.message)['entity']['id']);
           let work_req = {
-              type: 'toggle',
-              playerName: player.name,
-              entity: train.id
+            type: 'toggle',
+            playerName: player.name,
+            entity: train.id
           }
           player.runCommandAsync('scriptevent tcmb:work_control '+JSON.stringify(work_req));
           
@@ -640,17 +643,17 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
         break;
         case "tcmb_minecart_engine:voltage_battery":{
           if(ev.sourceEntity.hasTag('has_battery')){
-              let train: TCMBTrain = tcmb_trains.get(ev.sourceEntity.id);
-              train.entity.removeTag('voltage_0');
-              train.entity.removeTag('voltage_1');
-              train.entity.removeTag('voltage_2');
-              train.entity.addTag('voltage_b');
-              for(const body of train.body){
-                body.removeTag('voltage_0');
-                body.removeTag('voltage_1');
-                body.removeTag('voltage_2');
-                body.addTag('voltage_b');
-              }
+            let train: TCMBTrain = tcmb_trains.get(ev.sourceEntity.id);
+            train.entity.removeTag('voltage_0');
+            train.entity.removeTag('voltage_1');
+            train.entity.removeTag('voltage_2');
+            train.entity.addTag('voltage_b');
+            for(const body of train.body){
+              body.removeTag('voltage_0');
+              body.removeTag('voltage_1');
+              body.removeTag('voltage_2');
+              body.addTag('voltage_b');
+            }
           }
         }
         break;
@@ -663,9 +666,9 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
           let player: Player;
           let playerEntity: Entity = world.getEntity(evdata.player.id);
           if(playerEntity instanceof Player){
-              player = playerEntity;
+            player = playerEntity;
           }else{
-              return;
+            return;
           }
           let bodies = train.body;
 
@@ -676,32 +679,32 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
           var currentCustomSeatStatus = tags.includes('custom_seat');
 
           const Seatform = new ModalFormData()
-              .title({translate: 'tcmb.ui.seat.title'})
-              .slider({translate: 'tcmb.ui.seat.setting'}, 1, 8, 1, currentSeatStatus);
+            .title({translate: 'tcmb.ui.seat.title'})
+            .slider({translate: 'tcmb.ui.seat.setting'}, 1, 8, 1, currentSeatStatus);
           if(!currentCustomSeatStatus && evdata.isWorking){
-              Seatform.toggle({translate: 'tcmb.ui.seat.custom'} ,currentCustomSeatStatus);
+            Seatform.toggle({translate: 'tcmb.ui.seat.custom'} ,currentCustomSeatStatus);
           }
           Seatform.show(player).then( rawResponse => {
-              if(rawResponse.canceled) return;
-              var [ seatStatus, customSeatStatus ] = rawResponse.formValues;
-              //座席設定
-              if(typeof seatStatus != 'number') return;
-              tcmb_car.removeTag(tags[rollSeat]);
-              tcmb_car.addTag('seat8');
-              for(let i=0; i<seatStatus; i++){
-                tcmb_car.runCommandAsync("function seat");
-              }
-              //カスタム座席
-              if(customSeatStatus){
-                tcmb_car.addTag('custom_seat');
-                for(const body of bodies){
-                  var seat = 8;
-                  body.runCommandAsync('ride @s evict_riders');
-                  for(let i=0; i<seat; i++){
-                      body.runCommandAsync("ride @s summon_rider tcmb:seat");
-                  }
+            if(rawResponse.canceled) return;
+            var [ seatStatus, customSeatStatus ] = rawResponse.formValues;
+            //座席設定
+            if(typeof seatStatus != 'number') return;
+            tcmb_car.removeTag(tags[rollSeat]);
+            tcmb_car.addTag('seat8');
+            for(let i=0; i<seatStatus; i++){
+              tcmb_car.runCommandAsync("function seat");
+            }
+            //カスタム座席
+            if(customSeatStatus){
+              tcmb_car.addTag('custom_seat');
+              for(const body of bodies){
+                var seat = 8;
+                body.runCommandAsync('ride @s evict_riders');
+                for(let i=0; i<seat; i++){
+                    body.runCommandAsync("ride @s summon_rider tcmb:seat");
                 }
               }
+            }
           }).catch( e => {
               console.error(e, e.stack);
           });
@@ -723,24 +726,24 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
         break;
         case "tcmb_minecart_engine:rotate":{
           if(ev.sourceType == 'Entity'){
-              let rotation: Vector2 = ev.sourceEntity.getRotation();
-              let angle = ev.message.split(' ');
-              rotation.x += Number(angle[1] || 0);
-              rotation.y += Number(angle[0]) 
-              ev.sourceEntity.setRotation(rotation);
+            let rotation: Vector2 = ev.sourceEntity.getRotation();
+            let angle = ev.message.split(' ');
+            rotation.x += Number(angle[1] || 0);
+            rotation.y += Number(angle[0]) 
+            ev.sourceEntity.setRotation(rotation);
           }
         }
         break;
         // perfomance monitor
         case "tcmb:perf_monitor":
           if(ev.message == "true" || ev.message == "on" || ev.message == "1"){
-              monitor_runid = system.runInterval(output_perfomance, 20);
-              perf_monitor = true;
-              world.sendMessage("パフォーマンスモニターが有効になりました。");
+            monitor_runid = system.runInterval(output_perfomance, 20);
+            perf_monitor = true;
+            world.sendMessage("パフォーマンスモニターが有効になりました。");
           }else if(ev.message == "false" || ev.message == "off" || ev.message == "0"){
-              system.clearRun(monitor_runid);
-              perf_monitor = false;
-              world.sendMessage("パフォーマンスモニターが無効になりました。");
+            system.clearRun(monitor_runid);
+            perf_monitor = false;
+            world.sendMessage("パフォーマンスモニターが無効になりました。");
           }
         break;
         case "tcmb:get_train_manifest":{
@@ -752,14 +755,14 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
           let trainid = msg['id'];
 
           if(typeof type_id == 'string'){
-              let response = trains_manifest.get(type_id);
-              overworld.runCommandAsync(`scriptevent ${response_to} ${JSON.stringify(response)}`);
+            let response = trains_manifest.get(type_id);
+            overworld.runCommandAsync(`scriptevent ${response_to} ${JSON.stringify(response)}`);
           }else if(typeof trainid == 'string'){
-              let train:unknown = world.getEntity(trainid);
-              if(train instanceof Entity){
-                let response = train.getDynamicProperty('tcmanifest');
-                overworld.runCommandAsync(`scriptevent ${response_to} ${response}`);
-              }
+            let train:unknown = world.getEntity(trainid);
+            if(train instanceof Entity){
+              let response = train.getDynamicProperty('tcmanifest');
+              overworld.runCommandAsync(`scriptevent ${response_to} ${response}`);
+            }
           }
         }
         break;
@@ -811,66 +814,66 @@ function door_ctrl(player:Player, train:Entity){
   .button("右ドア開(一部締め切り)", "textures/items/oneman_open_right")
   .button("閉じる(共通)", "textures/items/close");
   doorForm.show(player).then( rawResponse => {
-      if(rawResponse.canceled) return;
-      var response = rawResponse.selection;
-      switch(response){
-        case 0:
-          var door_order = "open_left";
-          break;
-        case 1: 
-          var door_order = "open_right";
-          break;
-        case 2:
-          var door_order = "open_all";
-          break;
-        case 3:
-          var door_order = "oneman_open_left";
-          break;
-        case 4: 
-          var door_order = "oneman_open_right";
-          break;
-        case 5:
-          var door_order = "close";
-          break;
+    if(rawResponse.canceled) return;
+    var response = rawResponse.selection;
+    switch(response){
+      case 0:
+        var door_order = "open_left";
+        break;
+      case 1: 
+        var door_order = "open_right";
+        break;
+      case 2:
+        var door_order = "open_all";
+        break;
+      case 3:
+        var door_order = "oneman_open_left";
+        break;
+      case 4: 
+        var door_order = "oneman_open_right";
+        break;
+      case 5:
+        var door_order = "close";
+        break;
+    }
+    let event_report: Event;
+    if(!train.hasTag("voltage_0")){
+      train.runCommandAsync("function " + door_order);
+      train.runCommandAsync("execute as @s[tag=tc_parent] at @s run function tc_" + door_order);
+      train.runCommandAsync("execute as @s[tag=tc_child] at @s run function tc_" + door_order);
+      if(door_order != "close") {
+        event_report = new Event("door", {door_direction:door_order, open:true}, train, player);
+      }else{
+        event_report = new Event("door", {open:false}, train, player);
       }
-      let event_report: Event;
-      if(!train.hasTag("voltage_0")){
-        train.runCommandAsync("function " + door_order);
-        train.runCommandAsync("execute as @s[tag=tc_parent] at @s run function tc_" + door_order);
-        train.runCommandAsync("execute as @s[tag=tc_child] at @s run function tc_" + door_order);
-        if(door_order != "close") {
-          event_report = new Event("door", {door_direction:door_order, open:true}, train, player);
-        }else{
-          event_report = new Event("door", {open:false}, train, player);
-        }
-        event_report.reply();
-      }
+      event_report.reply();
+    }
   }).catch( e => {
-      console.error(e, e.stack);
+    console.error(e, e.stack);
   });
 }
 
 function ride(player: Player, train: Entity){
   if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
-      const rideForm = new MessageFormData()
-        .title("乗車する号車を選択")
-        .body("乗車する号車をボタンで選択してください。\nこの号車は進行方向によって変わることはなく、固定です。")
-        .button1("2号車")
-        .button2("1号車");
-      rideForm.show(player).then( rawResponse => {
-        if(rawResponse.canceled) return;
-        let response = rawResponse.selection;
-        switch(response){
-          case 1: 
-            player.runCommandAsync(`ride @s start_riding @e[family=tcmb_body,tag=car1,tag=tcmb_body_${train.id},c=1] teleport_rider`);
-            break;
-          case 0:
-            player.runCommandAsync(`ride @s start_riding @e[family=tcmb_body,tag=car2,tag=tcmb_body_${train.id},c=1] teleport_rider`);
-            break;
-        }
-      }).catch( e => {
-        console.error(e, e.stack);
-      });
+    const rideForm = new MessageFormData()
+      .title("乗車する号車を選択")
+      .body("乗車する号車をボタンで選択してください。\nこの号車は進行方向によって変わることはなく、固定です。")
+      .button1("2号車")
+      .button2("1号車");
+    rideForm.show(player).then( rawResponse => {
+      if(rawResponse.canceled) return;
+      let response = rawResponse.selection;
+      switch(response){
+        case 1: 
+          player.runCommandAsync(`ride @s start_riding @e[family=tcmb_body,tag=car1,tag=tcmb_body_${train.id},c=1] teleport_rider`);
+          break;
+        case 0:
+          player.runCommandAsync(`ride @s start_riding @e[family=tcmb_body,tag=car2,tag=tcmb_body_${train.id},c=1] teleport_rider`);
+          break;
+      }
+    }).catch( e => {
+      console.error(e, e.stack);
+    });
   }
 }
 

@@ -63,7 +63,7 @@ crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.e
 crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.eb' }, 'textures/items/notch_eb', undefined));
 crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.seat_control' }, 'textures/items/seat', 'tcmb_minecart_engine:seat_control'));
 crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.direction' }, 'textures/items/direction', undefined));
-crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.work' }, 'textures/items/crew_panel', 'tcmb:engine_work'));
+crew_panel_buttons.push(new PanelButton(true, { translate: 'tcmb.ui.crew_panel.work' }, 'textures/items/crew_panel', 'tcmb_minecart_engine:work'));
 let trains_manifest = new Map();
 function initializeTrain(entity) {
     try {
@@ -257,18 +257,19 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
         case "tcmb:event":
             let evmsg = JSON.parse(ev.message);
             let evdata = new Event(evmsg.name, evmsg.status, evmsg.entity, evmsg.player, evmsg.isWorking);
+            let player = world.getEntity(evdata.player.id);
+            if (!(player instanceof Player))
+                return;
             switch (evdata.name) {
                 case "rideSignal":
                     train = world.getEntity(evdata.entity.id);
                     if (typeof train != "undefined" && train.typeId == "tcmb:tcmb_car") {
-                        var player = world.getPlayers({ name: evdata.player.name })[0];
                         ride(player, train);
                     }
                     break;
                 case "door_control":
                     train = world.getEntity(evdata.entity.id);
                     if (typeof train != "undefined" && train.typeId == "tcmb:tcmb_car") {
-                        var player = world.getPlayers({ name: evdata.player.name })[0];
                         door_ctrl(player, train);
                     }
                     break;
@@ -308,7 +309,6 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
                     }
                     break;
                 case "deleteSignal":
-                    var player = world.getPlayers({ name: evdata.player.name })[0];
                     player.runCommandAsync("playsound random.click @s");
                     let delete_train_query = {
                         tags: ["body"],
@@ -325,7 +325,6 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
                 case "destSignal":
                     {
                         let train = world.getEntity(evdata.entity.id);
-                        var player = world.getPlayers({ name: evdata.player.name })[0];
                         if (!train.hasTag("voltage_0") && speedObject.getScore(train) == 0) {
                             if (evdata.status["operation"] == 'foward') {
                                 player.runCommandAsync("playsound random.click @p");
@@ -345,7 +344,6 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
                 case "open_crew_panelSignal":
                     train = world.getEntity(evdata.entity.id);
                     if (typeof train != "undefined" && train.typeId == "tcmb:tcmb_car") {
-                        var player = world.getPlayers({ name: evdata.player.name })[0];
                         let crewpanel = new ActionFormData()
                             .title({ translate: 'tcmb.ui.crew_panel.title' });
                         for (const button of crew_panel_buttons) {
@@ -353,6 +351,8 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
                         }
                         crewpanel.show(player).then((response) => {
                             if (response.canceled)
+                                return;
+                            if (!(player instanceof Player))
                                 return;
                             if (typeof crew_panel_buttons[response.selection].response == 'undefined') {
                                 switch (response.selection) {
@@ -484,7 +484,9 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
         case "tcmb:engine_electricity_control":
             {
                 let evdata = JSON.parse(ev.message);
-                var player = (ev.sourceEntity instanceof Player) ? ev.sourceEntity : undefined;
+                player = ev.sourceEntity;
+                if (!(player instanceof Player))
+                    return;
                 var train = world.getEntity(evdata.entity.id);
                 var currentDest;
                 var currentOnemanStatus;
@@ -560,9 +562,11 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
                 });
             }
             break;
-        case 'tcmb:engine_work':
+        case 'tcmb_minecart_engine:work':
             {
-                var player = (ev.sourceEntity instanceof Player) ? ev.sourceEntity : undefined;
+                player = ev.sourceEntity;
+                if (!(player instanceof Player))
+                    return;
                 var train = world.getEntity(JSON.parse(ev.message)['entity']['id']);
                 let work_req = {
                     type: 'toggle',
