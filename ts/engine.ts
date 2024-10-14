@@ -109,79 +109,71 @@ let tcmb_trains: Map<string, TCMBTrain> = new Map();
 system.runInterval(() =>{
   if(perf_monitor) var start: number = (new Date()).getTime();
   for(const [entityId, train] of tcmb_trains){
-      const tcmb_car = train.entity;
-      if(!tcmb_car.isValid()) continue;
-      var bodies = train.body;
-      if(typeof speedObject == "undefined") continue;
-      let tags = tcmb_car.getTags();
-      let notch_regexp: RegExp = /(eb|p\d|b\d|n)/;
-      let notch: string = tags.find((element)=> notch_regexp.test(element));
+    const tcmb_car = train.entity;
+    if(!tcmb_car.isValid()) continue;
+    var bodies = train.body;
+    if(typeof speedObject == "undefined") continue;
+    let tags = tcmb_car.getTags();
+    let notch_regexp: RegExp = /(eb|p\d|b\d|n)/;
+    let notch: string = tags.find((element)=> notch_regexp.test(element));
 
-      let manifest = getTCManifest(train);
-      
-      //tcmb_car(speed)
-      var speed: number | undefined = speedObject.getScore(tcmb_car);
-      if(typeof speed == "undefined") continue;
-      let speed_control_by_tp: boolean;
-      let speed_spec: TrainSpeedSpec;
-      if(hasTCManifest(train)){
-        if(typeof manifest.speed_control_by_tp == "boolean"){
-          speed_control_by_tp = config.speed_control_by_tp && manifest.speed_control_by_tp;
-        }else{
-          speed_control_by_tp = config.speed_control_by_tp;
-        }
-
-        //defined spec?
-        if(typeof manifest.speed == 'object'){
-          speed_spec = manifest.speed;
-        }else{
-          speed_spec = undefined;
-        }
+    let manifest = getTCManifest(train);
+    
+    //tcmb_car(speed)
+    var speed: number | undefined = speedObject.getScore(tcmb_car);
+    if(typeof speed == "undefined") continue;
+    let speed_control_by_tp: boolean;
+    let speed_spec: TrainSpeedSpec;
+    if(hasTCManifest(train)){
+      if(typeof manifest.speed_control_by_tp == "boolean"){
+        speed_control_by_tp = config.speed_control_by_tp && manifest.speed_control_by_tp;
       }else{
         speed_control_by_tp = config.speed_control_by_tp;
       }
-      //tcmb_car(fast_run)
-      if(speed_control_by_tp){
-        train.rail_mo_plus.setSpeed(speed);
-      }else{
-        train.rail_mo_plus.destroy();
+    }else{
+      speed_control_by_tp = true;
+    }
+    if(speed_control_by_tp){
+      train.rail_mo_plus.setSpeed(speed);
+    }else{
+      train.rail_mo_plus.destroy();
+    }
+
+    //body
+    let open_order = tags.filter((name)=> door_orders.includes(name))[0];
+    for(const body of bodies){
+      try{
+        body.triggerEvent(speed +"km");
+      }catch(err){
+        tcmb_car.kill();
+        console.error(err, ' | Deleted the associated tcmb_car.');
+        continue;
       }
+      if(open_order) body.triggerEvent(open_order);
+      
+      body.playAnimation(notch, {
+        nextState: notch,
+        blendOutTime: 32767
+      });
 
-      //body
-      let open_order = tags.filter((name)=> door_orders.includes(name))[0];
-      for(const body of bodies){
-        try{
-          body.triggerEvent(speed +"km");
-        }catch(err){
-          tcmb_car.kill();
-          console.error(err, ' | Deleted the associated tcmb_car.');
-          continue;
-        }
-        if(open_order) body.triggerEvent(open_order);
-        
-        body.playAnimation(notch, {
-          nextState: notch,
-          blendOutTime: 32767
-        });
-
-        let carid_onbody_tag_exists = findFirstMatch(body.getTags(), 'tcmb_body_');
-        if(carid_onbody_tag_exists == -1){
-          let car_entity_id = tcmb_car.id;
-          body.addTag('tcmb_body_'+car_entity_id);
-        }
-      }
-
-      let carid_tag_exists = findFirstMatch(tags, 'tcmb_carid_');
-      if(carid_tag_exists == -1){
+      let carid_onbody_tag_exists = findFirstMatch(body.getTags(), 'tcmb_body_');
+      if(carid_onbody_tag_exists == -1){
         let car_entity_id = tcmb_car.id;
-        tcmb_car.addTag('tcmb_carid_'+car_entity_id);
+        body.addTag('tcmb_body_'+car_entity_id);
       }
+    }
 
-      //auto curve
-      if(findFirstMatch(tags, 'pt') != -1){
-        let curve_mode = tags[findFirstMatch(tags, 'pt')];
-        tcmb_car.runCommandAsync('function curve/'+curve_mode);
-      }
+    let carid_tag_exists = findFirstMatch(tags, 'tcmb_carid_');
+    if(carid_tag_exists == -1){
+      let car_entity_id = tcmb_car.id;
+      tcmb_car.addTag('tcmb_carid_'+car_entity_id);
+    }
+
+    //auto curve
+    if(findFirstMatch(tags, 'pt') != -1){
+      let curve_mode = tags[findFirstMatch(tags, 'pt')];
+      tcmb_car.runCommandAsync('function curve/'+curve_mode);
+    }
   }
   if(perf_monitor) perf['main'] = (new Date().getTime()) - start;
 },1);
@@ -777,7 +769,7 @@ world.afterEvents.entitySpawn.subscribe(async (event)=>{
 // initialize Loaded train
 world.afterEvents.entityLoad.subscribe(async (event)=>{
   if(event.entity.typeId == 'tcmb:tcmb_car'){
-      initializeTrain(event.entity);
+    initializeTrain(event.entity);
   }
 });
 
