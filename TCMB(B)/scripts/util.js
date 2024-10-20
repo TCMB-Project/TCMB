@@ -71,130 +71,22 @@ export function getSpeedSpec(train) {
         return undefined;
     }
 }
-export const reverse_direction = {
-    north: 'south',
-    south: 'north',
-    east: 'west',
-    west: 'east'
-};
-export const rail_direction = {
-    0: {
-        straight: true,
-        gradient: false,
-        rotation: [{
-                from: 'south',
-                to: 'south'
-            }, {
-                from: 'north',
-                to: 'north'
-            }]
-    },
-    1: {
-        straight: true,
-        gradient: false,
-        rotation: [{
-                from: 'west',
-                to: 'west'
-            }, {
-                from: 'east',
-                to: 'east'
-            }]
-    },
-    2: {
-        straight: true,
-        gradient: true,
-        rotation: [{
-                from: 'west',
-                y: 'down',
-                to: 'west'
-            }, {
-                from: 'east',
-                y: 'up',
-                to: 'east'
-            }]
-    },
-    3: {
-        straight: true,
-        gradient: true,
-        rotation: [{
-                from: 'west',
-                y: 'up',
-                to: 'west'
-            }, {
-                from: 'east',
-                y: 'down',
-                to: 'east'
-            }]
-    },
-    4: {
-        straight: true,
-        gradient: true,
-        rotation: [{
-                from: 'south',
-                y: 'up',
-                to: 'south'
-            }, {
-                from: 'north',
-                y: 'down',
-                to: 'north'
-            }]
-    },
-    5: {
-        straight: true,
-        gradient: true,
-        rotation: [{
-                from: 'south',
-                y: 'down',
-                to: 'south'
-            }, {
-                from: 'north',
-                y: 'up',
-                to: 'north'
-            }]
-    },
-    6: {
-        straight: false,
-        gradient: false,
-        rotation: [{
-                from: 'south',
-                to: 'east'
-            }, {
-                from: 'west',
-                to: 'north'
-            }]
-    },
-    7: {
-        straight: false,
-        gradient: false,
-        rotation: [{
-                from: 'east',
-                to: 'north'
-            }, {
-                from: 'south',
-                to: 'west'
-            }]
-    },
-    8: {
-        straight: false,
-        gradient: false,
-        rotation: [{
-                from: 'east',
-                to: 'south'
-            }, {
-                from: 'north',
-                to: 'west'
-            }]
-    },
-    9: {
-        straight: false,
-        gradient: false,
-        rotation: [{
-                from: 'north',
-                to: 'east'
-            }, {
-                from: 'east',
-                to: 'south'
-            }]
-    },
-};
+export function toBCD(number) {
+    const BCD_LIST = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '-'];
+    let string_number = number.toString();
+    let bcds = [];
+    for (const digit of string_number) {
+        let bcd = BCD_LIST.indexOf(digit);
+        bcds.push(bcd);
+    }
+    return bcds;
+}
+export function fromBCD(number) {
+    const BCD_LIST = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '-'];
+    let string_number = '';
+    for (const digit of number) {
+        string_number += BCD_LIST[digit];
+    }
+    return Number(string_number);
+}
 //# sourceMappingURL=util.js.map

@@ -15,6 +15,8 @@ const overworld: Dimension = world.getDimension("overworld");
 const nether: Dimension = world.getDimension("nether");
 const the_end: Dimension = world.getDimension("the_end");
 
+const notch_regexp: RegExp = /(eb|p\d|b\d|n)/;
+
 let speedObject: ScoreboardObjective | undefined = world.scoreboard.getObjective("speed");
 if(typeof speedObject == "undefined"){
   speedObject = world.scoreboard.addObjective("speed", "");
@@ -74,29 +76,29 @@ let trains_manifest : TCManifestMap = new Map();
 
 function initializeTrain(entity: Entity){
   try{
-      if(entity.typeId == 'tcmb:tcmb_car'){
-        if(perf_monitor) var start: number = (new Date()).getTime();
-        var query: EntityQueryOptions = {
-          families: ["tcmb_body"],
-          closest: 2,
-          maxDistance: 2,
-          location: entity.location
-        }
-        let bodies: Entity[] = entity.dimension.getEntities(query);
-        let train = new TCMBTrain(entity, undefined, bodies);
-        let typeId = train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
+    if(entity.typeId == 'tcmb:tcmb_car'){
+      if(perf_monitor) var start: number = (new Date()).getTime();
+      var query: EntityQueryOptions = {
+        families: ["tcmb_body"],
+        closest: 2,
+        maxDistance: 2,
+        location: entity.location
+      }
+      let bodies: Entity[] = entity.dimension.getEntities(query);
+      let train = new TCMBTrain(entity, undefined, bodies);
+      let typeId = train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
 
-        tcmb_trains.set(train.entity.id, train);
-        if(trains_manifest.has(typeId)){
-          entity.setDynamicProperty('tcmanifest', JSON.stringify(trains_manifest.get(typeId)));
-        }
-        entity.setDynamicProperty('body', JSON.stringify(bodies));
+      tcmb_trains.set(train.entity.id, train);
+      if(trains_manifest.has(typeId)){
+        entity.setDynamicProperty('tcmanifest', JSON.stringify(trains_manifest.get(typeId)));
+      }
+      entity.setDynamicProperty('body', JSON.stringify(bodies));
 
-        let car_entity_id = entity.id;
-        entity.addTag('tcmb_carid_'+car_entity_id);
-        if(perf_monitor) perf_obj.setScore('spawn', (new Date().getTime()) - start);
+      let car_entity_id = entity.id;
+      entity.addTag('tcmb_carid_'+car_entity_id);
+      if(perf_monitor) perf_obj.setScore('spawn', (new Date().getTime()) - start);
 
-        train.rail_mo_plus = new RailMoPlusEntity(entity);
+      train.rail_mo_plus = new RailMoPlusEntity(entity);
       }
   }catch(error){
       throw error;
@@ -114,7 +116,6 @@ system.runInterval(() =>{
     var bodies = train.body;
     if(typeof speedObject == "undefined") continue;
     let tags = tcmb_car.getTags();
-    let notch_regexp: RegExp = /(eb|p\d|b\d|n)/;
     let notch: string = tags.find((element)=> notch_regexp.test(element));
 
     let manifest = getTCManifest(train);
@@ -123,7 +124,6 @@ system.runInterval(() =>{
     var speed: number | undefined = speedObject.getScore(tcmb_car);
     if(typeof speed == "undefined") continue;
     let speed_control_by_tp: boolean;
-    let speed_spec: TrainSpeedSpec;
     if(hasTCManifest(train)){
       if(typeof manifest.speed_control_by_tp == "boolean"){
         speed_control_by_tp = config.speed_control_by_tp && manifest.speed_control_by_tp;
@@ -133,7 +133,7 @@ system.runInterval(() =>{
     }else{
       speed_control_by_tp = true;
     }
-    if(speed_control_by_tp){
+    if(speed_control_by_tp && train.rail_mo_plus.isValid()){
       train.rail_mo_plus.setSpeed(speed);
     }else{
       train.rail_mo_plus.destroy();
@@ -161,12 +161,6 @@ system.runInterval(() =>{
         let car_entity_id = tcmb_car.id;
         body.addTag('tcmb_body_'+car_entity_id);
       }
-    }
-
-    let carid_tag_exists = findFirstMatch(tags, 'tcmb_carid_');
-    if(carid_tag_exists == -1){
-      let car_entity_id = tcmb_car.id;
-      tcmb_car.addTag('tcmb_carid_'+car_entity_id);
     }
 
     //auto curve

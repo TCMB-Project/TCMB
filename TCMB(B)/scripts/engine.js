@@ -13,6 +13,7 @@ export class dummy {
 const overworld = world.getDimension("overworld");
 const nether = world.getDimension("nether");
 const the_end = world.getDimension("the_end");
+const notch_regexp = /(eb|p\d|b\d|n)/;
 let speedObject = world.scoreboard.getObjective("speed");
 if (typeof speedObject == "undefined") {
     speedObject = world.scoreboard.addObjective("speed", "");
@@ -108,7 +109,6 @@ system.runInterval(() => {
         if (typeof speedObject == "undefined")
             continue;
         let tags = tcmb_car.getTags();
-        let notch_regexp = /(eb|p\d|b\d|n)/;
         let notch = tags.find((element) => notch_regexp.test(element));
         let manifest = getTCManifest(train);
         //tcmb_car(speed)
@@ -116,7 +116,6 @@ system.runInterval(() => {
         if (typeof speed == "undefined")
             continue;
         let speed_control_by_tp;
-        let speed_spec;
         if (hasTCManifest(train)) {
             if (typeof manifest.speed_control_by_tp == "boolean") {
                 speed_control_by_tp = config.speed_control_by_tp && manifest.speed_control_by_tp;
@@ -124,19 +123,11 @@ system.runInterval(() => {
             else {
                 speed_control_by_tp = config.speed_control_by_tp;
             }
-            //defined spec?
-            if (typeof manifest.speed == 'object') {
-                speed_spec = manifest.speed;
-            }
-            else {
-                speed_spec = undefined;
-            }
         }
         else {
-            speed_control_by_tp = config.speed_control_by_tp;
+            speed_control_by_tp = true;
         }
-        //tcmb_car(fast_run)
-        if (speed_control_by_tp) {
+        if (speed_control_by_tp && train.rail_mo_plus.isValid()) {
             train.rail_mo_plus.setSpeed(speed);
         }
         else {
@@ -164,11 +155,6 @@ system.runInterval(() => {
                 let car_entity_id = tcmb_car.id;
                 body.addTag('tcmb_body_' + car_entity_id);
             }
-        }
-        let carid_tag_exists = findFirstMatch(tags, 'tcmb_carid_');
-        if (carid_tag_exists == -1) {
-            let car_entity_id = tcmb_car.id;
-            tcmb_car.addTag('tcmb_carid_' + car_entity_id);
         }
         //auto curve
         if (findFirstMatch(tags, 'pt') != -1) {
