@@ -90,6 +90,9 @@ function initializeTrain(entity) {
             if (perf_monitor)
                 perf_obj.setScore('spawn', (new Date().getTime()) - start);
             train.rail_mo_plus = new RailMoPlusEntity(entity);
+            if (!config.speed_control_by_tp) {
+                train.rail_mo_plus.destroy();
+            }
         }
     }
     catch (error) {
