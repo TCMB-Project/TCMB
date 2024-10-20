@@ -118,6 +118,8 @@ system.runInterval(() => {
         var speed = speedObject.getScore(tcmb_car);
         if (typeof speed == "undefined")
             continue;
+        if (tags.includes('backward'))
+            speed = -speed;
         let speed_control_by_tp;
         if (hasTCManifest(train)) {
             if (typeof manifest.speed_control_by_tp == "boolean") {

@@ -126,6 +126,7 @@ system.runInterval(() =>{
     //tcmb_car(speed)
     var speed: number | undefined = speedObject.getScore(tcmb_car);
     if(typeof speed == "undefined") continue;
+    if(tags.includes('backward')) speed = -speed;
     let speed_control_by_tp: boolean;
     if(hasTCManifest(train)){
       if(typeof manifest.speed_control_by_tp == "boolean"){
@@ -136,6 +137,7 @@ system.runInterval(() =>{
     }else{
       speed_control_by_tp = true;
     }
+
     if(speed_control_by_tp && train.rail_mo_plus.isValid()){
       train.rail_mo_plus.setSpeed(speed);
     }else{
