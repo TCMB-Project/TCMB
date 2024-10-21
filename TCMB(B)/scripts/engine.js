@@ -476,7 +476,7 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
         case "tcmb:engine_electricity_control":
             {
                 let evdata = JSON.parse(ev.message);
-                player = ev.sourceEntity;
+                let player = ev.sourceEntity;
                 if (!(player instanceof Player))
                     return;
                 var train = world.getEntity(evdata.entity.id);
@@ -556,7 +556,7 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
             break;
         case 'tcmb_minecart_engine:work':
             {
-                player = ev.sourceEntity;
+                let player = ev.sourceEntity;
                 if (!(player instanceof Player))
                     return;
                 var train = world.getEntity(JSON.parse(ev.message)['entity']['id']);
