@@ -102,7 +102,7 @@ function initializeTrain(entity: Entity){
       if(!config.speed_control_by_tp){
         train.rail_mo_plus.destroy();
       }
-      }
+    }
   }catch(error){
       throw error;
   }

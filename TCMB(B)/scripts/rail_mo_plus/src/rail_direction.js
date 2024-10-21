@@ -15,7 +15,7 @@ export const rail_direction = [
         South: { direction: East },
         East: { direction: West },
         West: { direction: East },
-        default_enter: West
+        default_enter: East
     },
     //rail_direction=2 ascending_east
     {
