@@ -283,38 +283,38 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
               }
           break;
           case "notchSignal":
-              train = world.getEntity(evdata.entity.id);
-              if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
-                if(!train.hasTag("voltage_0")){
-                  if(!(train.hasTag('eb') && evdata.status["operation"] == "break") && !(train.hasTag('p4') && evdata.status["operation"] == "power") && !(train.hasTag("n") && evdata.status["operation"] == "neutral") && !(train.hasTag('eb') && evdata.status['operation'] == 'eb')){
-                    train.runCommandAsync("playsound notch @a[r=25]");
-                    if(speedObject.getScore(train) == 0 && ((evdata.status["operation"] == "neutral") || (train.hasTag('b1') && evdata.status['operation'] == 'power'))) train.runCommandAsync("playsound break_remission @a[r=100]");
-                    let event_report = new Event('notch', evdata.status, train, player);
-                    event_report.reply();
-                  }
-                  if(evdata.status["operation"] != "eb"){
-                      train.runCommandAsync("function notch_"+evdata.status["operation"]);
-                  }else{
-                      train.runCommandAsync("function eb");
-                  }
-                  if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommandAsync("function tc_notch_"+evdata.status["operation"]);
+            train = world.getEntity(evdata.entity.id);
+            if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
+              if(!train.hasTag("voltage_0")){
+                if(!(train.hasTag('eb') && evdata.status["operation"] == "break") && !(train.hasTag('p4') && evdata.status["operation"] == "power") && !(train.hasTag("n") && evdata.status["operation"] == "neutral") && !(train.hasTag('eb') && evdata.status['operation'] == 'eb')){
+                  train.runCommandAsync("playsound notch @a[r=25]");
+                  if(speedObject.getScore(train) == 0 && ((evdata.status["operation"] == "neutral") || (train.hasTag('b1') && evdata.status['operation'] == 'power'))) train.runCommandAsync("playsound break_remission @a[r=100]");
+                  let event_report = new Event('notch', evdata.status, train, player);
+                  event_report.reply();
                 }
+                if(evdata.status["operation"] != "eb"){
+                  train.runCommandAsync("function notch_"+evdata.status["operation"]);
+                }else{
+                  train.runCommandAsync("function eb");
+                }
+                if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommandAsync("function tc_notch_"+evdata.status["operation"]);
               }
+            }
           break;
           case "deleteSignal":
-              player.runCommandAsync("playsound random.click @s");
-              let delete_train_query = {
-                tags: ["body"],
-                closest: 1,
-                location: player.location
-              };
-              train = player.dimension.getEntities(delete_train_query)[0];
+            player.runCommandAsync("playsound random.click @s");
+            let delete_train_query = {
+              tags: ["body"],
+              closest: 1,
+              location: player.location
+            };
+            train = player.dimension.getEntities(delete_train_query)[0];
 
-              train.runCommandAsync("execute as @e[type=tcmb:tcmb_car,r=2,tag=tc_parent] at @s run function tc_delete_train");
-              train.runCommandAsync("execute as @e[type=tcmb:tcmb_car,r=2,tag=tc_child] at @s run function tc_delete_train");
-              train.runCommandAsync("function delete_train");
-              let event_report = new Event('delete', undefined, train, player);
-              event_report.reply();
+            train.runCommandAsync("execute as @e[type=tcmb:tcmb_car,r=2,tag=tc_parent] at @s run function tc_delete_train");
+            train.runCommandAsync("execute as @e[type=tcmb:tcmb_car,r=2,tag=tc_child] at @s run function tc_delete_train");
+            train.runCommandAsync("function delete_train");
+            let event_report = new Event('delete', undefined, train, player);
+            event_report.reply();
           break;
           case "destSignal":{
             let train:Entity = world.getEntity(evdata.entity.id);

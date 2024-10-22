@@ -1,3 +1,6 @@
 [submodule "ts/rail_mo_plus"]
 	path = ts/rail_mo_plus
 	url = https://github.com/TCMB-Project/rail_mo_plus.git
+[submodule "ts/ladatps"]
+	path = ts/ladatps
+	url = https://github.com/TCMB-Project/ladatps.git

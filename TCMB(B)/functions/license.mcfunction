@@ -1,0 +1,1 @@
+tellraw @s {"rawtext":[{"text":"TCMBはTCMB Projectが作成したオープンソースソフトウェアを使用しています。\r\nライセンス情報は/function license/{ソフトウェア名}を実行して確認することができます。\r\n\r\n使用しているソフトウェア\r\nrail_mo_plus\r\nLaDaTPS"}]}

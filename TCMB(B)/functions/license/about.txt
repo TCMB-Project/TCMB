@@ -1,0 +1,6 @@
+TCMBはTCMB Projectが作成したオープンソースソフトウェアを使用しています。
+ライセンス情報は/function license/{ソフトウェア名}を実行して確認することができます。
+
+使用しているソフトウェア
+rail_mo_plus
+LaDaTPS
