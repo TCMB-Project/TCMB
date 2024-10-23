@@ -15,6 +15,8 @@ export class RailMoPlusEntity {
             entity.setDynamicProperty('rail_mo_plus:speed', 0);
         }
         this.entity.setDynamicProperty('rail_mo_plus:reverse', false);
+        let current_time = new Date();
+        this.setLastTickTime(PRIVARE_SYMBOL, current_time);
         if (!entity.getDynamicPropertyIds().includes('rail_mo_plus:vrotation_x') || !entity.getDynamicPropertyIds().includes('rail_mo_plus:vrotation_y')) {
             //virtual rotation
             const location = this.entity.location;
@@ -89,6 +91,17 @@ export class RailMoPlusEntity {
             throw Error('Use from outside the module is not allowed.');
         this.entity.setDynamicProperty('rail_mo_plus:enter_direction', direction);
     }
+    getLastTickTime() {
+        let dp = this.entity.getDynamicProperty('rail_mo_plus:last_tick_time');
+        if (typeof dp != 'number')
+            throw Error('rail_mo_plus:last_tick_time is not a number.');
+        return new Date(dp);
+    }
+    setLastTickTime(symbol, time) {
+        if (symbol != PRIVARE_SYMBOL)
+            throw Error('Use from outside the module is not allowed.');
+        this.entity.setDynamicProperty('rail_mo_plus:last_tick_time', time.getTime());
+    }
     isValid() {
         return this.entity.isValid() && !this.isDestroyed;
     }
@@ -121,16 +134,21 @@ export class RailMoPlusEntity {
             if (rail_direction[state][enter].ascending == Direction.Down)
                 start = VectorAdd(start, { x: 0, y: 1, z: 0 });
             location = correctToRail(start, end, location);
-            /*
-              km/h to m/tick
-              https://github.com/HakoMC/minecart_speed_list/blob/main/minecart_speed.txt
-            */
-            const speed = this.getSpeed() / 72;
+            // km/h to m/ms
+            const speed = this.getSpeed() / 3600;
+            let last_time = this.getLastTickTime();
+            let current_time = new Date();
+            let time = current_time.getTime() - last_time.getTime();
+            console.log(time);
+            const distance = Math.abs(speed) * time;
+            this.setLastTickTime(PRIVARE_SYMBOL, current_time);
             //Ignore gravity
-            if (speed == 0)
+            if (speed == 0) {
                 entity.teleport(location);
+                break;
+            }
             let norm = getNormalizedVector(start, end, location);
-            let target = Math.abs(speed) + norm;
+            let target = distance + norm;
             while (true) {
                 if (target >= 1) {
                     current_block = nextBlock(current_block, rail_direction[state][enter].direction, rail_direction[state][enter].ascending);
