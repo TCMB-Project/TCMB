@@ -424,37 +424,6 @@ let itemEvent = (ev) => {
 };
 world.afterEvents.itemUse.subscribe(itemEvent);
 world.afterEvents.itemUseOn.subscribe(itemEvent);
-//mobile enhance
-world.afterEvents.itemUseOn.subscribe((event) => {
-    let dimension = event.source.dimension;
-    let train;
-    let isworking;
-    let player = event.source;
-    let event_train_query = {
-        families: ["tcmb_car"],
-        location: player.location,
-        closest: 1,
-        maxDistance: max_distance
-    };
-    switch (event.itemStack.typeId) {
-        case "tcmb:crew_panel_spawn_egg":
-            {
-                if (working.has(event.source.id)) {
-                    train = working.get(event.source.id);
-                    isworking = true;
-                }
-                else {
-                    train = dimension.getEntities(event_train_query)[0];
-                    isworking = false;
-                }
-                if (typeof train == "undefined")
-                    return;
-                let evdata = new Event('open_crew_panelSignal', {}, train, player, isworking);
-                evdata.send();
-            }
-            break;
-    }
-});
 overworld.runCommandAsync('scriptevent tcmb:work_control {"type":"reload"}');
 overworld.runCommandAsync('scriptevent tcmb:initialized');
 //# sourceMappingURL=main.js.map
