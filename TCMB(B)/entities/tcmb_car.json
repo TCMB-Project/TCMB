@@ -6,7 +6,6 @@
             "is_spawnable": false,
             "is_summonable": true,
             "is_experimental": false,
-            "runtime_identifier": "minecraft:minecart",
             "animations":{
                 "tcmb_car_controller": "controller.animation.tcmb_car",
                 "tcmb_eb": "animation.tcmb_eb",
@@ -314,7 +313,6 @@
                 "width": 1,
                 "height": 1
             },
-            "minecraft:rail_movement": { "max_speed": 0 },
             "minecraft:rideable": {
                 "seat_count": 2,
                 "family_types": ["tcmb_body"],
@@ -342,7 +340,7 @@
                 ]
             },
             "minecraft:rail_sensor": {
-                "eject_on_activate": true
+                "eject_on_activate": false
             },
             "minecraft:physics": {},
             "minecraft:tick_world":{},

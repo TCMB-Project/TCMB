@@ -61,11 +61,67 @@ export type ConfigObject = {
 export class TCMBTrain{
   entity: Entity;
   body: Entity[];
-  rail_mo_plus: RailMoPlusEntity
+  rail_mo_plus: RailMoPlusEntity;
+  manifest: TCManifest
   constructor(car:Entity, working:undefined = undefined, body:Entity[] | undefined = undefined){
     this.entity = car;
     this.body = body;
+    this.rail_mo_plus = new RailMoPlusEntity(car);
   }
+  getManifest(): TCManifest{
+    if(typeof this.manifest != 'undefined') return this.manifest;
+
+    if(this.entity.getDynamicPropertyIds().includes('tcmanifest')){
+      let manifest_property: unknown = this.entity.getDynamicProperty('tcmanifest');
+      if(typeof manifest_property == 'string'){
+        let manifest = JSON.parse(manifest_property) as TCManifest;
+        this.manifest = manifest;
+        return manifest;
+      }else{
+          throw new TypeError('TCManifest on DP is not a string.');
+      }
+    }else{
+      return undefined;
+    }
+  }
+  connect(car: TCMBTrain): ConnectedChild{
+    let child = new ConnectedChild(car.entity, undefined, car.body);
+    child.parent = this;
+    this.connected.push(child);
+    return child;
+  }
+  isConnected(): boolean{
+    return this.connected.length>=1;
+  }
+  setSpeed(speed: number): void{
+    this.rail_mo_plus.setSpeed(speed);
+    if(this.isConnected()){
+      for(const car of this.connected){
+        car.rail_mo_plus.setSpeed(speed);
+      }
+    }
+  }
+  triggerEvent(eventName: string): void{
+    this.entity.triggerEvent(eventName);
+    if(this.isConnected()){
+      for(const car of this.connected){
+        car.triggerEvent(eventName);
+      }
+    }
+  }
+  async runCommandAsync(commandString: string): Promise<void>{
+    this.entity.runCommandAsync(commandString);
+    if(this.isConnected()){
+      for(const car of this.connected){
+        car.runCommandAsync(commandString);
+      }
+    }
+  }
+  connected: ConnectedChild[] = [];
+}
+
+export class ConnectedChild extends TCMBTrain{
+  parent: TCMBTrain
 }
 
 export type TrainSpeedSpec = {
@@ -74,12 +130,6 @@ export type TrainSpeedSpec = {
   deceleration?: number,
   emergency?: number,
   break_latency?: number
-}
-
-export type MNotch = {
-  power: number,
-  break: number,
-  constant_speed?: boolean
 }
 
 export type TrainBattery = {
@@ -110,6 +160,11 @@ class Notch{
   }
 }
 
+export type Cab = {
+  power: number,
+  break: number
+}
+
 export type TCManifest = {
   name: string | undefined,
   company: string | undefined,
@@ -118,7 +173,7 @@ export type TCManifest = {
   summon_command: string | undefined,
   speed: TrainSpeedSpec | undefined,
   battery: TrainBattery | undefined,
-  mnotch: MNotch
+  cab: Cab
 }
 
 export type WorkRequest = {

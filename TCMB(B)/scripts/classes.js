@@ -4,6 +4,7 @@
 * Apache License 2.0
 */
 import { world } from "@minecraft/server";
+import { RailMoPlusEntity } from "./rail_mo_plus/src/rail_mo_plus";
 export class Event {
     name;
     entity;
@@ -54,7 +55,45 @@ export class TCMBTrain {
     constructor(car, working = undefined, body = undefined) {
         this.entity = car;
         this.body = body;
+        this.rail_mo_plus = new RailMoPlusEntity(car);
     }
+    connect(car) {
+        let child = new ConnectedChild(car.entity, undefined, car.body);
+        child.parent = this;
+        this.connected.push(child);
+        return child;
+    }
+    isConnected() {
+        return this.connected.length >= 1;
+    }
+    setSpeed(speed) {
+        this.rail_mo_plus.setSpeed(speed);
+        if (this.isConnected()) {
+            for (const car of this.connected) {
+                car.rail_mo_plus.setSpeed(speed);
+            }
+        }
+    }
+    triggerEvent(eventName) {
+        this.entity.triggerEvent(eventName);
+        if (this.isConnected()) {
+            for (const car of this.connected) {
+                car.triggerEvent(eventName);
+            }
+        }
+    }
+    async runCommandAsync(commandString) {
+        this.entity.runCommandAsync(commandString);
+        if (this.isConnected()) {
+            for (const car of this.connected) {
+                car.runCommandAsync(commandString);
+            }
+        }
+    }
+    connected = [];
+}
+export class ConnectedChild extends TCMBTrain {
+    parent;
 }
 class Notch {
     id;

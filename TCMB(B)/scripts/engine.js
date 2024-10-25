@@ -7,7 +7,6 @@ import { world, system, Entity, Player, ScriptEventSource } from "@minecraft/ser
 import { ModalFormData, ActionFormData, MessageFormData } from "@minecraft/server-ui";
 import { Event, PanelButton, TCMBTrain } from "./classes";
 import { findFirstMatch, getTCManifest, hasTCManifest } from "./util";
-import { RailMoPlusEntity } from "./rail_mo_plus/src/rail_mo_plus";
 export class dummy {
 }
 const overworld = world.getDimension("overworld");
@@ -85,11 +84,14 @@ function initializeTrain(entity) {
                 entity.setDynamicProperty('tcmanifest', JSON.stringify(trains_manifest.get(typeId)));
             }
             entity.setDynamicProperty('body', JSON.stringify(bodies));
+            entity.setDynamicProperty('speed', 0);
             let car_entity_id = entity.id;
             entity.addTag('tcmb_carid_' + car_entity_id);
+            for (const body of bodies) {
+                body.addTag('tcmb_body_' + car_entity_id);
+            }
             if (perf_monitor)
                 perf_obj.setScore('spawn', (new Date().getTime()) - start);
-            train.rail_mo_plus = new RailMoPlusEntity(entity);
             if (!config.speed_control_by_tp) {
                 train.rail_mo_plus.destroy();
             }
@@ -113,14 +115,17 @@ system.runInterval(() => {
             continue;
         let tags = tcmb_car.getTags();
         let notch = tags.find((element) => notch_regexp.test(element));
+        let acceleration = 4;
+        let service_break = 4.5;
+        let emergency_break = 5;
         let manifest = getTCManifest(train);
         //tcmb_car(speed)
-        var speed = speedObject.getScore(tcmb_car);
+        var speed = train.rail_mo_plus.getSpeed();
         if (typeof speed == "undefined")
             continue;
         let distance = speed;
         if (tags.includes('backward'))
-            distance = -speed;
+            speed = -speed;
         let speed_control_by_tp;
         if (hasTCManifest(train)) {
             if (typeof manifest.speed_control_by_tp == "boolean") {
@@ -133,34 +138,63 @@ system.runInterval(() => {
         else {
             speed_control_by_tp = true;
         }
+        //acceleration/deceleration processing
+        let unsgined_speed = Math.abs(speed);
+        if (notch.startsWith('p')) {
+            let acc_ratio = Number(notch.replace('p', '')) / 4;
+            let km_per_ms = acceleration / 1000 * acc_ratio;
+            let current_time = new Date().getTime();
+            let last_tick_time = train.rail_mo_plus.getLastTickTime().getTime();
+            unsgined_speed = unsgined_speed + (km_per_ms * (current_time - last_tick_time));
+            speedObject.setScore(tcmb_car, speed);
+        }
+        else if (notch.startsWith('b')) {
+            let dec_ratio = Number(notch.replace('b', '')) / 7;
+            let km_per_ms = -service_break / 1000 * dec_ratio;
+            let current_time = new Date().getTime();
+            let last_tick_time = train.rail_mo_plus.getLastTickTime().getTime();
+            unsgined_speed = unsgined_speed + (km_per_ms * (current_time - last_tick_time));
+            if (unsgined_speed < 0)
+                unsgined_speed = 0;
+            speedObject.setScore(tcmb_car, speed);
+        }
+        else if (notch == 'eb') {
+            let km_per_ms = -emergency_break / 1000;
+            let current_time = new Date().getTime();
+            let last_tick_time = train.rail_mo_plus.getLastTickTime().getTime();
+            unsgined_speed = unsgined_speed + (km_per_ms * (current_time - last_tick_time));
+            if (unsgined_speed < 0)
+                unsgined_speed = 0;
+            speedObject.setScore(tcmb_car, speed);
+        }
+        speed = unsgined_speed;
+        if (tags.includes('backward'))
+            speed = unsgined_speed;
         if (speed_control_by_tp && train.rail_mo_plus.isValid()) {
-            train.rail_mo_plus.setSpeed(distance);
+            train.setSpeed(speed);
         }
         else {
             train.rail_mo_plus.destroy();
         }
         //body
-        let open_order = tags.filter((name) => door_orders.includes(name))[0];
+        let open_orders = tags.filter((name) => door_orders.includes(name));
+        let unsgined_int_speed = Math.floor(Math.abs(speed));
         for (const body of bodies) {
             try {
-                body.triggerEvent(speed + "km");
+                body.triggerEvent(unsgined_int_speed + "km");
             }
             catch (err) {
                 tcmb_car.kill();
                 console.error(err, ' | Deleted the associated tcmb_car.');
                 continue;
             }
-            if (open_order)
+            for (const open_order of open_orders) {
                 body.triggerEvent(open_order);
+            }
             body.playAnimation(notch, {
                 nextState: notch,
                 blendOutTime: 32767
             });
-            let carid_onbody_tag_exists = findFirstMatch(body.getTags(), 'tcmb_body_');
-            if (carid_onbody_tag_exists == -1) {
-                let car_entity_id = tcmb_car.id;
-                body.addTag('tcmb_body_' + car_entity_id);
-            }
         }
         //auto curve
         if (findFirstMatch(tags, 'pt') != -1) {
@@ -462,7 +496,7 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev) => {
                 }
             }
             let event_report = new Event('door', { door_direction }, train, undefined);
-            event_report.reply();
+            event_report.send();
             break;
         case "tcmb:engine_delete":
             {
