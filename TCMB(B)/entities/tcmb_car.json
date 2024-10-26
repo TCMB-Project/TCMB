@@ -6,6 +6,7 @@
             "is_spawnable": false,
             "is_summonable": true,
             "is_experimental": false,
+            "runtime_identifier": "minecraft:minecart",
             "animations":{
                 "tcmb_car_controller": "controller.animation.tcmb_car",
                 "tcmb_eb": "animation.tcmb_eb",
@@ -339,6 +340,7 @@
                     }
                 ]
             },
+            "minecraft:rail_movement": {"max_speed": 0},
             "minecraft:rail_sensor": {
                 "eject_on_activate": false
             },

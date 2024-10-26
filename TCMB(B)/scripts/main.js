@@ -3,7 +3,7 @@
 * (c) TCMB Project
 * Apache License 2.0
 */
-import { world, system, Entity, Player } from "@minecraft/server";
+import { world, system, Entity, Player, ScriptEventSource } from "@minecraft/server";
 import { Event } from "./classes";
 import { dummy } from "./engine";
 new dummy;
@@ -130,6 +130,33 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
                 world.sendMessage('[tcmb:chat_echo] ' + ev.message);
             }
             break;
+        case "tcmb:trigger_event":
+            {
+                let message = ev.message.split(/(?<=^[^ ]+?) /);
+                let event_name = message[0];
+                let event_source_location;
+                let event_source_dimension;
+                if (ev.sourceType == ScriptEventSource.Entity) {
+                    event_source_location = ev.sourceEntity.location;
+                    event_source_dimension = ev.sourceEntity.dimension;
+                }
+                else if (ev.sourceType == ScriptEventSource.Block) {
+                    event_source_location = ev.sourceBlock.location;
+                    event_source_dimension = ev.sourceBlock.dimension;
+                }
+                else {
+                    throw new Error('[tcmb:trigger_event] Unexpected event source: ' + ev.sourceType);
+                }
+                let train = event_source_dimension.getEntities({
+                    families: ["tcmb_car"],
+                    location: event_source_location,
+                    closest: 1,
+                    maxDistance: 10
+                })[0];
+                let event = new Event(event_name, JSON.parse(message[1]), train, undefined, false);
+                event.send();
+            }
+            break;
     }
 }, { namespaces: ['tcmb'] });
 //item use operation
@@ -192,7 +219,7 @@ let itemEvent = (ev) => {
                     if (train.id == work_train.id) {
                         let player = world.getEntity(playerID);
                         if ((player instanceof Player)) {
-                            working_player.push(player.nameTag);
+                            working_player.push(player.name);
                         }
                         else {
                             offline_player++;
@@ -337,7 +364,7 @@ let itemEvent = (ev) => {
                 let { train, isWorking } = selectTrain(ev);
                 if (typeof train == "undefined")
                     return;
-                evdata = new Event('door_control', {}, train, ev.source, isWorking);
+                evdata = new Event('doorControlSignal', {}, train, ev.source, isWorking);
                 evdata.send();
             }
             break;

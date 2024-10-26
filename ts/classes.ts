@@ -6,42 +6,45 @@
 import { world, Entity, Player, RawMessage } from "@minecraft/server";
 import { RailMoPlusEntity } from "./rail_mo_plus/src/rail_mo_plus";
 
+const overworld = world.getDimension('overworld')
+
 export class Event{
   name: string;
-  entity: {typeId: string, id: string} | undefined;
+  entity: Entity | undefined;
   player: {name: string, id: string} | undefined;
   status: object;
   isWorking: boolean;
-  constructor(name:string, status: object, car:Entity | undefined, player:Player | undefined, working: boolean = false){
+  constructor(name:string, status: object, car:Entity, player:Player | undefined, working: boolean = false){
     this.name = name;
     this.status = status;
-    this.entity = car?{
-      typeId: car.typeId,
-      id: car.id
-    }:undefined;
+    this.entity = car;
     this.player = player?{name: player.name, id: player.id}:undefined;
     this.isWorking = working;
   }
 
   send(){
-    let overworld = world.getDimension("overworld");
     let stringify_data = JSON.stringify(this); 
-    overworld.runCommandAsync(`/scriptevent tcmb:event ${stringify_data}`);
+    this.entity.runCommandAsync(`/scriptevent tcmb:event ${stringify_data}`);
   }
   reply(){
-    let overworld = world.getDimension("overworld");
     let stringify_data = JSON.stringify(this);
-    overworld.runCommandAsync(`/scriptevent tcmb:reply ${stringify_data}`)
+    this.entity.runCommandAsync(`/scriptevent tcmb:event ${stringify_data}`)
   }
+}
+
+type PanelAction = {
+  type: "scriptevent" | "TEvent" | "Command",
+  action: string,
+  status?: {[key: string]: any}
 }
 
 export class PanelButton{
   official: boolean;
   text: string | RawMessage;
   texture: string | undefined;
-  response: string | undefined;
+  response: PanelAction;
   uuid: string | undefined;
-  constructor(official:boolean, text:string | RawMessage, texture:string | undefined, response: string | undefined){
+  constructor(official:boolean, text:string | RawMessage, texture:string | undefined, response: PanelAction){
     this.official = official;
     this.text = text;
     this.texture = texture;
@@ -49,6 +52,19 @@ export class PanelButton{
   }
   setUUID(uuid:string){
     this.uuid = uuid;
+  }
+  push(train: Entity, player: Player, isWorking: boolean = false){
+    switch(this.response.type){
+      case "scriptevent":{
+        let send_event = new Event('click', undefined, train, player, isWorking);
+        player.runCommandAsync(`scriptevent ${this.response.action} ${JSON.stringify(send_event)}`);
+      }
+      break;
+      case "TEvent":{
+        let event = new Event(this.response.action, this.response.status, train, player, isWorking);
+        event.send();
+      }
+    }
   }
 }
 
@@ -162,7 +178,14 @@ class Notch{
 
 export type Cab = {
   power: number,
-  break: number
+  break: number,
+  breakRates: number[]
+}
+
+type BreakSpec = {
+  type?: "step",
+  service: number,
+  emergency: number
 }
 
 export type TCManifest = {
@@ -172,6 +195,7 @@ export type TCManifest = {
   speed_control_by_tp: boolean,
   summon_command: string | undefined,
   speed: TrainSpeedSpec | undefined,
+  break: BreakSpec,
   battery: TrainBattery | undefined,
   cab: Cab
 }

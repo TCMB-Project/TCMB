@@ -5,6 +5,7 @@
 */
 import { world } from "@minecraft/server";
 import { RailMoPlusEntity } from "./rail_mo_plus/src/rail_mo_plus";
+const overworld = world.getDimension('overworld');
 export class Event {
     name;
     entity;
@@ -14,22 +15,17 @@ export class Event {
     constructor(name, status, car, player, working = false) {
         this.name = name;
         this.status = status;
-        this.entity = car ? {
-            typeId: car.typeId,
-            id: car.id
-        } : undefined;
+        this.entity = car;
         this.player = player ? { name: player.name, id: player.id } : undefined;
         this.isWorking = working;
     }
     send() {
-        let overworld = world.getDimension("overworld");
         let stringify_data = JSON.stringify(this);
-        overworld.runCommandAsync(`/scriptevent tcmb:event ${stringify_data}`);
+        this.entity.runCommandAsync(`/scriptevent tcmb:event ${stringify_data}`);
     }
     reply() {
-        let overworld = world.getDimension("overworld");
         let stringify_data = JSON.stringify(this);
-        overworld.runCommandAsync(`/scriptevent tcmb:reply ${stringify_data}`);
+        this.entity.runCommandAsync(`/scriptevent tcmb:event ${stringify_data}`);
     }
 }
 export class PanelButton {
@@ -47,15 +43,48 @@ export class PanelButton {
     setUUID(uuid) {
         this.uuid = uuid;
     }
+    push(train, player, isWorking = false) {
+        switch (this.response.type) {
+            case "scriptevent":
+                {
+                    let send_event = new Event('click', undefined, train, player, isWorking);
+                    player.runCommandAsync(`scriptevent ${this.response.action} ${JSON.stringify(send_event)}`);
+                }
+                break;
+            case "TEvent": {
+                let event = new Event(this.response.action, this.response.status, train, player, isWorking);
+                event.send();
+            }
+        }
+    }
 }
 export class TCMBTrain {
     entity;
     body;
     rail_mo_plus;
+    manifest;
     constructor(car, working = undefined, body = undefined) {
         this.entity = car;
         this.body = body;
         this.rail_mo_plus = new RailMoPlusEntity(car);
+    }
+    getManifest() {
+        if (typeof this.manifest != 'undefined')
+            return this.manifest;
+        if (this.entity.getDynamicPropertyIds().includes('tcmanifest')) {
+            let manifest_property = this.entity.getDynamicProperty('tcmanifest');
+            if (typeof manifest_property == 'string') {
+                let manifest = JSON.parse(manifest_property);
+                this.manifest = manifest;
+                return manifest;
+            }
+            else {
+                throw new TypeError('TCManifest on DP is not a string.');
+            }
+        }
+        else {
+            return undefined;
+        }
     }
     connect(car) {
         let child = new ConnectedChild(car.entity, undefined, car.body);

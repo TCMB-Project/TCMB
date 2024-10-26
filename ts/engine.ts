@@ -52,6 +52,11 @@ if(!world.getDynamicPropertyIds().includes('config')){
 
 const perf_obj: ScoreboardObjective = world.scoreboard.getObjective('tcmb_perfomance');
 const door_orders: String[] = ['open_a', 'open_b', 'open_all', 'oneman_open_a', 'oneman_open_b'];
+const default_cab: Cab = {
+  power: 4,
+  break: 7,
+  breakRates: [0.4, 0.4444444445, 0.5, 0.5714285714, 0.6666666667, 0.8, 1]
+}
 
 let perf:object = {
   main: 0,
@@ -65,12 +70,11 @@ let perf_monitor: boolean = false;
 let monitor_runid = 0;
 
 let crew_panel_buttons: PanelButton[] = [];
-crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.door_control'}, 'textures/items/door_control', undefined));
-crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.electricity_control'}, 'textures/items/electricity_control', 'tcmb:engine_electricity_control'));
-crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.eb'}, 'textures/items/notch_eb', undefined));
-crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.seat_control'}, 'textures/items/seat', 'tcmb_minecart_engine:seat_control'));
-crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.direction'}, 'textures/items/direction', undefined));
-crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.work'}, 'textures/items/crew_panel', 'tcmb_minecart_engine:work'));
+crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.door_control'}, 'textures/items/door_control', {type: 'TEvent', action: 'doorControlSignal', status: {}}));
+crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.electricity_control'}, 'textures/items/electricity_control', {type: 'scriptevent', action: 'tcmb:engine_electricity_control'}));
+crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.seat_control'}, 'textures/items/seat', {type: 'scriptevent', action: 'tcmb_minecart_engine:seat_control'}));
+crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.direction'}, 'textures/items/direction', {type: 'TEvent', action: 'directionSignal', status: {}}));
+crew_panel_buttons.push(new PanelButton(true, {translate: 'tcmb.ui.crew_panel.work'}, 'textures/items/crew_panel', {type: 'scriptevent', action: 'tcmb_minecart_engine:work'}));
 
 let trains_manifest : TCManifestMap = new Map();
 
@@ -125,20 +129,20 @@ system.runInterval(() =>{
     let notch: string = tags.find((element)=> notch_regexp.test(element));
 
     let acceleration = 4;
-    let service_break = 4.5;
-    let break_rates = [0.4444444444, 0.5];
-    let emergency_break = 5;
-    let cab: Cab = {
-      power: 4,
-      break: 7
-    }
+    let service_break = 5;
+    let emergency_break = 6.6666666667;
+    let cab: Cab = JSON.parse(JSON.stringify(default_cab));
 
     let speed_control_by_tp: boolean;
     let manifest = train.getManifest();
     //manifest
     if(typeof manifest == 'object'){
+      let isBreakRatesDefined = false;
       if(typeof manifest.cab == 'object'){
-        cab = manifest.cab;
+        cab.power = manifest.cab.power || cab.power;
+        cab.break = manifest.cab.break || cab.break;
+        cab.breakRates = manifest.cab.breakRates || cab.breakRates;
+        if(typeof manifest.cab.breakRates == 'number') isBreakRatesDefined = true;
       }
 
       if(typeof manifest.speed_control_by_tp == "boolean"){
@@ -146,10 +150,19 @@ system.runInterval(() =>{
       }else{
         speed_control_by_tp = config.speed_control_by_tp;
       }
+      if(typeof manifest.break == "object"){
+        if(typeof manifest.break.service == "number" && !isBreakRatesDefined){
+          for(let i=0; i<cab.break; i++){
+            cab.breakRates[i] = (i+1) / cab.break;
+          }
+        }
+        service_break = manifest.break.service || service_break;
+        emergency_break = manifest.break.emergency || emergency_break;
+      }
     }else{
       speed_control_by_tp = true;
     }
-    
+
     //tcmb_car(speed)
     var speed: number = train.rail_mo_plus.getSpeed();
     let speed_before = speed;
@@ -170,7 +183,7 @@ system.runInterval(() =>{
       //service break
       let dec_ratio = Number(notch.replace('b', '')) - 1;
 
-      let km_per_ms = -service_break / 1000 * break_rates[dec_ratio];
+      let km_per_ms = -service_break / 1000 * cab.breakRates[dec_ratio];
       let current_time = new Date().getTime();
       let last_tick_time = train.rail_mo_plus.getLastTickTime().getTime();
       unsgined_speed = unsgined_speed + (km_per_ms * (current_time - last_tick_time));
@@ -209,12 +222,10 @@ system.runInterval(() =>{
         body.triggerEvent(open_order);
       }
 
-      if(Math.abs(Math.ceil(speed)) != Math.abs(Math.ceil(speed_before))){
-        body.playAnimation(notch, {
-          nextState: notch,
-          blendOutTime: 32767
-        });
-      }
+      body.playAnimation(notch, {
+        nextState: notch,
+        blendOutTime: 32767
+      });
     }
 
     //auto curve
@@ -312,7 +323,7 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
             ride(player, train);
           }
         break;
-        case "door_control":
+        case "doorControlSignal":
           train = world.getEntity(evdata.entity.id);
           if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
             door_ctrl(player, train);
@@ -346,6 +357,9 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
                 train.runCommandAsync("function eb");
               }
               if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommandAsync("function tc_notch_"+evdata.status["operation"]);
+
+              let tcmb_train = tcmb_trains.get(train.id);
+              let notch: string = train.getTags().find((element)=> notch_regexp.test(element));
             }
           }
         break;
@@ -390,22 +404,8 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
             crewpanel.show(player).then((response)=>{
               if(response.canceled) return;
               if(!(player instanceof Player)) return;
-              if(typeof crew_panel_buttons[response.selection].response == 'undefined'){
-                switch(response.selection){
-                  case 0:
-                    door_ctrl(player, train);
-                  break;
-                  case 2:
-                    train.runCommandAsync('function eb');
-                  break;
-                  case 4:
-                    let signal = new Event('directionSignal', undefined, train, player, evdata.isWorking);
-                    signal.send();
-                  break;
-                }
-              }else{
-                let send_event = new Event('click', undefined, train, player, evdata.isWorking);
-                player.runCommandAsync(`scriptevent ${crew_panel_buttons[response.selection].response} ${JSON.stringify(send_event)}`);
+              if(typeof crew_panel_buttons[response.selection].response != 'undefined'){
+                crew_panel_buttons[response.selection].push(train, player);
               }
             })
           }
@@ -672,12 +672,12 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
       break;
       case "tcmb_minecart_engine:regist_manifest":
       case "tcmb_minecart_engine:regist_tcmanifest":{
-        let message: unknown = JSON.parse(ev.message);
+        let message = JSON.parse(ev.message) as TCManifest;
         if(ev.sourceType != ScriptEventSource.Server){
-            console.warn('[tcmb:reply] Event source is not Server.');
+          console.warn('[tcmb:reply] Event source is not Server.');
         }
-        if(typeof message == "object" && typeof message['type'] == 'string'){
-            trains_manifest.set(message['type'], JSON.parse(ev.message));
+        if(typeof message == "object" && typeof message.type == 'string'){
+            trains_manifest.set(message.type, JSON.parse(ev.message));
         }
       }
       break;
