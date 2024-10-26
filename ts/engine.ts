@@ -314,150 +314,161 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
       let evmsg = JSON.parse(ev.message);
       let evdata = new Event(evmsg.name, evmsg.status, evmsg.entity, evmsg.player, evmsg.isWorking);
 
-      let player: unknown = world.getEntity(evdata.player.id);
-      if(!(player instanceof Player)) return;
-      switch(evdata.name){
-        case "rideSignal":
-          train = world.getEntity(evdata.entity.id);
-          if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
-            ride(player, train);
-          }
-        break;
-        case "doorControlSignal":
-          train = world.getEntity(evdata.entity.id);
-          if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
-            door_ctrl(player, train);
-          }
-        break;
-        case "directionSignal":
-          train = world.getEntity(evdata.entity.id);
-          if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
-            if(!train.hasTag("voltage_0")){
-              train.runCommand("function direction");
-              if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommand("function tc_direction");
-            }
-            let event_report: Event;
-            event_report = new Event("direction", {backward: train.hasTag("backward")}, train, player);
-            event_report.reply();
-          }
-        break;
-        case "notchSignal":
-          train = world.getEntity(evdata.entity.id);
-          if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
-            if(!train.hasTag("voltage_0")){
-              if(!(train.hasTag('eb') && evdata.status["operation"] == "break") && !(train.hasTag('p4') && evdata.status["operation"] == "power") && !(train.hasTag("n") && evdata.status["operation"] == "neutral") && !(train.hasTag('eb') && evdata.status['operation'] == 'eb')){
-                train.runCommandAsync("playsound notch @a[r=25]");
-                if(speedObject.getScore(train) == 0 && ((evdata.status["operation"] == "neutral") || (train.hasTag('b1') && evdata.status['operation'] == 'power'))) train.runCommandAsync("playsound break_remission @a[r=100]");
-                let event_report = new Event('notch', evdata.status, train, player);
+        let player: unknown = world.getEntity(evdata.player.id);
+        if(!(player instanceof Player)) return;
+        switch(evdata.name){
+          case "rideSignal":
+              train = world.getEntity(evdata.entity.id);
+              if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
+                ride(player, train);
+              }
+          break;
+          case "door_control":
+              train = world.getEntity(evdata.entity.id);
+              if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
+                door_ctrl(player, train);
+              }
+          break;
+          case "directionSignal":
+              train = world.getEntity(evdata.entity.id);
+              if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
+                if(!train.hasTag("voltage_0")){
+                  train.runCommand("function direction");
+                  if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommand("function tc_direction");
+                }
+                let event_report: Event;
+                event_report = new Event("direction", {backward: train.hasTag("backward")}, train, player);
                 event_report.reply();
               }
-              if(evdata.status["operation"] != "eb"){
-                train.runCommandAsync("function notch_"+evdata.status["operation"]);
-              }else{
-                train.runCommandAsync("function eb");
+          break;
+          case "notchSignal":
+              train = world.getEntity(evdata.entity.id);
+              if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
+                if(!train.hasTag("voltage_0")){
+                  if(!(train.hasTag('eb') && evdata.status["operation"] == "break") && !(train.hasTag('p4') && evdata.status["operation"] == "power") && !(train.hasTag("n") && evdata.status["operation"] == "neutral") && !(train.hasTag('eb') && evdata.status['operation'] == 'eb')){
+                      train.runCommandAsync("playsound notch @a[r=25]");
+                      if(speedObject.getScore(train) == 0 && ((evdata.status["operation"] == "neutral") || (train.hasTag('b1') && evdata.status['operation'] == 'power'))) train.runCommandAsync("playsound break_remission @a[r=100]");
+                      let event_report = new Event('notch', evdata.status, train, player);
+                      event_report.reply();
+                  }
+                  if(evdata.status["operation"] != "eb"){
+                      train.runCommandAsync("function notch_"+evdata.status["operation"]);
+                  }else{
+                      train.runCommandAsync("function eb");
+                  }
+                  if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommandAsync("function tc_notch_"+evdata.status["operation"]);
+                }
               }
-              if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommandAsync("function tc_notch_"+evdata.status["operation"]);
+          break;
+          case "deleteSignal":
+              player.runCommandAsync("playsound random.click @s");
+              let delete_train_query = {
+                tags: ["body"],
+                closest: 1,
+                location: player.location
+              };
+              train = player.dimension.getEntities(delete_train_query)[0];
 
-              let tcmb_train = tcmb_trains.get(train.id);
-              let notch: string = train.getTags().find((element)=> notch_regexp.test(element));
-            }
+              train.runCommandAsync("execute as @e[type=tcmb:tcmb_car,r=2,tag=tc_parent] at @s run function tc_delete_train");
+              train.runCommandAsync("execute as @e[type=tcmb:tcmb_car,r=2,tag=tc_child] at @s run function tc_delete_train");
+              train.runCommandAsync("function delete_train");
+              let event_report = new Event('delete', undefined, train, player);
+              event_report.reply();
+          break;
+          case "destSignal":{
+              let train:Entity = world.getEntity(evdata.entity.id);
+              if(!train.hasTag("voltage_0") && speedObject.getScore(train) == 0){
+                if(evdata.status["operation"] == 'foward'){
+                  player.runCommandAsync("playsound random.click @p");
+                  train.runCommandAsync("function dest");
+                  if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommandAsync("function tc_dest");
+                }else{
+                  player.runCommandAsync("playsound random.click @p");
+                  train.runCommandAsync("function dest_reverse");
+                  if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommandAsync("function tc_dest_reverse");
+                }
+              }
           }
-        break;
-        case "deleteSignal":
-          player.runCommandAsync("playsound random.click @s");
-          let delete_train_query = {
-            tags: ["body"],
-            closest: 1,
-            location: player.location
-          };
-          train = player.dimension.getEntities(delete_train_query)[0];
-
-          train.runCommandAsync("execute as @e[type=tcmb:tcmb_car,r=2,tag=tc_parent] at @s run function tc_delete_train");
-          train.runCommandAsync("execute as @e[type=tcmb:tcmb_car,r=2,tag=tc_child] at @s run function tc_delete_train");
-          train.runCommandAsync("function delete_train");
-          let event_report = new Event('delete', undefined, train, player);
-          event_report.reply();
-        break;
-        case "destSignal":{
-          let train:Entity = world.getEntity(evdata.entity.id);
-          if(!train.hasTag("voltage_0") && speedObject.getScore(train) == 0){
-            if(evdata.status["operation"] == 'foward'){
-              player.runCommandAsync("playsound random.click @p");
-              train.runCommandAsync("function dest");
-              if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommandAsync("function tc_dest");
-            }else{
-              player.runCommandAsync("playsound random.click @p");
-              train.runCommandAsync("function dest_reverse");
-              if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommandAsync("function tc_dest_reverse");
-            }
-          }
-        }
-        break;
-        case "open_crew_panelSignal":
-          train = world.getEntity(evdata.entity.id);
-          if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
-            let crewpanel = new ActionFormData()
-              .title({translate: 'tcmb.ui.crew_panel.title'})
-            for(const button of crew_panel_buttons){
-              crewpanel.button(button.text, button.texture);
-            }
-            crewpanel.show(player).then((response)=>{
-              if(response.canceled) return;
+          break;
+          case "open_crew_panelSignal":
+              train = world.getEntity(evdata.entity.id);
+              if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
+                let crewpanel = new ActionFormData()
+                  .title({translate: 'tcmb.ui.crew_panel.title'})
+                for(const button of crew_panel_buttons){
+                  crewpanel.button(button.text, button.texture);
+                }
+                crewpanel.show(player).then((response)=>{
+                  if(response.canceled) return;
+                  if(!(player instanceof Player)) return;
+                  if(typeof crew_panel_buttons[response.selection].response == 'undefined'){
+                    switch(response.selection){
+                      case 0:
+                        door_ctrl(player, train);
+                      break;
+                      case 2:
+                        train.runCommandAsync('function eb');
+                      break;
+                      case 4:
+                        let signal = new Event('directionSignal', undefined, train, player, evdata.isWorking);
+                        signal.send();
+                      break;
+                    }
+                  }else{
+                    let send_event = new Event('click', undefined, train, player, evdata.isWorking);
+                    player.runCommandAsync(`scriptevent ${crew_panel_buttons[response.selection].response} ${JSON.stringify(send_event)}`);
+                  }
+                })
+              }
+          break;
+          case "open_seat_controlSignal":{
+              let train = world.getEntity(evdata.entity.id);
+              let player = world.getEntity(evdata.player.id);
               if(!(player instanceof Player)) return;
-              if(typeof crew_panel_buttons[response.selection].response != 'undefined'){
-                crew_panel_buttons[response.selection].push(train, player);
-              }
-            })
+              let send_event = new Event('click', undefined, train, player, evdata.isWorking);
+              overworld.runCommandAsync('scriptevent tcmb_minecart_engine:seat_control '+JSON.stringify(send_event));
           }
-        break;
-        case "open_seat_controlSignal":{
-          let train = world.getEntity(evdata.entity.id);
-          let player = world.getEntity(evdata.player.id);
-          if(!(player instanceof Player)) return;
-          let send_event = new Event('click', undefined, train, player, evdata.isWorking);
-          overworld.runCommandAsync('scriptevent tcmb_minecart_engine:seat_control '+JSON.stringify(send_event));
         }
-      }
-    break;
-    case "tcmb:engine_door":
-      //door event
-      let door_direction;
-      if(ev.message.includes('open')){
+      break;
+      case "tcmb:engine_door":
         //door event
-        if(ev.sourceEntity.hasTag("backward")){
-          if(ev.message == "open_b"){
-            door_direction = "left";
-          }else if(ev.message == "open_a"){
-            door_direction = "right";
-          }else if(ev.message == "oneman_open_a"){
-            door_direction = "oneman_left";
-          }else if(ev.message == "oneman_open_b"){
-            door_direction = "oneman_right";
-          }else if(ev.message == "open_all"){
-            door_direction = "all";
-          }
-        }else{
-          if(ev.message == "open_b"){
-            door_direction ="right";
-          }else if(ev.message == "open_a"){
-            door_direction = "left";
-          }else if(ev.message == "oneman_open_a"){
-            door_direction = "oneman_right";
-          }else if(ev.message == "oneman_open_b"){
-            door_direction = "oneman_left";
-          }else if(ev.message == "open_all"){
-            door_direction = "all";
+        let door_direction;
+        if(ev.message.includes('open')){
+          //door event
+          if(ev.sourceEntity.hasTag("backward")){
+              if(ev.message == "open_b"){
+                door_direction = "left";
+              }else if(ev.message == "open_a"){
+                door_direction = "right";
+              }else if(ev.message == "oneman_open_a"){
+                door_direction = "oneman_left";
+              }else if(ev.message == "oneman_open_b"){
+                door_direction = "oneman_right";
+              }else if(ev.message == "open_all"){
+                door_direction = "all";
+              }
+          }else{
+              if(ev.message == "open_b"){
+                door_direction ="right";
+              }else if(ev.message == "open_a"){
+                door_direction = "left";
+              }else if(ev.message == "oneman_open_a"){
+                door_direction = "oneman_right";
+              }else if(ev.message == "oneman_open_b"){
+                door_direction = "oneman_left";
+              }else if(ev.message == "open_all"){
+                door_direction = "all";
+              }
           }
         }
-      }
 
-      if(ev.message.includes('close')){
-        train = ev.sourceEntity;
-        var bodies = tcmb_trains.get(train.id).body;
-        if(ev.message.includes('close')) train.removeTag(ev.message.replace('close', 'open'));
-        for(const body of bodies){
-          body.triggerEvent(ev.message);
-        }
+        if(ev.message.includes('close')){
+          train = ev.sourceEntity;
+          var bodies = tcmb_trains.get(train.id).body;
+          if(ev.message.includes('close')) train.removeTag(ev.message.replace('close', 'open'));
+          for(const body of bodies){
+              body.triggerEvent(ev.message);
+          }
 
         //door event
         if(train.hasTag("backward")){
@@ -501,8 +512,8 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
     case "tcmb:engine_electricity_control":{
       let evdata = JSON.parse(ev.message);
 
-      let player = ev.sourceEntity;
-      if(!(player instanceof Player)) return;
+        player = ev.sourceEntity;
+        if(!(player instanceof Player)) return;
 
       var train:Entity = world.getEntity(evdata.entity.id);
       var currentDest: number;
@@ -566,14 +577,14 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
         }
         ev.sourceEntity.runCommandAsync("function voltage_"+voltage);
 
-      }).catch( e => {
-        console.error(e, e.stack);
-      });
-    }
-      break;
-      case 'tcmb_minecart_engine:work':{
-        let player = ev.sourceEntity;
-        if(!(player instanceof Player)) return;
+        }).catch( e => {
+          console.error(e, e.stack);
+        });
+      }
+        break;
+        case 'tcmb_minecart_engine:work':{
+          player = ev.sourceEntity;
+          if(!(player instanceof Player)) return;
 
         var train:Entity = world.getEntity(JSON.parse(ev.message)['entity']['id']);
         let work_req = {
@@ -598,108 +609,108 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
         let level = train.entity.getProperty('tcmb:battery_level');
         if(!(trains_manifest.has(typeId) && trains_manifest.get(typeId)['battery'])) level = undefined;
 
-        if(ev.message == 'up' && !tags.includes('voltage_0')){
-          let perf: object;
-          if(trains_manifest.has(typeId) && trains_manifest.get(typeId)['battery']) perf = trains_manifest.get(typeId)['battery']['performance']['speed_up'];
+          if(ev.message == 'up' && !tags.includes('voltage_0')){
+              let perf: object;
+              if(trains_manifest.has(typeId) && trains_manifest.get(typeId)['battery']) perf = trains_manifest.get(typeId)['battery']['performance']['speed_up'];
 
-          if(tags.filter((tag) => tag.includes('open')).length == 0 && speed <= 1){
-            if(!tags.includes('backward')){
-              train.entity.runCommandAsync('summon tcmb:tcmb_starter ^1^^');
-            }else{
-              train.entity.runCommandAsync('summon tcmb:tcmb_starter ^-1^^');
-            }
+              if(tags.filter((tag) => tag.includes('open')).length == 0 && speed <= 1){
+                if(!tags.includes('backward')){
+                  train.entity.runCommandAsync('summon tcmb:tcmb_starter ^1^^');
+                }else{
+                  train.entity.runCommandAsync('summon tcmb:tcmb_starter ^-1^^');
+                }
+              }
+              let max_speed: number;
+              let max_speed_property = train.entity.getProperty('tcmb:max_speed');
+
+              if(typeof max_speed_property == 'number' && max_speed_property != 0){
+                max_speed = max_speed_property;
+              }else if(hasTCManifest(train)){
+                max_speed = getTCManifest(train).speed.limit;
+              }else{
+                let maxspeed_tag: string = train.entity.getTags().filter((tag) => tag.startsWith('max_'))[0];
+                max_speed = Number(maxspeed_tag.substring(4, maxspeed_tag.length-2));
+                train.entity.setProperty('tcmb:max_speed', max_speed);
+              }
+
+              if(!tags.includes('tc_child') && !tags.includes('stopping') && typeof max_speed == 'number' && speed < max_speed){
+                if(max_speed <= 108){
+                  speed += 1;
+                  if(typeof level == 'number' && tags.includes('voltage_b')) level -= perf['use'];
+                }else if(!tags.includes('tc_parent')){
+                  speed += 1;
+                  if(typeof level == 'number'&& tags.includes('voltage_b')) level -= perf['use'];
+                }
+              }
+              if(tags.includes('tc_parent') && !tags.includes('stopping') && typeof max_speed == 'number' && speed < max_speed && speed < 108){
+                speed += 1;
+                train.entity.runCommandAsync('function train_connect');
+              }
+
+              if(speed >= 108){
+                let target_notch = ['p1', 'p2', 'p3', 'p4'];
+                if(tags.filter((tag)=> target_notch.includes(tag)).length){
+                  train.entity.runCommandAsync(`playsound ${typeId}_a_${speed + 1}km @a[r=100]`);
+                }else if(!tags.includes('n')){
+                  train.entity.runCommandAsync(`playsound ${typeId}_d_${speed + 1}km @a[r=100]`);
+                }
+              }
+
+              if(trains_manifest.has(typeId) && trains_manifest.get(typeId)['battery'] && tags.includes('voltage_b'))
+                train.entity.setProperty('tcmb:battery_level', level);
+          }else if(ev.message == 'down' && typeof speed == 'number'){
+              const target_notch = ['eb', 'b7', 'b6', 'b5', 'b4', 'b3', 'b2', 'b1', 'n'];
+              let perf: object;
+              if(trains_manifest.has(typeId) && trains_manifest.get(typeId)['battery']) perf = trains_manifest.get(typeId)['battery']['performance']['speed_down'];
+
+              if(tags.filter((notch)=>target_notch.includes(notch))){
+                if(!train.entity.hasTag('backward')){
+                  train.entity.runCommandAsync('summon tcmb:tcmb_starter ^1^^');
+                }else{
+                  train.entity.runCommandAsync('summon tcmb:tcmb_starter ^-1^^');
+                }
+                if(speed > 0 && !train.entity.hasTag('tc_child')){
+                  if(typeof level == 'number' && tags.includes('voltage_b') && !tags.includes('eb')) level += perf['charge'];
+                  speed -= 1;
+                }
+                train.entity.runCommandAsync('function train_connect');
+                if(trains_manifest.has(typeId) && trains_manifest.get(typeId)['battery'] && tags.includes('voltage_b'))
+                  train.entity.setProperty('tcmb:battery_level', level);
+              }
           }
-          let max_speed: number;
-          let max_speed_property = train.entity.getProperty('tcmb:max_speed');
-
-          if(typeof max_speed_property == 'number' && max_speed_property != 0){
-            max_speed = max_speed_property;
-          }else if(hasTCManifest(train)){
-            max_speed = getTCManifest(train).speed.limit;
-          }else{
-            let maxspeed_tag: string = train.entity.getTags().filter((tag) => tag.startsWith('max_'))[0];
-            max_speed = Number(maxspeed_tag.substring(4, maxspeed_tag.length-2));
-            train.entity.setProperty('tcmb:max_speed', max_speed);
+          speedObject.setScore(train.entity, speed);
+        }
+        break;
+        case "tcmb_minecart_engine:regist_manifest":
+        case "tcmb_minecart_engine:regist_tcmanifest":{
+          let message: unknown = JSON.parse(ev.message);
+          if(ev.sourceType != ScriptEventSource.Server){
+              console.warn('[tcmb:reply] Event source is not Server.');
           }
-
-          if(!tags.includes('tc_child') && !tags.includes('stopping') && typeof max_speed == 'number' && speed < max_speed){
-            if(max_speed <= 108){
-              speed += 1;
-              if(typeof level == 'number' && tags.includes('voltage_b')) level -= perf['use'];
-            }else if(!tags.includes('tc_parent')){
-              speed += 1;
-              if(typeof level == 'number'&& tags.includes('voltage_b')) level -= perf['use'];
-            }
-          }
-          if(tags.includes('tc_parent') && !tags.includes('stopping') && typeof max_speed == 'number' && speed < max_speed && speed < 108){
-            speed += 1;
-            train.entity.runCommandAsync('function train_connect');
-          }
-
-          if(speed >= 108){
-            let target_notch = ['p1', 'p2', 'p3', 'p4'];
-            if(tags.filter((tag)=> target_notch.includes(tag)).length){
-              train.entity.runCommandAsync(`playsound ${typeId}_a_${speed + 1}km @a[r=100]`);
-            }else if(!tags.includes('n')){
-              train.entity.runCommandAsync(`playsound ${typeId}_d_${speed + 1}km @a[r=100]`);
-            }
-          }
-
-          if(trains_manifest.has(typeId) && trains_manifest.get(typeId)['battery'] && tags.includes('voltage_b'))
-          train.entity.setProperty('tcmb:battery_level', level);
-        }else if(ev.message == 'down' && typeof speed == 'number'){
-          const target_notch = ['eb', 'b7', 'b6', 'b5', 'b4', 'b3', 'b2', 'b1', 'n'];
-          let perf: object;
-          if(trains_manifest.has(typeId) && trains_manifest.get(typeId)['battery']) perf = trains_manifest.get(typeId)['battery']['performance']['speed_down'];
-
-          if(tags.filter((notch)=>target_notch.includes(notch))){
-            if(!train.entity.hasTag('backward')){
-              train.entity.runCommandAsync('summon tcmb:tcmb_starter ^1^^');
-            }else{
-              train.entity.runCommandAsync('summon tcmb:tcmb_starter ^-1^^');
-            }
-            if(speed > 0 && !train.entity.hasTag('tc_child')){
-              if(typeof level == 'number' && tags.includes('voltage_b') && !tags.includes('eb')) level += perf['charge'];
-              speed -= 1;
-            }
-            train.entity.runCommandAsync('function train_connect');
-            if(trains_manifest.has(typeId) && trains_manifest.get(typeId)['battery'] && tags.includes('voltage_b'))
-            train.entity.setProperty('tcmb:battery_level', level);
+          if(typeof message == "object" && typeof message['type'] == 'string'){
+              trains_manifest.set(message['type'], JSON.parse(ev.message));
           }
         }
-        speedObject.setScore(train.entity, speed);
-      }
-      break;
-      case "tcmb_minecart_engine:regist_manifest":
-      case "tcmb_minecart_engine:regist_tcmanifest":{
-        let message = JSON.parse(ev.message) as TCManifest;
-        if(ev.sourceType != ScriptEventSource.Server){
-          console.warn('[tcmb:reply] Event source is not Server.');
-        }
-        if(typeof message == "object" && typeof message.type == 'string'){
-            trains_manifest.set(message.type, JSON.parse(ev.message));
-        }
-      }
-      break;
-      case "tcmb_minecart_engine:voltage_battery":{
-        if(ev.sourceEntity.hasTag('has_battery')){
-          let train: TCMBTrain = tcmb_trains.get(ev.sourceEntity.id);
-          train.entity.removeTag('voltage_0');
-          train.entity.removeTag('voltage_1');
-          train.entity.removeTag('voltage_2');
-          train.entity.addTag('voltage_b');
-          for(const body of train.body){
-            body.removeTag('voltage_0');
-            body.removeTag('voltage_1');
-            body.removeTag('voltage_2');
-            body.addTag('voltage_b');
+        break;
+        case "tcmb_minecart_engine:voltage_battery":{
+          if(ev.sourceEntity.hasTag('has_battery')){
+            let train: TCMBTrain = tcmb_trains.get(ev.sourceEntity.id);
+            train.entity.removeTag('voltage_0');
+            train.entity.removeTag('voltage_1');
+            train.entity.removeTag('voltage_2');
+            train.entity.addTag('voltage_b');
+            for(const body of train.body){
+              body.removeTag('voltage_0');
+              body.removeTag('voltage_1');
+              body.removeTag('voltage_2');
+              body.addTag('voltage_b');
+            }
           }
         }
-      }
-      break;
-      case "tcmb_minecart_engine:seat_control":{
-        let evmsg = JSON.parse(ev.message);
-        let evdata = new Event(evmsg.name, evmsg.status, evmsg.entity, evmsg.player, evmsg.isWorking);
+        break;
+        case "tcmb_minecart_engine:seat_control":{
+          let evmsg = JSON.parse(ev.message);
+          let evdata = new Event(evmsg.name, evmsg.status, evmsg.entity, evmsg.player, evmsg.isWorking);
 
         let train = tcmb_trains.get(evdata.entity.id);
         let tcmb_car = train.entity;
