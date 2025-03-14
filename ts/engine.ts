@@ -287,15 +287,15 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
               if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
                 if(!train.hasTag("voltage_0")){
                   if(!(train.hasTag('eb') && evdata.status["operation"] == "break") && !(train.hasTag('p4') && evdata.status["operation"] == "power") && !(train.hasTag("n") && evdata.status["operation"] == "neutral") && !(train.hasTag('eb') && evdata.status['operation'] == 'eb')){
-                      train.runCommandAsync("playsound notch @a[r=25]");
-                      if(speedObject.getScore(train) == 0 && ((evdata.status["operation"] == "neutral") || (train.hasTag('b1') && evdata.status['operation'] == 'power'))) train.runCommandAsync("playsound break_remission @a[r=100]");
-                      let event_report = new Event('notch', evdata.status, train, player);
-                      event_report.reply();
+                    train.runCommandAsync("playsound notch @a[r=25]");
+                    if(speedObject.getScore(train) == 0 && ((evdata.status["operation"] == "neutral") || (train.hasTag('b1') && evdata.status['operation'] == 'power'))) train.runCommandAsync("playsound break_remission @a[r=100]");
+                    let event_report = new Event('notch', evdata.status, train, player);
+                    event_report.reply();
                   }
                   if(evdata.status["operation"] != "eb"){
-                      train.runCommandAsync("function notch_"+evdata.status["operation"]);
+                    train.runCommandAsync("function notch_"+evdata.status["operation"]);
                   }else{
-                      train.runCommandAsync("function eb");
+                    train.runCommandAsync("function eb");
                   }
                   if(train.hasTag("tc_parent") || train.hasTag("tc_child")) train.runCommandAsync("function tc_notch_"+evdata.status["operation"]);
                 }
@@ -332,35 +332,35 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
           }
           break;
           case "open_crew_panelSignal":
-              train = world.getEntity(evdata.entity.id);
-              if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
-                let crewpanel = new ActionFormData()
-                  .title({translate: 'tcmb.ui.crew_panel.title'})
-                for(const button of crew_panel_buttons){
-                  crewpanel.button(button.text, button.texture);
-                }
-                crewpanel.show(player).then((response)=>{
-                  if(response.canceled) return;
-                  if(!(player instanceof Player)) return;
-                  if(typeof crew_panel_buttons[response.selection].response == 'undefined'){
-                    switch(response.selection){
-                      case 0:
-                        door_ctrl(player, train);
-                      break;
-                      case 2:
-                        train.runCommandAsync('function eb');
-                      break;
-                      case 4:
-                        let signal = new Event('directionSignal', undefined, train, player, evdata.isWorking);
-                        signal.send();
-                      break;
-                    }
-                  }else{
-                    let send_event = new Event('click', undefined, train, player, evdata.isWorking);
-                    player.runCommandAsync(`scriptevent ${crew_panel_buttons[response.selection].response} ${JSON.stringify(send_event)}`);
-                  }
-                })
+            train = world.getEntity(evdata.entity.id);
+            if(typeof train != "undefined" && train.typeId == "tcmb:tcmb_car"){
+              let crewpanel = new ActionFormData()
+                .title({translate: 'tcmb.ui.crew_panel.title'})
+              for(const button of crew_panel_buttons){
+                crewpanel.button(button.text, button.texture);
               }
+              crewpanel.show(player).then((response)=>{
+                if(response.canceled) return;
+                if(!(player instanceof Player)) return;
+                if(typeof crew_panel_buttons[response.selection].response == 'undefined'){
+                  switch(response.selection){
+                    case 0:
+                      door_ctrl(player, train);
+                    break;
+                    case 2:
+                      train.runCommandAsync('function eb');
+                    break;
+                    case 4:
+                      let signal = new Event('directionSignal', undefined, train, player, evdata.isWorking);
+                      signal.send();
+                    break;
+                  }
+                }else{
+                  let send_event = new Event('click', undefined, train, player, evdata.isWorking);
+                  player.runCommandAsync(`scriptevent ${crew_panel_buttons[response.selection].response} ${JSON.stringify(send_event)}`);
+                }
+              })
+            }
           break;
           case "open_seat_controlSignal":{
               let train = world.getEntity(evdata.entity.id);
@@ -524,7 +524,7 @@ system.afterEvents.scriptEventReceive.subscribe(async (ev)=>{
       }
         break;
         case 'tcmb_minecart_engine:work':{
-          player = ev.sourceEntity;
+          let player = ev.sourceEntity;
           if(!(player instanceof Player)) return;
 
           var train:Entity = world.getEntity(JSON.parse(ev.message)['entity']['id']);

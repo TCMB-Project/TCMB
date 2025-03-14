@@ -1,0 +1,50 @@
+{
+  "format_version": "1.21.60",
+  "minecraft:crafting_items_catalog": {
+    "categories": [
+      {
+        "category_name": "items",
+        "groups": [
+          {
+            "group_identifier": {
+              "icon": "tcmb:notch_power",
+              "name": "tcmb:item_group.name"
+            },
+            "items": [
+              "tcmb:notch_power",
+              "tcmb:notch_neutral",
+              "tcmb:notch_break",
+              "tcmb:notch_eb",
+              "tcmb:crew_panel",
+              "tcmb:direction",
+              "tcmb:door_control",
+              "tcmb:delete_train",
+              "tcmb:open_left",
+              "tcmb:open_right",
+              "tcmb:open_all",
+              "tcmb:oneman_open_left",
+              "tcmb:oneman_open_right",
+              "tcmb:close",
+              "tcmb:seat_control",
+              "tcmb:dest",
+              "tcmb:dest_reverse",
+              "tcmb:ride"
+            ]
+          },{
+            "group_identifier": {
+              "icon": "tcmb:num_adjust_plus_spawn_egg",
+              "name": "tcmb:item_group.ground_facilities.name"
+            },
+            "items": [
+              "tcmb:num_adjust_plus_spawn_egg",
+              "tcmb:num_adjust_minus_spawn_egg",
+              "tcmb:num_adjust_check_spawn_egg",
+              "tcmb:rotate_ground_facilities_spawn_egg",
+              "tcmb:delete_ground_facilities_spawn_egg"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

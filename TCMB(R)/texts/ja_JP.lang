@@ -1,4 +1,5 @@
-itemGroup.name.tcmb=TCMB
+tcmb:item_group.name=TCMB車両操作
+tcmb:item_group.ground_facilities.name=TCMB地上子操作
 action.interact.ride.tcmb_seat=座る
 item.tcmb:crew_panel=乗務パネル
 item.tcmb:notch_power=加速(P)
