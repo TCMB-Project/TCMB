@@ -3,7 +3,7 @@
 * (c) TCMB Project
 * Apache License 2.0
 */
-import { world, system, Dimension, Entity, EntityQueryOptions, Player, BlockRaycastOptions, BlockRaycastHit, RawMessage, ScriptEventCommandMessageAfterEvent, ItemUseAfterEvent, ItemUseOnAfterEvent } from "@minecraft/server";
+import { world, system, Dimension, Entity, EntityQueryOptions, Player, RawMessage, ItemUseAfterEvent, ItemUseOnAfterEvent, EntityRidingComponent } from "@minecraft/server";
 import { Event, WorkRequest } from "./classes";
 import { dummy } from "./engine";
 
@@ -127,13 +127,29 @@ function selectTrain(ev: ItemUseAfterEvent): { train: Entity, isWorking: boolean
     closest: 1,
     maxDistance: max_distance
   };
+  let riding = ev.source.getComponent("minecraft:riding") as EntityRidingComponent;
 
-  let train: Entity;
-  let isWorking: boolean
   if(working.has(ev.source.id)){
     return {
       train: working.get(ev.source.id),
       isWorking: true
+    }
+  }else if(riding){
+    let body: Entity;
+    if(riding.entityRidingOn.typeId == 'tcmb:seat'){
+      let seat_riding = riding.entityRidingOn.getComponent("minecraft:riding") as EntityRidingComponent;
+      body = seat_riding.entityRidingOn;
+    }else{
+      body = riding.entityRidingOn;
+    }
+    let body_riding = body.getComponent("minecraft:riding") as EntityRidingComponent;
+    if(body_riding){
+      return {
+        train: body_riding.entityRidingOn,
+        isWorking: true
+      }
+    }else{
+      throw Error('Failed to get train entity.');
     }
   }else{
     return {
@@ -240,7 +256,7 @@ let itemEvent = (ev: ItemUseAfterEvent | ItemUseOnAfterEvent)=>{
     }
     break;
     case "tcmb:open_left":{
-      let { train, isWorking } = selectTrain(ev);
+      let { train } = selectTrain(ev);
 
       if(typeof train == "undefined") return;
       if(!train.hasTag("voltage_0")){
@@ -252,7 +268,7 @@ let itemEvent = (ev: ItemUseAfterEvent | ItemUseOnAfterEvent)=>{
     }
     break;
     case "tcmb:open_right":{
-      let { train, isWorking } = selectTrain(ev);
+      let { train } = selectTrain(ev);
 
       if(typeof train == "undefined") return;
       if(!train.hasTag("voltage_0")){
@@ -264,7 +280,7 @@ let itemEvent = (ev: ItemUseAfterEvent | ItemUseOnAfterEvent)=>{
     }
     break;
     case "tcmb:open_all":{
-      let { train, isWorking } = selectTrain(ev);
+      let { train } = selectTrain(ev);
 
       if(typeof train == "undefined") return;
       if(!train.hasTag("voltage_0")){
@@ -276,7 +292,7 @@ let itemEvent = (ev: ItemUseAfterEvent | ItemUseOnAfterEvent)=>{
     }
     break;
     case "tcmb:oneman_open_left":{
-      let { train, isWorking } = selectTrain(ev);
+      let { train } = selectTrain(ev);
 
       if(typeof train == "undefined") return;
       if(!train.hasTag("voltage_0")){
@@ -288,7 +304,7 @@ let itemEvent = (ev: ItemUseAfterEvent | ItemUseOnAfterEvent)=>{
     }
     break;
     case "tcmb:oneman_open_right":{
-      let { train, isWorking } = selectTrain(ev);
+      let { train } = selectTrain(ev);
 
       if(typeof train == "undefined") return;
       if(!train.hasTag("voltage_0")){
@@ -300,7 +316,7 @@ let itemEvent = (ev: ItemUseAfterEvent | ItemUseOnAfterEvent)=>{
     }
     break;
     case "tcmb:close":{
-      let { train, isWorking } = selectTrain(ev);
+      let { train } = selectTrain(ev);
 
       if(typeof train == "undefined") return;
       if(!train.hasTag("voltage_0")){
@@ -331,53 +347,37 @@ let itemEvent = (ev: ItemUseAfterEvent | ItemUseOnAfterEvent)=>{
       evdata = new Event('rideSignal', {}, train, ev.source, isworking);
       evdata.send();
     break;
-    case "tcmb:direction":
-      if(working.has(ev.source.id)){
-        train = working.get(ev.source.id);
-        isworking = true;
-      }else{
-        train = dimension.getEntities(event_train_query)[0];
-        isworking = false;
-      }
+    case "tcmb:direction":{
+      let { train, isWorking } = selectTrain(ev);
+
       if(typeof train == "undefined") return;
-      evdata = new Event('directionSignal', {}, train, ev.source, isworking);
+      evdata = new Event('directionSignal', {}, train, ev.source, isWorking);
       evdata.send();
+    }
     break;
-    case "tcmb:dest":
-      if(working.has(ev.source.id)){
-        train = working.get(ev.source.id);
-        isworking = true;
-      }else{
-        train = dimension.getEntities(event_train_query)[0];
-        isworking = false;
-      }
+    case "tcmb:dest":{
+      let { train, isWorking } = selectTrain(ev);
+
       if(typeof train == "undefined") return;
-      evdata = new Event('destSignal', {'operation':'foward'}, train, ev.source, isworking);
+      evdata = new Event('destSignal', {'operation':'foward'}, train, ev.source, isWorking);
       evdata.send();
+    }
     break;
-    case "tcmb:dest_reverse":
-      if(working.has(ev.source.id)){
-        train = working.get(ev.source.id);
-        isworking = true;
-      }else{
-        train = dimension.getEntities(event_train_query)[0];
-        isworking = false;
-      }
+    case "tcmb:dest_reverse":{
+      let { train, isWorking } = selectTrain(ev);
+
       if(typeof train == "undefined") return;
-      evdata = new Event('destSignal', {'operation':'reverse'}, train, ev.source, isworking);
+      evdata = new Event('destSignal', {'operation':'reverse'}, train, ev.source, isWorking);
       evdata.send();
+    }
     break;
-    case "tcmb:crew_panel":
-      if(working.has(ev.source.id)){
-        train = working.get(ev.source.id);
-        isworking = true;
-      }else{
-        train = dimension.getEntities(event_train_query)[0];
-        isworking = false;
-      }
+    case "tcmb:crew_panel":{
+      let { train, isWorking } = selectTrain(ev);
+
       if(typeof train == "undefined") return;
-      evdata = new Event('open_crew_panelSignal', {}, train, ev.source, isworking);
+      evdata = new Event('open_crew_panelSignal', {}, train, ev.source, isWorking);
       evdata.send();
+    }
     break;
     case "tcmb:seat_control":{
       let { train, isWorking } = selectTrain(ev);
