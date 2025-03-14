@@ -194,10 +194,10 @@ system.runInterval(()=>{
         if(train.entity.hasTag('voltage_1')){
           let charge_perf = battery.performance.voltage_1.charge;
           if((now_level + charge_perf) >= battery['capacity']){
-              train.entity.setProperty('tcmb:battery_level', battery['capacity']);
+            train.entity.setProperty('tcmb:battery_level', battery['capacity']);
           }else if(typeof charge_perf != 'undefined'){
-              train.entity.setProperty('tcmb:battery_level', now_level + charge_perf);
-              train.entity.removeTag('voltage_0');
+            train.entity.setProperty('tcmb:battery_level', now_level + charge_perf);
+            train.entity.removeTag('voltage_0');
           }
         }
         else if(train.entity.hasTag('voltage_2')){
