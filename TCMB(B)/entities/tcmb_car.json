@@ -23,7 +23,6 @@
                 "tcmb_p3": "animation.tcmb_p3",
                 "tcmb_p4": "animation.tcmb_p4",
                 "tcmb_curve_controller": "controller.animation.tcmb_curve",
-                "tcmb_direction_controller": "controller.animation.tcmb_direction",
                 "tasc": "animation.tasc",
                 "tasc_distance_controller": "controller.animation.tasc_distance",
                 "tasc_x_plus": "animation.tasc_x_plus",
@@ -248,7 +247,6 @@
                 "animate":[
                     "tcmb_car_controller",
                     "tcmb_curve_controller",
-                    "tcmb_direction_controller",
                     { "tasc_distance_controller" : "q.property('tcmb:tasc_on')" },
                     { "tasc_pattern_controller" : "q.property('tcmb:tasc_on')" },
                     { "tasc_break_controller" : "q.property('tcmb:tasc_on') || q.property('tcmb:inching_on')" },

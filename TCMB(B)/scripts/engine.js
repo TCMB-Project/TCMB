@@ -1,9 +1,9 @@
 /*
-* TCMB v1.2.0
+* TCMB v1.2.7
 * (c) TCMB Project
 * Apache License 2.0
 */
-import { world, system, Entity, Player, ScriptEventSource } from "@minecraft/server";
+import { world, system, Entity, Player, ScriptEventSource, Direction } from "@minecraft/server";
 import { ModalFormData, ActionFormData, MessageFormData } from "@minecraft/server-ui";
 import { Event, PanelButton, TCMBTrain } from "./classes";
 import { findFirstMatch, getTCManifest, hasTCManifest } from "./util";
@@ -135,6 +135,45 @@ system.runInterval(() => {
         }
         if (speed_control_by_tp && train.rail_mo_plus.isValid()) {
             train.rail_mo_plus.setSpeed(distance);
+            const moveDirection = train.rail_mo_plus.getEnterDirection();
+            switch (moveDirection) {
+                case Direction.North:
+                    {
+                        //to south
+                        tcmb_car.removeTag('x_plus');
+                        tcmb_car.removeTag('x_minus');
+                        tcmb_car.addTag('z_plus');
+                        tcmb_car.removeTag('z_minus');
+                    }
+                    break;
+                case Direction.South:
+                    {
+                        //to north
+                        tcmb_car.removeTag('x_plus');
+                        tcmb_car.removeTag('x_minus');
+                        tcmb_car.removeTag('z_plus');
+                        tcmb_car.addTag('z_minus');
+                    }
+                    break;
+                case Direction.West:
+                    {
+                        //to east
+                        tcmb_car.addTag('x_plus');
+                        tcmb_car.removeTag('x_minus');
+                        tcmb_car.removeTag('z_plus');
+                        tcmb_car.removeTag('z_minus');
+                    }
+                    break;
+                case Direction.East:
+                    {
+                        //to west
+                        tcmb_car.removeTag('x_plus');
+                        tcmb_car.addTag('x_minus');
+                        tcmb_car.removeTag('z_plus');
+                        tcmb_car.removeTag('z_minus');
+                    }
+                    break;
+            }
         }
         else {
             train.rail_mo_plus.destroy();

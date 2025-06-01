@@ -1,13 +1,14 @@
 /*
-* TCMB v1.2.0
+* TCMB v1.2.7
 * (c) TCMB Project
 * Apache License 2.0
 */
-import { world, system, Dimension, ScoreboardObjective, Block, Entity, Player, EntityQueryOptions, ScriptEventSource, Vector2, Vector3 } from "@minecraft/server";
+import { world, system, Dimension, ScoreboardObjective, Block, Entity, Player, EntityQueryOptions, ScriptEventSource, Vector2, Vector3, Direction } from "@minecraft/server";
 import { ModalFormData, ActionFormData, MessageFormData } from "@minecraft/server-ui";
 import { ConfigObject, Event, MNotch, PanelButton, TCMBTrain, TCManifest, TCManifestMap, TrainBattery, TrainSpeedSpec } from "./classes";
 import { findFirstMatch, decimalPart,  getTCManifest, hasTCManifest } from "./util";
 import { RailMoPlusEntity } from "./rail_mo_plus/src/rail_mo_plus";
+import { rail_direction } from "./rail_mo_plus/src/rail_direction";
 
 export class dummy{}
 
@@ -141,6 +142,41 @@ system.runInterval(() =>{
 
     if(speed_control_by_tp && train.rail_mo_plus.isValid()){
       train.rail_mo_plus.setSpeed(distance);
+      const moveDirection = train.rail_mo_plus.getEnterDirection();
+      switch(moveDirection){
+        case Direction.North:{
+          //to south
+          tcmb_car.removeTag('x_plus');
+          tcmb_car.removeTag('x_minus');
+          tcmb_car.addTag('z_plus');
+          tcmb_car.removeTag('z_minus');
+        }
+        break;
+        case Direction.South:{
+          //to north
+          tcmb_car.removeTag('x_plus');
+          tcmb_car.removeTag('x_minus');
+          tcmb_car.removeTag('z_plus');
+          tcmb_car.addTag('z_minus');
+        }
+        break;
+        case Direction.West:{
+          //to east
+          tcmb_car.addTag('x_plus');
+          tcmb_car.removeTag('x_minus');
+          tcmb_car.removeTag('z_plus');
+          tcmb_car.removeTag('z_minus');
+        }
+        break;
+        case Direction.East:{
+          //to west
+          tcmb_car.removeTag('x_plus');
+          tcmb_car.addTag('x_minus');
+          tcmb_car.removeTag('z_plus');
+          tcmb_car.removeTag('z_minus');
+        }
+        break;
+      }
     }else{
       train.rail_mo_plus.destroy();
     }
@@ -181,69 +217,69 @@ system.runInterval(() =>{
 //battery charge and self-discharge
 system.runInterval(()=>{
   for(const [entityId, train] of tcmb_trains){
-      if(!train.entity.isValid()) continue;
-      let typeId = train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
-      if(trains_manifest.has(typeId)){
-        let battery: TrainBattery = trains_manifest.get(typeId)['battery'];
-        if(typeof battery != 'object') continue;
-        train.entity.addTag('has_battery');
+    if(!train.entity.isValid()) continue;
+    let typeId = train.body[0].typeId.substring(0, train.body[0].typeId.length - 5);
+    if(trains_manifest.has(typeId)){
+      let battery: TrainBattery = trains_manifest.get(typeId)['battery'];
+      if(typeof battery != 'object') continue;
+      train.entity.addTag('has_battery');
 
-        let now_level = train.entity.getProperty('tcmb:battery_level');
-        if(typeof now_level != 'number') return;
+      let now_level = train.entity.getProperty('tcmb:battery_level');
+      if(typeof now_level != 'number') return;
 
-        if(train.entity.hasTag('voltage_1')){
-          let charge_perf = battery.performance.voltage_1.charge;
-          if((now_level + charge_perf) >= battery['capacity']){
-            train.entity.setProperty('tcmb:battery_level', battery['capacity']);
-          }else if(typeof charge_perf != 'undefined'){
-            train.entity.setProperty('tcmb:battery_level', now_level + charge_perf);
-            train.entity.removeTag('voltage_0');
-          }
-        }
-        else if(train.entity.hasTag('voltage_2')){
-          let charge_perf = trains_manifest.get(typeId)['battery']['performance']['voltage_2']['charge'];
-          if((now_level + charge_perf) >= battery['capacity']){
-              train.entity.setProperty('tcmb:battery_level', battery['capacity']);
-          }else if(typeof charge_perf != 'undefined'){
-              train.entity.setProperty('tcmb:battery_level', now_level + charge_perf);
-              train.entity.removeTag('voltage_0');
-          }
-        }
-        else if(train.entity.hasTag('voltage_b')){
-          let perf: object = trains_manifest.get(typeId)['battery']['performance']['no_operation'];
-          let interval = train.entity.getProperty('tcmb:battery_no_op_interval');
-          if(typeof interval == 'number'){
-            interval++;
-            train.entity.setProperty('tcmb:battery_no_op_interval', interval);
-
-            if(typeof now_level == 'number' && (now_level - perf['use']) <= 0){
-              train.entity.setProperty('tcmb:battery_level', 0);
-              train.entity.setProperty('tcmb:battery_no_op_interval', 0);
-              train.entity.addTag('voltage_0');
-            }else if(typeof perf != 'undefined' && typeof now_level == 'number' && now_level >= 0 && interval >= perf['TimeInterval']){
-              train.entity.setProperty('tcmb:battery_level', now_level - perf['use']);
-              train.entity.setProperty('tcmb:battery_no_op_interval', 0);
-            }
-          }
-        }
-
-        let level = train.entity.getProperty('tcmb:battery_level');
-        for(const body of train.body){
-          if(typeof now_level == 'number') body.setProperty(typeId+':battery_level', level);
+      if(train.entity.hasTag('voltage_1')){
+        let charge_perf = battery.performance.voltage_1.charge;
+        if((now_level + charge_perf) >= battery['capacity']){
+          train.entity.setProperty('tcmb:battery_level', battery['capacity']);
+        }else if(typeof charge_perf != 'undefined'){
+          train.entity.setProperty('tcmb:battery_level', now_level + charge_perf);
+          train.entity.removeTag('voltage_0');
         }
       }
+      else if(train.entity.hasTag('voltage_2')){
+        let charge_perf = trains_manifest.get(typeId)['battery']['performance']['voltage_2']['charge'];
+        if((now_level + charge_perf) >= battery['capacity']){
+            train.entity.setProperty('tcmb:battery_level', battery['capacity']);
+        }else if(typeof charge_perf != 'undefined'){
+            train.entity.setProperty('tcmb:battery_level', now_level + charge_perf);
+            train.entity.removeTag('voltage_0');
+        }
+      }
+      else if(train.entity.hasTag('voltage_b')){
+        let perf: object = trains_manifest.get(typeId)['battery']['performance']['no_operation'];
+        let interval = train.entity.getProperty('tcmb:battery_no_op_interval');
+        if(typeof interval == 'number'){
+          interval++;
+          train.entity.setProperty('tcmb:battery_no_op_interval', interval);
+
+          if(typeof now_level == 'number' && (now_level - perf['use']) <= 0){
+            train.entity.setProperty('tcmb:battery_level', 0);
+            train.entity.setProperty('tcmb:battery_no_op_interval', 0);
+            train.entity.addTag('voltage_0');
+          }else if(typeof perf != 'undefined' && typeof now_level == 'number' && now_level >= 0 && interval >= perf['TimeInterval']){
+            train.entity.setProperty('tcmb:battery_level', now_level - perf['use']);
+            train.entity.setProperty('tcmb:battery_no_op_interval', 0);
+          }
+        }
+      }
+
+      let level = train.entity.getProperty('tcmb:battery_level');
+      for(const body of train.body){
+        if(typeof now_level == 'number') body.setProperty(typeId+':battery_level', level);
+      }
+    }
   }
 }, 20);
 
 //auto speed down
 system.runInterval(()=>{
   if(config.auto_speed_down == true){
-      for(const [entityId, train] of tcmb_trains){
-        if(!train.entity.isValid()) continue;
-        if(train.entity.hasTag('n') && !train.entity.hasTag('tasc_on') && !train.entity.hasTag('tc_child')){
-          train.entity.runCommandAsync('scriptevent tcmb_minecart_engine:speed down');
-        }
+    for(const [entityId, train] of tcmb_trains){
+      if(!train.entity.isValid()) continue;
+      if(train.entity.hasTag('n') && !train.entity.hasTag('tasc_on') && !train.entity.hasTag('tc_child')){
+        train.entity.runCommandAsync('scriptevent tcmb_minecart_engine:speed down');
       }
+    }
   }
 }, 120);
 
